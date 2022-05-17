@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2022-05-17 12:50:47 by Eclipse SUMO GUI Version 1.12.0
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+
+    <input>
+        <net-file value="pasto_network.net.xml"/>
+        <route-files value="full_routes.rou.xml"/>
+    </input>
+
+    <output>
+        <emission-output value="emissions.xml"/>
+    </output>
+
+    <time>
+        <begin value="0"/>
+        <end value="2000"/>
+    </time>
+
+    <traci_server>
+        <remote-port value="61745"/>
+    </traci_server>
+
+    <gui_only>
+        <start value="true"/>
+    </gui_only>
+
+</configuration>
+-->
+
+<emission-export xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/emission_file.xsd">
+    <timestep time="0.00">
+        <vehicle id="1" eclass="HBEFA3/PC_G_EU6" CO2="2298.06" CO="112.58" HC="0.56" NOx="0.96" PMx="0.09" fuel="0.99" electricity="0.00" noise="55.94" route="route1_1" type="TAXI_3" waiting="0.00" lane="-91859786#0_0" pos="0.00" speed="0.00" angle="135.20" x="4535.05" y="6336.18"/>
+        <vehicle id="2" eclass="HBEFA3/PC_G_EU6" CO2="2298.06" CO="112.58" HC="0.56" NOx="0.96" PMx="0.09" fuel="0.99" electricity="0.00" noise="55.94" route="route2_1" type="TAXI_3" waiting="0.00" lane="932018780#8_0" pos="0.00" speed="0.00" angle="154.59" x="5223.19" y="4845.82"/>
+    </timestep>
+</emission-export>
