@@ -26,6 +26,10 @@ total_NOx = []
 total_Fuel = []
 total_Noise = []
 
+total_data = []
+
+steeps = 3
+
 def getData_vehicle(vehicle):
     speed = traci.vehicle.getSpeed(vehicle)
     CO2Emission = traci.vehicle.getCO2Emission(vehicle)
@@ -40,29 +44,47 @@ def getData_vehicle(vehicle):
 
     return dataEmissions
 
-while(j<6):
+while(j < steeps):
     traci.simulationStep();
     
     vehicles = traci.vehicle.getIDList();
     for i in range(0,len(vehicles)): 
 
         traci.vehicle.setSpeedMode(vehicles[i],0)
-        
-        speed = traci.vehicle.getSpeed(vehicles[i])
-        
-        total_speed.append(speed)
-
-
+        data_vehicle = getData_vehicle(vehicles[i])
+        total_data.append(data_vehicle)
     j = j+1
 
-print(total_speed)
-for j in range(0,len(vehicles)):
-    s = []
-    # print(len(total_speed))
-    # print(len(vehicles))
-    for i in range(0, len( total_speed), len(vehicles)):
-        s.append(total_speed[i])
-    data = {"ID_%d"%j+1 : s}
+total_data = np.array(total_data)
+
+for k in range(0,len(vehicles)):
+    speed = []
+    CO2 = []
+    CO = []
+    HC = []
+    PMx = []
+    NOx = []
+    Fuel = []
+    Noise = []
+    for i in range(k, np.shape(total_data)[0],len(vehicles)):
+        speed.append(total_data[i,0])
+        CO2.append(total_data[i,1])
+        CO.append(total_data[i,2])
+        HC.append(total_data[i,3])
+        PMx.append(total_data[i,4])
+        NOx.append(total_data[i,5])
+        Fuel.append(total_data[i,6])
+        Noise.append(total_data[i,7])
+
+    data = {"speed_%d"%k : speed, 
+            "CO2Emission_%d"%k : CO2, 
+            "COEmission_%d"%k : CO, 
+            "HCEmission_%d"%k : HC, 
+            "PMxEmission_%d"%k : PMx,
+            "NOxEmission_%d"%k : NOx,
+            "FuelConsumption_%d"%k : Fuel,
+            "NoiseEmission_%d"%k : Noise}
+
     print(data)
 
 traci.close()

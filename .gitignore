@@ -1,3 +1,4 @@
 *.txt
+emissions.xml
 __pycache__
 report.log
