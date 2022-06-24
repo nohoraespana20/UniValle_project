@@ -2,11 +2,11 @@
 
 <input>
 <net-file value="pasto_network.net.xml"/>
-<route-files value="full_routes.rou.xml"/>
+<route-files value="route3.rou.xml"/>
 </input>
 
 <output>
-<emission-output value="emissions.xml"/>
+<emission-output value="emissions3.xml"/>
 </output>
 
 <time>

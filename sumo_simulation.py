@@ -1,14 +1,15 @@
-def initialize():   
+def initialize(file_config):  
+    print(file_config) 
     if 'SUMO_HOME' in os.environ:
         tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
         sys.path.append(tools)
     else:   
         sys.exit("please declare environment variable 'SUMO_HOME'")
-    sumoCmd = ["sumo-gui", "-c", "pasto_config.sumocfg", "--start"]
-    traci.start(sumoCmd) # traci.gui.setSchema("View #0", "real world")
+    sumoCmd = ["sumo-gui", "-c", file_config, "--start", "--quit-on-end"]
+    traci.start(sumoCmd)
     print("Starting SUMO")
     
-def getDataPerVehicle(vehicle):
+def getDataEmissions(vehicle):
     speed = traci.vehicle.getSpeed(vehicle)
     CO2Emission = traci.vehicle.getCO2Emission(vehicle)
     COEmission = traci.vehicle.getCOEmission(vehicle)
@@ -22,61 +23,66 @@ def getDataPerVehicle(vehicle):
 
     return dataEmissions
 
-def getDataForVehicles(vehicles, data):
-    totalDataAllVehicles = []
-    for k in range(0,len(vehicles)):
-        print('k = ', k)
-        speed, CO2, CO, HC, PMx, NOx, Fuel, Noise = [], [], [], [], [], [], [], []
+def getDataPerVehicle(vehicles):
+    global vehicle
 
-        for i in range(k, np.shape(data)[0],len(vehicles)):
-            speed.append(data[i,0])
-            CO2.append(data[i,1])
-            CO.append(data[i,2])
-            HC.append(data[i,3])
-            PMx.append(data[i,4])
-            NOx.append(data[i,5])
-            Fuel.append(data[i,6])
-            Noise.append(data[i,7])
+    if not vehicles:
+        print("Vehicles is empty")
+    else:
+        data = getDataEmissions(vehicles[0])
+        speed.append(data[0])
+        CO2Emission.append(data[1])
+        COEmission.append(data[2])
+        HCEmission.append(data[3])
+        PMxEmission.append(data[4])
+        NOxEmission.append(data[5])
+        FuelConsumption.append(data[6])
+        NoiseEmission.append(data[7])
+                
+        vehicle = { 'speed': speed,
+                    'CO2Emission': CO2Emission,
+                    'COEmission': COEmission,
+                    'HCEmission': HCEmission,
+                    'PMxEmission': PMxEmission,
+                    'NOxEmission': NOxEmission,
+                    'FuelConsumption': FuelConsumption,
+                    'NoiseEmission': NoiseEmission,
+                }
+            
+    if not vehicle:
+        print("Data vehicle is empty")
+    else:
+        return vehicle
 
-        totalData= {"speed_%d"%k : speed, 
-                "CO2Emission_%d"%k : CO2, 
-                "COEmission_%d"%k : CO, 
-                "HCEmission_%d"%k : HC, 
-                "PMxEmission_%d"%k : PMx,
-                "NOxEmission_%d"%k : NOx,
-                "FuelConsumption_%d"%k : Fuel,
-                "NoiseEmission_%d"%k : Noise}
+def saveDataVehicle(file_config):
+    j = 0;
+    global speed, CO2Emission, COEmission, HCEmission, PMxEmission, NOxEmission, FuelConsumption, NoiseEmission 
+    speed, CO2Emission, COEmission, HCEmission, PMxEmission, NOxEmission, FuelConsumption, NoiseEmission = [], [], [], [], [], [], [], []
+    initialize(file_config)
+    x = file_config.split("/", 3)[2].split(".",2)[0]
 
-        totalDataAllVehicles.append(totalData)
-    return totalDataAllVehicles
+    while traci.simulation.getMinExpectedNumber() > 0:
+        traci.simulationStep();
+        vehicles = traci.vehicle.getIDList();
+        for i in range(len(vehicles)):
+            traci.vehicle.setSpeedMode(vehicles[i],0)
+        vehicleData = getDataPerVehicle(vehicles)
+        j = j+1
 
+    with open('results/data_%s.json'%x, 'w') as file:
+            json.dump(vehicleData, file, indent=4)
+    traci.close()
 
 if __name__ == '__main__':
     import os, sys
-    import numpy as np
     import traci
     import traci.constants
+    import json
+    
+    route1_paths = ['config_files/route1/config1_1.sumocfg', 'config_files/route1/config1_2.sumocfg', 
+                    'config_files/route1/config1_3.sumocfg', 'config_files/route1/config1_4.sumocfg', 
+                    'config_files/route1/config1_5.sumocfg']
 
-    j = 0;
-    dataAllVehicle = []
-    steeps = 3
+    for i in route1_paths:
 
-    initialize()
-
-    while(j < steeps):
-        traci.simulationStep();
-        vehicles = traci.vehicle.getIDList();
-        for i in range(0,len(vehicles)): 
-            traci.vehicle.setSpeedMode(vehicles[i],0)
-            dataPerVehicle = getDataPerVehicle(vehicles[i])
-            dataAllVehicle.append(dataPerVehicle)
-        j = j+1
-
-    dataAllVehicle = np.array(dataAllVehicle)
-
-    totalData = getDataForVehicles(vehicles, dataAllVehicle)
-    print(totalData)
-    # TODO: include all routes at the simulation
-    # TODO: funtion to plot data comparation between the vehicles
-    # TODO: repeat the simulations for all EURO types
-    traci.close()
+        saveDataVehicle(i)
