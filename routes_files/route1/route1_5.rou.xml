@@ -50,10 +50,7 @@
 	<stop	lane="79091803#3_0"  endPos="-2"	duration="10.5"	/>
 	<stop	lane="76503806#2_0"  endPos="-2"	duration="10.5"	/>
 	<stop	lane="76503806#3_0"  endPos="-2"	duration="10.5"	/>
-	<stop	lane="48398801#14_0" endPos="-2"	duration="20.5"	/>
-	<stop	lane="375276833#0_0" endPos="-2"	duration="20.5"	/>
-	<stop	lane="375276833#1_0" endPos="-2"	duration="20.5"	/>
-	<stop	lane="375276833#2_0" endPos="-2"	duration="20.5"	/> 
+	
 </vehicle>
 
 </routes>

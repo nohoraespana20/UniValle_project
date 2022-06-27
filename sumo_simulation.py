@@ -1,5 +1,5 @@
 def initialize(file_config):  
-    print(file_config) 
+    print(file_config)
     if 'SUMO_HOME' in os.environ:
         tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
         sys.path.append(tools)
@@ -60,7 +60,7 @@ def saveDataVehicle(file_config):
     speed, CO2Emission, COEmission, HCEmission, PMxEmission, NOxEmission, FuelConsumption, NoiseEmission = [], [], [], [], [], [], [], []
     initialize(file_config)
     x = file_config.split("/", 3)[2].split(".",2)[0]
-
+    print(x)
     while traci.simulation.getMinExpectedNumber() > 0:
         traci.simulationStep();
         vehicles = traci.vehicle.getIDList();
@@ -69,7 +69,7 @@ def saveDataVehicle(file_config):
         vehicleData = getDataPerVehicle(vehicles)
         j = j+1
 
-    with open('results/data_%s.json'%x, 'w') as file:
+    with open('results1/data_%s.json'%x, 'w') as file:
             json.dump(vehicleData, file, indent=4)
     traci.close()
 
@@ -83,6 +83,28 @@ if __name__ == '__main__':
                     'config_files/route1/config1_3.sumocfg', 'config_files/route1/config1_4.sumocfg', 
                     'config_files/route1/config1_5.sumocfg']
 
-    for i in route1_paths:
+    route2_paths = ['config_files/route2/config2_1.sumocfg', 'config_files/route2/config2_2.sumocfg', 
+                    'config_files/route2/config2_3.sumocfg', 'config_files/route2/config2_4.sumocfg', 
+                    'config_files/route2/config2_5.sumocfg']
+    
+    route3_paths = ['config_files/route3/config3_1.sumocfg', 'config_files/route3/config3_2.sumocfg', 
+                    'config_files/route3/config3_3.sumocfg', 'config_files/route3/config3_4.sumocfg', 
+                    'config_files/route3/config3_5.sumocfg']
+    
+    route4_paths = ['config_files/route4/config4_1.sumocfg', 'config_files/route4/config4_2.sumocfg', 
+                    'config_files/route4/config4_3.sumocfg', 'config_files/route4/config4_4.sumocfg', 
+                    'config_files/route4/config4_5.sumocfg']
 
-        saveDataVehicle(i)
+    route5_paths = ['config_files/route5/config5_1.sumocfg', 'config_files/route5/config5_2.sumocfg', 
+                    'config_files/route5/config5_3.sumocfg', 'config_files/route5/config5_4.sumocfg', 
+                    'config_files/route5/config5_5.sumocfg']
+
+    route6_paths = ['config_files/route6/config6_1.sumocfg', 'config_files/route6/config6_2.sumocfg', 
+                    'config_files/route6/config6_3.sumocfg', 'config_files/route6/config6_4.sumocfg', 
+                    'config_files/route6/config6_5.sumocfg']
+
+    routesPaths = [route1_paths, route2_paths, route3_paths, route4_paths, route5_paths, route6_paths]
+
+    for k in routesPaths:
+        for i in k:
+            saveDataVehicle(i)

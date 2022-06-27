@@ -1,0 +1,14 @@
+<configuration>
+
+<input>
+<net-file value="../../pasto_network.net.xml"/>
+<route-files value="../../routes_files2/route5/route5_2.rou.xml"/>
+</input>
+
+
+<time>
+<begin value="0"/>
+<end value="2000"/>
+</time>
+
+</configuration>
