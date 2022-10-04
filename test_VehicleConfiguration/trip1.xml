@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2022-08-18 11:00:20 by Eclipse SUMO GUI Version 1.13.0
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+
+    <input>
+        <net-file value="C:\Users\noluc\OneDrive\Escritorio\test_VehicleConfiguration\pasto_network.net.xml"/>
+        <route-files value="C:\Users\noluc\OneDrive\Escritorio\test_VehicleConfiguration\route1_1.rou.xml"/>
+    </input>
+
+    <output>
+        <netstate-dump value="C:\Users\noluc\OneDrive\Escritorio\test_VehicleConfiguration\netinfos.xml"/>
+        <emission-output value="C:\Users\noluc\OneDrive\Escritorio\test_VehicleConfiguration\emissions.xml"/>
+        <tripinfo-output value="C:\Users\noluc\OneDrive\Escritorio\test_VehicleConfiguration\tripinfos.xml"/>
+    </output>
+
+    <time>
+        <begin value="0"/>
+        <end value="2000"/>
+    </time>
+
+</configuration>
+-->
+
+<tripinfos xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/tripinfo_file.xsd">
+    <tripinfo id="1" depart="0.00" departLane="88520171#1_0" departPos="0.00" departSpeed="0.00" departDelay="0.00" arrival="302.00" arrivalLane="91859797_0" arrivalPos="13.30" arrivalSpeed="7.86" duration="302.00" routeLength="2348.99" waitingTime="0.00" waitingCount="0" stopTime="0.00" timeLoss="19.18" rerouteNo="0" devices="tripinfo_1 emissions_1" vType="TAXI_3" speedFactor="1.06" vaporized="">
+        <emissions CO_abs="11192.074256" CO2_abs="501258.653637" HC_abs="0" PMx_abs="48.881445" NOx_abs="630.982053" fuel_abs="215.567684" electricity_abs="0"/>
+    </tripinfo>
+</tripinfos>
