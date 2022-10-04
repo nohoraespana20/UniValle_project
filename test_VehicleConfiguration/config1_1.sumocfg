@@ -1,0 +1,15 @@
+<configuration>
+
+<input>
+<net-file value="pasto_network.net.xml"/>
+<route-files value="route1_1.rou.xml"/>
+</input>
+
+<output>
+<tripinfo-output value="tripinfos.xml"/>
+<emission-output value="emissions.xml"/>
+</output>
+
+
+
+</configuration>
