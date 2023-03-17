@@ -2,6 +2,5 @@
 *.xlsx
 __pycache__
 report.log
-*.json
 *.png
 *.bak

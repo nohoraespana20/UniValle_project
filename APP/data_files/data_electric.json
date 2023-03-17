@@ -1,0 +1,12 @@
+{
+    "Vehicle cost": 300.0,
+    "kWh cost": 1.0,
+    "kWh raise": 0.1,
+    "Maintenance cost": 1.75,
+    "SOAT cost": 0.9,
+    "Other cost": 0.7,
+    "Insurance raise": 0.5,
+    "Daily consumption": 1.0,
+    "Daily distance": 12.0,
+    "Batery capacity [kWh]": 56.0
+}
