@@ -51,11 +51,11 @@ def plotData(data1, data2, name_file):
         if name_file=='Fuel':
             plt.suptitle('%s Consumption [gl]'%name_file)
             plt.legend(['Rush hour', 'Peak off hour'])
-            plt.savefig('figures/%s Consumption.png'%name_file, dpi=fig.dpi)
+            plt.savefig('figures/%s Consumption.png'%name_file, dpi=fig.dpi, transparent=True)
         else:
             plt.suptitle('%s Emissions [g]'%name_file)
             plt.legend(['Rush hour', 'Peak off hour'])
-            plt.savefig('figures/%s Emissions.png'%name_file, dpi=fig.dpi)
+            plt.savefig('figures/%s Emissions.png'%name_file, dpi=fig.dpi, transparent=True)
 
 
 if __name__ == '__main__':

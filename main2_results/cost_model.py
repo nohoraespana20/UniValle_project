@@ -1,8 +1,8 @@
 import numpy as np
 import json
 
-distanceTravel = [7.2, 7.0, 4.0] # distancias por tipo de carrera en km
-timeTravel = [20.0, 18.0, 14.0] # tiempo usado por tipo de carrera en minutos
+distanceTravel = [6.6, 5.3, 3.2] # distancias por tipo de carrera en km
+timeTravel = [23.0, 17.0, 13.0] # tiempo usado por tipo de carrera en minutos
 costFuel = 7917 # costo de un galon de gasolina en pesos
 costOperative = 26241.4 # costo operativo diario en pesos
 
