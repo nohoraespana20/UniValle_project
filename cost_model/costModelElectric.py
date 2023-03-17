@@ -122,11 +122,37 @@ def totalAnnualCostTrips(VACATIONS):
             totalCostCOP.append(round((businessDays + holidays) * (tripsWeekPerType[l] + tripsWeekendPerType[l]) * Ctco[l][l])*4998)
         return totalCostUSD, totalCostCOP
 
+def meanFuelPerKM():
+    file = 'figures\kWh_mean.json'
+    with open(file) as file:
+        fuelConsumption = json.load(file)
+    fuel = []
+    for i in range(2):
+        for j in range(6):
+            fuel.append(fuelConsumption[i][j][0]) 
+    fuel = np.reshape(fuel,(2,6))
+    fuelPerTypePeak = [np.mean(fuel[0][0:2]), np.mean(fuel[0][2:4]), np.mean(fuel[0][4:])]
+    fuelPerTypePeakOff = [np.mean(fuel[1][0:2]), np.mean(fuel[1][2:4]), np.mean(fuel[1][4:])]
+    
+    #Distance data from results of emissions simulation
+    distances = [(4022.095899057417+2415.0392316822504)/2000, (6938.748453744248+3465.652911930644)/2000, (5978.676979676662+7116.311075331374)/2000]
+    fuelPerKMPeak = []
+    fuelPerKMPeakOff = []
+    for i in range(len(distances)):
+        fuelPerKMPeak.append(fuelPerTypePeak[i]/distances[i])
+        fuelPerKMPeakOff.append(fuelPerTypePeakOff[i]/distances[i])
+    
+    meanFuelPerKMPeak = np.mean(fuelPerKMPeak)
+    meanFuelPerKMPeakOff = np.mean(fuelPerKMPeakOff)
+
+    return meanFuelPerKMPeak, meanFuelPerKMPeakOff
+
 if __name__ == '__main__':
 
     import numpy as np
     import json
 
+    
     #####################################################################################
     ####### MODELO DE COSTO - TRANSPORTE PUBLICO INDIVIDUAL - MOTOR DE COMBUSTIÓN #######
     #####################################################################################
@@ -145,14 +171,20 @@ if __name__ == '__main__':
 
     ### PARÁMETROS - ECUACIÓN MODELO DE COSTO - Entregable 2.1.5 Tabla 5 ###
     # Costos en dólares - Tasa de cambio 1USD = 4997.9 COP - 3/11/2022
-    Cd = 2401.01
-    Ctx = 84.17
-    Cti = 194.88
-    Cr = 1446.22
+    USD = 4997.9
+    costkWh = 641.73 / USD
+  
+    CenPeak =  meanFuelPerKM()[0] * costkWh
+    CenPeakOff =  meanFuelPerKM()[1] * costkWh
+
+    Cd = 145000000 / (5 * USD)
+    Ctx = 84.17 * 0.4
+    Cti = 194.88 
+    Cr = 1446.22 * 0.6 # 60% costo mantenimiento vehículo convencional
     Ci = 250.2
-    Cc = 730.31
+    Cc = 620.50
     Cp = 167.07
-    Cen = 0.05
+    Cen = (CenPeak + CenPeakOff) / 2
     Dt = [3.2, 5.3, 6.6]
     Da = [46800, 54600, 62400]
 
@@ -165,7 +197,7 @@ if __name__ == '__main__':
     Ctco = np.reshape(Ctco, (3,3))
 
     ### DEFINICIÓN DE PRECIO, COSTO DE VIAJES Y GANANCIA NETA ###
-    VACATIONS = True
+    VACATIONS = False
     HOLIDAYS = True
 
     print('Price COP')
