@@ -9,6 +9,7 @@ from matplotlib.figure import Figure
 import json
 from os import remove
 import numpy as np
+import matplotlib.pyplot as plt
 
 class ConventionalV(ttk.Frame):
 
@@ -17,7 +18,7 @@ class ConventionalV(ttk.Frame):
 
         self.fields = ('Vehicle cost', 'Galon fuel cost', 'Fuel yearly raise [%]',
                        'Maintenance annual cost', 'Soat annual cost',
-                       'Other annual cost', 'Insurances yearly raise [%]',
+                       'Other insurances', 'Insurances yearly raise [%]',
                        'Daily consumption [gl]', 'Daily distance [km]', 'Repairs per year'
                        )
         self.entries = {}
@@ -41,7 +42,7 @@ class ConventionalV(ttk.Frame):
         fuel_raise = float(self.entries['Fuel yearly raise [%]'].get())
         maintenance_cost = float(self.entries['Maintenance annual cost'].get())
         soat_cost = float(self.entries['Soat annual cost'].get())
-        other_cost = float(self.entries['Other annual cost'].get())
+        other_cost = float(self.entries['Other insurances'].get())
         insurance_raise = float(self.entries['Insurances yearly raise [%]'].get())
         daily_consumption = float(self.entries['Daily consumption [gl]'].get())
         daily_distance = float(self.entries['Daily distance [km]'].get())
@@ -51,7 +52,7 @@ class ConventionalV(ttk.Frame):
         #                     'Fuel raise': fuel_raise,
         #                     'Maintenance cost': maintenance_cost,
         #                     'SOAT cost': soat_cost,
-        #                     'Other cost': other_cost,
+        #                     'Other insurances': other_cost,
         #                     'Insurance raise': insurance_raise,
         #                     'Daily consumption': daily_consumption,
         #                     'Daily distance' : daily_distance
@@ -61,7 +62,7 @@ class ConventionalV(ttk.Frame):
                             'Fuel raise': 7,
                             'Maintenance cost': 7000000,
                             'SOAT cost': 300000,
-                            'Other cost': 260000,
+                            'Other insurances': 500000,
                             'Insurance raise': 10,
                             'Daily consumption': 5,
                             'Daily distance' : 150,
@@ -167,7 +168,7 @@ class ElectricV(ttk.Frame):
                 data = json.load(file)
         maintenance_cost = data['Maintenance cost']*0.35
         soat_cost =   data['SOAT cost']*0.9
-        other_cost = data['Other cost']*0.7
+        other_cost = data['Other insurances']*0.9
         insurance_raise = data['Insurance raise']
         daily_distance = data['Daily distance']
         repairs = data['Repairs per year']*0.9
@@ -184,7 +185,7 @@ class ElectricV(ttk.Frame):
         #                     'kWh raise': kWh_raise,
         #                     'Maintenance cost': maintenance_cost,
         #                     'SOAT cost': soat_cost,
-        #                     'Other cost': other_cost,
+        #                     'Other insurances': other_cost,
         #                     'Insurance raise': insurance_raise,
         #                     'Daily consumption': daily_consumption,
         #                     'Daily distance' : daily_distance,
@@ -197,7 +198,7 @@ class ElectricV(ttk.Frame):
                             'kWh raise': 6,
                             'Maintenance cost': maintenance_cost,
                             'SOAT cost': soat_cost,
-                            'Other cost': other_cost,
+                            'Other insurances': other_cost,
                             'Insurance raise': insurance_raise,
                             'Daily consumption': 4,
                             'Daily distance' : daily_distance,
@@ -277,10 +278,14 @@ class Comparison(ttk.Frame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.greet_button = ttk.Button(self, text= "Graph", command=self.create_figure)
+        self.greet_button = ttk.Button(self, text= "Graph", command=self.show_figures)
         self.greet_button.pack()
         self.greet_label = ttk.Label(self)
         self.greet_label.pack()
+
+    def show_figures(self):
+        self.create_figure_accumulated()
+        self.create_figure_annual()
 
     def get_data_combustion(self):
         file = 'data_files/data_combustion.json'
@@ -295,7 +300,7 @@ class Comparison(ttk.Frame):
         yearlyRaise_others = 0.1
         soat = data_combustion['SOAT cost']
         tax = initialCost * 0.01
-        other = data_combustion['Other cost']
+        other = data_combustion['Other insurances']
         others = soat + tax
 
         #Costo energético promedio por kilómetro - combustion
@@ -319,7 +324,7 @@ class Comparison(ttk.Frame):
         yearlyRaise_batery = -0.0967
         soat = data_electric['SOAT cost']
         tax = initialCost * 0.01 * 0.4
-        other = data_electric['Other cost']
+        other = data_electric['Other insurances']
         others = soat + tax
         batery_capacity = data_electric['Batery capacity [kWh]']
 
@@ -342,7 +347,7 @@ class Comparison(ttk.Frame):
         return currency, year, annual_distance, ipc
 
 
-    def create_figure(self):
+    def create_figure_accumulated(self):
         currency, year, annual_distance, ipc = self.get_data_config()
         initialCost_C, yearlyRaise_C, yearlyRaise_others, Cen_C, costMaintenance_C, others_C, other_C = self.get_data_combustion()
         initialCost_E, yearlyRaise_E, yearlyRaise_batery, Cen_E, costMaintenance_E, others_E, other_E, batery_capacity = self.get_data_electric()
@@ -363,6 +368,33 @@ class Comparison(ttk.Frame):
         canvas = FigureCanvasTkAgg(fig, self)
         canvas.get_tk_widget().pack()
         canvas.draw()
+    
+    def create_figure_annual(self):
+        currency, year, annual_distance, ipc = self.get_data_config()
+        initialCost_C, yearlyRaise_C, yearlyRaise_others, Cen_C, costMaintenance_C, others_C, other_C = self.get_data_combustion()
+        initialCost_E, yearlyRaise_E, yearlyRaise_batery, Cen_E, costMaintenance_E, others_E, other_E, batery_capacity = self.get_data_electric()
+
+        total_combustion, total_electric, j = FC.accumulatedCost2(initialCost_C, yearlyRaise_C, Cen_C, costMaintenance_C, others_C, other_C, yearlyRaise_others,
+                     initialCost_E, yearlyRaise_E, yearlyRaise_batery, Cen_E, costMaintenance_E, others_E, other_E, batery_capacity,
+                     currency, year, ipc, annual_distance )
+
+        years = [*range(0, j+1, 1)]
+        conventional = total_combustion
+        electric = total_electric
+        width = 0.35 
+        fig = plt.subplots(figsize =(10, 7))
+        p1 = plt.bar(years, conventional, width, )
+        p2 = plt.bar(years, electric, width,
+                    bottom = conventional)
+        
+        plt.ylabel('Costo [millones COP]')
+        plt.title('Annual cost')
+        plt.xticks(np.arange(0,years[-1],1))
+        plt.legend((p1[0], p2[0]), ('conventional', 'electric'))
+
+        plt.show()
+        
+
 
 
 class Application(ttk.Frame):
