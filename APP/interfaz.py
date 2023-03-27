@@ -18,7 +18,7 @@ class ConventionalV(ttk.Frame):
         self.fields = ('Vehicle cost', 'Galon fuel cost', 'Fuel yearly raise [%]',
                        'Maintenance annual cost', 'Soat annual cost',
                        'Other annual cost', 'Insurances yearly raise [%]',
-                       'Daily consumption [gl]', 'Daily distance [km]'
+                       'Daily consumption [gl]', 'Daily distance [km]', 'Repairs per year'
                        )
         self.entries = {}
         for field in self.fields:
@@ -45,26 +45,28 @@ class ConventionalV(ttk.Frame):
         insurance_raise = float(self.entries['Insurances yearly raise [%]'].get())
         daily_consumption = float(self.entries['Daily consumption [gl]'].get())
         daily_distance = float(self.entries['Daily distance [km]'].get())
-        data_combustion = { 'Vehicle cost': vehicle_cost,
-                            'Galon cost': galon_cost,
-                            'Fuel raise': fuel_raise,
-                            'Maintenance cost': maintenance_cost,
-                            'SOAT cost': soat_cost,
-                            'Other cost': other_cost,
-                            'Insurance raise': insurance_raise,
-                            'Daily consumption': daily_consumption,
-                            'Daily distance' : daily_distance
-                        }
-        # data_combustion = { 'Vehicle cost': 65000000,
-        #                     'Galon cost': 8932,
-        #                     'Fuel raise': 7,
-        #                     'Maintenance cost': 7000000,
-        #                     'SOAT cost': 300000,
-        #                     'Other cost': 260000,
-        #                     'Insurance raise': 10,
-        #                     'Daily consumption': 5,
-        #                     'Daily distance' : 150
+        repairs = int(self.entries['Repairs per year'].get())
+        # data_combustion = { 'Vehicle cost': vehicle_cost,
+        #                     'Galon cost': galon_cost,
+        #                     'Fuel raise': fuel_raise,
+        #                     'Maintenance cost': maintenance_cost,
+        #                     'SOAT cost': soat_cost,
+        #                     'Other cost': other_cost,
+        #                     'Insurance raise': insurance_raise,
+        #                     'Daily consumption': daily_consumption,
+        #                     'Daily distance' : daily_distance
         #                 }
+        data_combustion = { 'Vehicle cost': 65000000,
+                            'Galon cost': 8932,
+                            'Fuel raise': 7,
+                            'Maintenance cost': 7000000,
+                            'SOAT cost': 300000,
+                            'Other cost': 260000,
+                            'Insurance raise': 10,
+                            'Daily consumption': 5,
+                            'Daily distance' : 150,
+                            'Repairs per year' : 2
+                        }
         with open('data_files/data_combustion.json', 'w') as file:
             json.dump(data_combustion, file, indent=4)
 
@@ -81,10 +83,13 @@ class ConventionalV(ttk.Frame):
         icr = (gl_100km/100) * data['Galon cost']
         co2_km = self.emissions()
         tco = self.cost_equation()
+        availability = (365 - (data['Repairs per year'] * 5) - 6) * 100 / 365
+
         self.greet_label["text"] = "\ngl/100km = {} ".format(round(gl_100km,3)) + \
                                    "\n\nICR = {} $/km".format(round(icr,3)) + \
                                    "\n\nTon CO2/km = {}".format(round(co2_km,4)) + \
-                                   "\n\nTCO = {} $/km".format(round(tco,2))
+                                   "\n\nTCO = {} $/km".format(round(tco,2)) + \
+                                   "\n\n Availability factor = {} %".format(round(availability,1))
 
     def emissions(self):
         distances = [(4022.095899057417+2415.0392316822504)/2000,
@@ -138,7 +143,7 @@ class ElectricV(ttk.Frame):
         super().__init__(*args, **kwargs)
 
         self.fields = ('Vehicle cost', 'kWh cost', 'kWh yearly raise [%]',
-                       'Daily consumption [kWh]', 'Daily distance [km]',
+                       'Daily consumption [kWh]',
                        'Batery capacity [kWh]'
                        )
         self.entries = {}
@@ -164,36 +169,41 @@ class ElectricV(ttk.Frame):
         soat_cost =   data['SOAT cost']*0.9
         other_cost = data['Other cost']*0.7
         insurance_raise = data['Insurance raise']
+        daily_distance = data['Daily distance']
+        repairs = data['Repairs per year']*0.9
 
         vehicle_cost = float(self.entries['Vehicle cost'].get())
         kWh_cost = float(self.entries['kWh cost'].get())
         kWh_raise = float(self.entries['kWh yearly raise [%]'].get())
         daily_consumption = float(self.entries['Daily consumption [kWh]'].get())
-        daily_distance = float(self.entries['Daily distance [km]'].get())
         batery_capacity = float(self.entries['Batery capacity [kWh]'].get())
 
-        data_electric = { 'Vehicle cost': vehicle_cost,
-                            'kWh cost': kWh_cost,
-                            'kWh raise': kWh_raise,
-                            'Maintenance cost': maintenance_cost,
-                            'SOAT cost': soat_cost,
-                            'Other cost': other_cost,
-                            'Insurance raise': insurance_raise,
-                            'Daily consumption': daily_consumption,
-                            'Daily distance' : daily_distance,
-                            'Batery capacity [kWh]' : batery_capacity
-                        }
-        # data_electric = { 'Vehicle cost': 145000000,
-        #                     'kWh cost': 565,
-        #                     'kWh raise': 6,
+
+        # data_electric = { 'Vehicle cost': vehicle_cost,
+        #                     'kWh cost': kWh_cost,
+        #                     'kWh raise': kWh_raise,
         #                     'Maintenance cost': maintenance_cost,
         #                     'SOAT cost': soat_cost,
         #                     'Other cost': other_cost,
         #                     'Insurance raise': insurance_raise,
-        #                     'Daily consumption': 4,
-        #                     'Daily distance' : 150,
-        #                     'Batery capacity [kWh]' : 53
+        #                     'Daily consumption': daily_consumption,
+        #                     'Daily distance' : daily_distance,
+        #                     'Batery capacity [kWh]' : batery_capacity
+        #                     'Repairs per year' : repairs  
         #                 }
+
+        data_electric = { 'Vehicle cost': 145000000,
+                            'kWh cost': 565,
+                            'kWh raise': 6,
+                            'Maintenance cost': maintenance_cost,
+                            'SOAT cost': soat_cost,
+                            'Other cost': other_cost,
+                            'Insurance raise': insurance_raise,
+                            'Daily consumption': 4,
+                            'Daily distance' : daily_distance,
+                            'Batery capacity [kWh]' : 53,
+                            'Repairs per year' : repairs
+                        }
         with open('data_files/data_electric.json', 'w') as file:
             json.dump(data_electric, file, indent=4)
 
@@ -210,11 +220,13 @@ class ElectricV(ttk.Frame):
         icr = (kWh_100km/100) * data['kWh cost']
         co2_km = 0
         tco = self.cost_equation()
+        availability = (365 - (data['Repairs per year'] * 5) - 2.5) * 100 / 365
 
         self.greet_label["text"] = "\ngl/100km = {} ".format(round(kWh_100km,3)) + \
                                    "\n\nICR = {} $/km".format(round(icr,3)) + \
                                    "\n\nTon CO2/km = {}".format(round(co2_km,4)) + \
-                                   "\n\nTCO = $ {}".format(round(tco,2))
+                                   "\n\nTCO = $ {}".format(round(tco,2)) + \
+                                   "\n\n Availability factor = {} %".format(round(availability,1))
 
     def accumulated_electric_cost(self, yearlyRaise_others, initialCost_E, yearlyRaise_E, yearlyRaise_batery, Cen_E, 
                          Cm_E, othersE, otherE, batery_capacity, currency, year, IPC, Ec):
@@ -258,7 +270,7 @@ class ElectricV(ttk.Frame):
         initialCost, yearlyRaise,yearlyRaise_batery, Cen, costMaintenance, others, other, batery_capacity = Comparison.get_data_electric(self)
         total = self.accumulated_electric_cost(yearlyRaise_others, initialCost, yearlyRaise, yearlyRaise_batery, Cen, costMaintenance, others, other, batery_capacity, 
                      currency, year, ipc, annual_distance )
-        return total * currency / (annual_distance * 1.16 * year)
+        return total * currency / (annual_distance * year)
 
 
 class Comparison(ttk.Frame):

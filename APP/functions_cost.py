@@ -88,7 +88,7 @@ def accumulatedCost2(initialCost_C, yearlyRaise_C, Cen_C, Cm_C, othersC, otherC,
     othersE = otherE / currency
     otherE = otherE / currency
 
-    Ee = Ec * 1.16
+    Ee = Ec 
     totalC = []
     totalE = []
     totalC = [*range(0, year, 1)]
