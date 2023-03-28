@@ -10,6 +10,7 @@ import json
 from os import remove
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 
 class ConventionalV(ttk.Frame):
 
@@ -374,24 +375,20 @@ class Comparison(ttk.Frame):
         initialCost_C, yearlyRaise_C, yearlyRaise_others, Cen_C, costMaintenance_C, others_C, other_C = self.get_data_combustion()
         initialCost_E, yearlyRaise_E, yearlyRaise_batery, Cen_E, costMaintenance_E, others_E, other_E, batery_capacity = self.get_data_electric()
 
-        total_combustion, total_electric, j = FC.accumulatedCost2(initialCost_C, yearlyRaise_C, Cen_C, costMaintenance_C, others_C, other_C, yearlyRaise_others,
+        total_combustion, total_electric, j = FC.accumulatedPerYear(initialCost_C, yearlyRaise_C, Cen_C, costMaintenance_C, others_C, other_C, yearlyRaise_others,
                      initialCost_E, yearlyRaise_E, yearlyRaise_batery, Cen_E, costMaintenance_E, others_E, other_E, batery_capacity,
                      currency, year, ipc, annual_distance )
 
         years = [*range(0, j+1, 1)]
+        Y = [str(x) for x in years]
         conventional = total_combustion
         electric = total_electric
-        width = 0.35 
-        fig = plt.subplots(figsize =(10, 7))
-        p1 = plt.bar(years, conventional, width, )
-        p2 = plt.bar(years, electric, width,
-                    bottom = conventional)
-        
-        plt.ylabel('Costo [millones COP]')
-        plt.title('Annual cost')
-        plt.xticks(np.arange(0,years[-1],1))
-        plt.legend((p1[0], p2[0]), ('conventional', 'electric'))
 
+        df = pd.DataFrame({'Conventional': conventional, 'Electric': electric}, index=Y)
+        df.plot(kind = 'bar', figsize=(15,8))
+        
+        plt.suptitle('Annual cost')
+        plt.legend(['conventional', 'electric'])
         plt.show()
         
 

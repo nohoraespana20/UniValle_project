@@ -130,14 +130,60 @@ def accumulatedCost2(initialCost_C, yearlyRaise_C, Cen_C, Cm_C, othersC, otherC,
             otherE = otherE + (otherE * yearlyRaise_others)
     return totalC, totalE, i
 
-def saveFigure(totalC, totalE, i, E, name):
-    years = [*range(0, i+1, 1)]
-    plt.plot(years, totalC, label = "convencional")
-    plt.plot(years, totalE, label = "eléctrico")
-    plt.xlabel('Año')
-    plt.ylabel('Costo acumulado [millones COP]')
-    plt.title('%d km/año' %E )
-    plt.legend()
-    plt.grid()
-    plt.savefig('data_files/%s.png' %name)
-    plt.close()
+def accumulatedPerYear(initialCost_C, yearlyRaise_C, Cen_C, Cm_C, othersC, otherC, yearlyRaise_others,
+                     initialCost_E, yearlyRaise_E, yearlyRaise_batery, Cen_E, Cm_E, othersE, otherE, batery_capacity, 
+                     currency, year, IPC, Ec):
+    
+    initialCost_C =  initialCost_C / currency
+    Cm_C = Cm_C / currency 
+    Cen_C = Cen_C / currency
+    othersC = othersC / currency
+    otherC = otherC / currency
+
+    initialCost_E = initialCost_E / currency
+    Cen_E = Cen_E / currency
+    Cm_E = Cm_E / currency
+    othersE = otherE / currency
+    otherE = otherE / currency
+
+    Ee = Ec 
+    totalC = []
+    totalE = []
+    totalC = [*range(0, year, 1)]
+    totalE = [*range(0, year, 1)]
+    totalC[0] = initialCost_C
+    totalE[0] = initialCost_E
+    #capacidad bateria: 53.6 kWh # USD 156/kWh # tasa de cambio dolar 4997.9 # USD cambio a millones de pesos
+    bateryCost = batery_capacity * 156 * 4997.9 / currency 
+    for i in range(1,year,1):
+        Cen_C = Cen_C + (Cen_C * yearlyRaise_C)
+        Cen_E = Cen_E + (Cen_E * yearlyRaise_E)
+        Cm_C = Cm_C + (Cm_C * IPC)
+        Cm_E = Cm_E + (Cm_E * IPC)
+        bateryCost = bateryCost + (bateryCost * yearlyRaise_batery)
+        if i > 2:
+            combustionCost = (Ec * Cen_C)
+            electricCost = (Ee * Cen_E)
+            combustionMaintenance = Cm_C
+            electricMaintenance = Cm_E
+            totalC[i] = totalC[i] + combustionCost + combustionMaintenance + othersC + otherC
+            if i==8 or i==16 or i==24:
+                totalE[i] = totalE[i] + electricCost + electricMaintenance + othersE + otherE + bateryCost
+            else:
+                totalE[i] = totalE[i] + electricCost + electricMaintenance + othersE + otherE
+            othersC = othersC + (othersC * yearlyRaise_others)
+            othersE = othersE + (othersE * yearlyRaise_others)
+            otherC = otherC + (otherC * yearlyRaise_others)
+            otherE = otherE + (otherE * yearlyRaise_others)
+        else:
+            combustionCost = (Ec * Cen_C)
+            electricCost = (Ee * Cen_E)
+            combustionMaintenance = Cm_C
+            electricMaintenance = Cm_E
+            totalC[i] = totalC[i] + combustionCost + combustionMaintenance + othersC
+            totalE[i] = totalE[i] + electricCost + electricMaintenance + othersE
+            othersC = othersC + (othersC * yearlyRaise_others)
+            othersE = othersE + (othersE * yearlyRaise_others)
+            otherC = otherC + (otherC * yearlyRaise_others)
+            otherE = otherE + (otherE * yearlyRaise_others)
+    return totalC, totalE, i
