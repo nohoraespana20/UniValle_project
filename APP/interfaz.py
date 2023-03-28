@@ -389,6 +389,8 @@ class Comparison(ttk.Frame):
         
         plt.suptitle('Annual cost')
         plt.legend(['conventional', 'electric'])
+        plt.ylabel('Costo [millones COP]')
+        plt.xlabel('Año')
         plt.show()
         
 
