@@ -7,14 +7,15 @@ def meanFuelPerKM_C(file):
         fuelConsumption = json.load(file)
     fuel = []
     for i in range(2):
-        for j in range(6):
-            fuel.append(fuelConsumption[i][j][2]) # Solo EURO 4
-    fuel = np.reshape(fuel,(2,6))
-    fuelPerTypePeak = [np.mean(fuel[0][0:2]), np.mean(fuel[0][2:4]), np.mean(fuel[0][4:])]
-    fuelPerTypePeakOff = [np.mean(fuel[1][0:2]), np.mean(fuel[1][2:4]), np.mean(fuel[1][4:])]
+        for j in range(4):
+            fuel.append(fuelConsumption[i][j][1]) # Solo EURO 3
+
+    fuel = np.reshape(fuel,(2,4))
+    fuelPerTypePeakOff = fuel[0][0:]
+    fuelPerTypePeak = fuel[1][0:]
     
     #Distance data from results of emissions simulation
-    distances = [(4022.095899057417+2415.0392316822504)/2000, (6938.748453744248+3465.652911930644)/2000, (5978.676979676662+7116.311075331374)/2000]
+    distances = [24.5, 31.4, 25.0, 18.1] # C1, C16, E1, E2
     fuelPerKMPeak = []
     fuelPerKMPeakOff = []
     for i in range(len(distances)):
@@ -31,14 +32,14 @@ def meanFuelPerKM_E(file):
         fuelConsumption = json.load(file)
     fuel = []
     for i in range(2):
-        for j in range(6):
+        for j in range(4):
             fuel.append(fuelConsumption[i][j][0]) 
-    fuel = np.reshape(fuel,(2,6))
-    fuelPerTypePeak = [np.mean(fuel[0][0:2]), np.mean(fuel[0][2:4]), np.mean(fuel[0][4:])]
-    fuelPerTypePeakOff = [np.mean(fuel[1][0:2]), np.mean(fuel[1][2:4]), np.mean(fuel[1][4:])]
+    fuel = np.reshape(fuel,(2,4))
+    fuelPerTypePeakOff = fuel[0][0:]
+    fuelPerTypePeak = fuel[1][0:]
     
     #Distance data from results of emissions simulation
-    distances = [(4022.095899057417+2415.0392316822504)/2000, (6938.748453744248+3465.652911930644)/2000, (5978.676979676662+7116.311075331374)/2000]
+    distances = [24.5, 31.4, 25.0, 18.1] # C1, C16, E1, E2
     fuelPerKMPeak = []
     fuelPerKMPeakOff = []
     for i in range(len(distances)):
