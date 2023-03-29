@@ -83,26 +83,33 @@ class ConventionalV(ttk.Frame):
 
         gl_100km = 100 * (data['Daily consumption'] / data['Daily distance'])
         icr = (gl_100km/100) * data['Galon cost']
-        co2_km = self.emissions()
+        co2, co, nox, hc, pmx = self.emissions()
         tco = self.cost_equation()
         availability = (365 - (data['Repairs per year'] * 5) - 6) * 100 / 365
 
         self.greet_label["text"] = "\ngl/100km = {} ".format(round(gl_100km,3)) + \
                                    "\n\nICR = {} $/km".format(round(icr,3)) + \
-                                   "\n\nTon CO2/km = {}".format(round(co2_km,4)) + \
+                                   "\n\ngr CO2/km = {}".format(co2) + \
                                    "\n\nTCO = {} $/km".format(round(tco,2)) + \
                                    "\n\n Availability factor = {} %".format(round(availability,1))
 
-    def emissions(self):
+    def mean_emission(self, file):
         distances = [(4022.095899057417+2415.0392316822504)/2000,
                      (6938.748453744248+3465.652911930644)/2000,
                      (5978.676979676662+7116.311075331374)/2000]
-        file = 'data_files/CO2_mean.json'
         with open(file) as file:
-                co2 = json.load(file)
-        CO2 = [np.mean(co2[0][0:2])/1000000, np.mean(co2[0][2:4])/1000000, np.mean(co2[0][4:])/1000000]
-        co2_km = CO2[0]/distances[0]
-        return co2_km
+                data = json.load(file)
+        emission = [np.mean(data[0][0:2]), np.mean(data[0][2:4]), np.mean(data[0][4:])]
+        emission_km = round(np.mean([emission[0]/distances[0], emission[1]/distances[1], emission[2]/distances[2]]),2)
+        return emission_km
+
+    def emissions(self):
+        co2 = self.mean_emission('data_files/co2_mean.json')        
+        co = self.mean_emission('data_files/co_mean.json')        
+        nox = self.mean_emission('data_files/ENOx_mean.json')        
+        hc = self.mean_emission('data_files/HC_mean.json')        
+        pmx = self.mean_emission('data_files/PMx_mean.json')        
+        return co2, co, nox, hc, pmx
 
     def accumulated_conventional_cost(self, initialCost_C, yearlyRaise_C, Cen_C, Cm_C, othersC, 
                                       otherC, yearlyRaise_others, currency, year, IPC, Ec):
@@ -287,6 +294,7 @@ class Comparison(ttk.Frame):
     def show_figures(self):
         self.create_figure_accumulated()
         self.create_figure_annual()
+        self.create_figure_emissions()
 
     def get_data_combustion(self):
         file = 'data_files/data_combustion.json'
@@ -347,7 +355,24 @@ class Comparison(ttk.Frame):
         ipc = 0.0457
         return currency, year, annual_distance, ipc
 
+    def mean_emission(self, file):
+        distances = [(4022.095899057417+2415.0392316822504)/2000,
+                     (6938.748453744248+3465.652911930644)/2000,
+                     (5978.676979676662+7116.311075331374)/2000]
+        with open(file) as file:
+                data = json.load(file)
+        emission = [np.mean(data[0][0:2]), np.mean(data[0][2:4]), np.mean(data[0][4:])]
+        emission_km = round(np.mean([emission[0]/distances[0], emission[1]/distances[1], emission[2]/distances[2]]),2)
+        return emission_km
 
+    def emissions(self):
+        co2 = self.mean_emission('data_files/co2_mean.json')        
+        co = self.mean_emission('data_files/co_mean.json')        
+        nox = self.mean_emission('data_files/ENOx_mean.json')        
+        hc = self.mean_emission('data_files/HC_mean.json')        
+        pmx = self.mean_emission('data_files/PMx_mean.json')        
+        return co2, co, nox, hc, pmx
+    
     def create_figure_accumulated(self):
         currency, year, annual_distance, ipc = self.get_data_config()
         initialCost_C, yearlyRaise_C, yearlyRaise_others, Cen_C, costMaintenance_C, others_C, other_C = self.get_data_combustion()
@@ -360,12 +385,12 @@ class Comparison(ttk.Frame):
         years = [*range(0, j+1, 1)]
         fig = Figure(figsize=(5,5))
         a = fig.add_subplot(111)
-        a.plot(years, total_combustion, label = "convencional")
-        a.plot(years, total_electric, label = "eléctrico")
+        a.plot(years, total_combustion, label = "conventional")
+        a.plot(years, total_electric, label = "electric")
         a.grid()
         a.set_title ('%d km/año' %annual_distance, fontsize=10)
-        a.set_ylabel('Costo acumulado [millones COP]')
-        a.set_xlabel('Año')
+        a.set_ylabel('Accumulated cost [millions COP]')
+        a.set_xlabel('Year')
         canvas = FigureCanvasTkAgg(fig, self)
         canvas.get_tk_widget().pack()
         canvas.draw()
@@ -385,12 +410,28 @@ class Comparison(ttk.Frame):
         electric = total_electric
 
         df = pd.DataFrame({'Conventional': conventional, 'Electric': electric}, index=Y)
-        df.plot(kind = 'bar', figsize=(15,8))
+        df.plot(kind = 'bar', figsize=(5,4))
         
         plt.suptitle('Annual cost')
         plt.legend(['conventional', 'electric'])
         plt.ylabel('Cost [millions COP]')
         plt.xlabel('Year')
+        plt.show()
+    
+    def create_figure_emissions(self):
+        currency, year, annual_distance, ipc = self.get_data_config()
+        co2, co, nox, hc, pmx = self.emissions()
+        emissions = [co2, co, nox]
+        for i in range(len(emissions)):
+            emissions[i] = emissions[i] * annual_distance / 1000
+
+        index=['CO2','CO','NOx']
+        fig = plt.subplots(figsize =(5, 4))
+        plt.bar(index, emissions, color ='r', width=0.2)
+
+        plt.suptitle('Annual emissions')
+        plt.ylabel('Total emissions [Kg]')
+
         plt.show()
         
 
