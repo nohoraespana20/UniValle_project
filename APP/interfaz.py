@@ -385,16 +385,16 @@ class Comparison(ttk.Frame):
         electric = total_electric
 
         df = pd.DataFrame({'Conventional': conventional, 'Electric': electric}, index=Y)
-        df.plot(kind = 'bar', figsize=(15,8))
         
-        plt.suptitle('Annual cost')
-        plt.legend(['conventional', 'electric'])
-        plt.ylabel('Costo [millones COP]')
-        plt.xlabel('Año')
-        plt.show()
+        fig = Figure(figsize=(5,5), dpi=100)
+        ax = fig.add_subplot(111)
+
+        df.plot(kind = 'bar', figsize=(15,8), ax=ax)
+
+        canvas = FigureCanvasTkAgg(fig, self)
+        canvas.get_tk_widget().pack()
+        canvas.draw()
         
-
-
 
 class Application(ttk.Frame):
 
