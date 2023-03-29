@@ -278,11 +278,14 @@ class ElectricV(ttk.Frame):
 class Comparison(ttk.Frame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
+        
         self.greet_button = ttk.Button(self, text= "Graph", command=self.show_figures)
         self.greet_button.pack()
         self.greet_label = ttk.Label(self)
         self.greet_label.pack()
+        myscrollbar=Scrollbar(self,orient="vertical")
+        myscrollbar.pack(side="right",fill="y")
+        # myscrollbar.config(command=self.yview)
 
     def show_figures(self):
         self.create_figure_accumulated()
