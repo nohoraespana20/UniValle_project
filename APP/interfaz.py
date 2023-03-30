@@ -372,7 +372,9 @@ class Comparison(ttk.Frame):
         nox = self.mean_emission('data_files/ENOx_mean.json')        
         hc = self.mean_emission('data_files/HC_mean.json')        
         pmx = self.mean_emission('data_files/PMx_mean.json')        
-        return co2, co, nox, hc, pmx
+        noise_c = self.mean_emission('data_files/Noise_c.json') 
+        noise_e = self.mean_emission('data_files/Noise_e.json') 
+        return co2, co, nox, hc, pmx, noise_c, noise_e
     
     def create_figures(self):
         currency, year, annual_distance, ipc = self.get_data_config()
@@ -383,14 +385,14 @@ class Comparison(ttk.Frame):
                      currency, year, ipc, annual_distance )
 
         years = [*range(0, j+1, 1)]
-        fig = Figure(figsize=(5,5))
+        fig = Figure(figsize=(15,5))
         a1 = fig.add_subplot(131)
         a1.plot(years, total_combustion, label = "conventional")
         a1.plot(years, total_electric, label = "electric")
         a1.grid()
         a1.set_title ('%d km/año' %annual_distance, fontsize=8)
-        a1.set_ylabel('Accumulated cost [millions COP]')
-        a1.set_xlabel('Year')
+        a1.set_ylabel('Accumulated cost [millions COP]', fontsize=8)
+        a1.set_xlabel('Year', fontsize=8)
 
         currency, year, annual_distance, ipc = self.get_data_config()
         initialCost_C, yearlyRaise_C, yearlyRaise_others, Cen_C, costMaintenance_C, others_C, other_C = self.get_data_combustion()
@@ -409,25 +411,24 @@ class Comparison(ttk.Frame):
         df = pd.DataFrame({'Conventional': conventional, 'Electric': electric}, index=Y)
         df.plot(ax=a2, kind = 'bar')
         
-        a2.set_title('Annual cost')
-        a2.legend(['conventional', 'electric'])
-        a2.set_ylabel('Cost [millions COP]')
-        a2.set_xlabel('Year')
+        a2.set_title('Annual cost', fontsize=8)
+        a2.legend(['conventional', 'electric'], fontsize=8)
+        a2.set_ylabel('Cost [millions COP]', fontsize=8)
+        a2.set_xlabel('Year', fontsize=8)
 
         currency, year, annual_distance, ipc = self.get_data_config()
-        co2, co, nox, hc, pmx = self.emissions()
+        co2, co, nox, hc, pmx, noise_c, noise_e = self.emissions()
         emissions_c = [co2, co, nox]
-        emissions_e = [0, 0, 0]
+        emissions_e = [0, 0, 0, noise_e]
         for i in range(len(emissions_c)):
-            emissions_c[i] = emissions_c[i] * annual_distance / 1000
-        index=['CO2','CO','NOx']
-        
+            emissions_c[i] = emissions_c[i] * annual_distance / 1000000
+        index=['CO2 [Ton]','CO [Ton]','NOx [Ton]', 'Noise [dB/km]']
+        emissions_c.append(noise_c)
+
         a3 = fig.add_subplot(133)
-        # plt.bar(index, emissions, color ='r', width=0.2)
         df = pd.DataFrame({'Conventional': emissions_c, 'Electric': emissions_e}, index=index)
-        df.plot(ax=a3, kind = 'bar')
-        a3.set_title('Annual emissions')
-        a3.set_ylabel('Total emissions [Kg]')
+        df.plot(ax=a3, kind = 'bar', fontsize=8)
+        a3.set_title('Annual emissions', fontsize=8)
         canvas3 = FigureCanvasTkAgg(fig, self)
         canvas3.get_tk_widget().pack()
 
