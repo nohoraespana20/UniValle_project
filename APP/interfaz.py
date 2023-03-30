@@ -288,8 +288,9 @@ class Comparison(ttk.Frame):
         # myscrollbar.config(command=self.yview)
 
     def show_figures(self):
-        self.create_figure_accumulated()
-        self.create_figure_annual()
+        # self.create_figure_accumulated()
+        # self.create_figure_annual()
+        self.create_figures()
 
     def get_data_combustion(self):
         file = 'data_files/data_combustion.json'
@@ -349,6 +350,63 @@ class Comparison(ttk.Frame):
         annual_distance = data_config['Annual distance']
         ipc = 0.0457
         return currency, year, annual_distance, ipc
+    
+    def create_figures(self):
+        currency, year, annual_distance, ipc = self.get_data_config()
+        initialCost_C, yearlyRaise_C, yearlyRaise_others, Cen_C, costMaintenance_C, others_C, other_C = self.get_data_combustion()
+        initialCost_E, yearlyRaise_E, yearlyRaise_batery, Cen_E, costMaintenance_E, others_E, other_E, batery_capacity = self.get_data_electric()
+        total_combustion, total_electric, j = FC.accumulatedCost2(initialCost_C, yearlyRaise_C, Cen_C, costMaintenance_C, others_C, other_C, yearlyRaise_others,
+                     initialCost_E, yearlyRaise_E, yearlyRaise_batery, Cen_E, costMaintenance_E, others_E, other_E, batery_capacity,
+                     currency, year, ipc, annual_distance )
+
+        years = [*range(0, j+1, 1)]
+        fig = Figure(figsize=(5,5))
+        a1 = fig.add_subplot(311)
+        a1.plot(years, total_combustion, label = "conventional")
+        a1.plot(years, total_electric, label = "electric")
+        a1.grid()
+        a1.set_title ('%d km/año' %annual_distance, fontsize=8)
+        a1.set_ylabel('Accumulated cost [millions COP]')
+        a1.set_xlabel('Year')
+
+        currency, year, annual_distance, ipc = self.get_data_config()
+        initialCost_C, yearlyRaise_C, yearlyRaise_others, Cen_C, costMaintenance_C, others_C, other_C = self.get_data_combustion()
+        initialCost_E, yearlyRaise_E, yearlyRaise_batery, Cen_E, costMaintenance_E, others_E, other_E, batery_capacity = self.get_data_electric()
+
+        total_combustion, total_electric, j = FC.accumulatedPerYear(initialCost_C, yearlyRaise_C, Cen_C, costMaintenance_C, others_C, other_C, yearlyRaise_others,
+                     initialCost_E, yearlyRaise_E, yearlyRaise_batery, Cen_E, costMaintenance_E, others_E, other_E, batery_capacity,
+                     currency, year, ipc, annual_distance )
+
+        years = [*range(0, j+1, 1)]
+        Y = [str(x) for x in years]
+        conventional = total_combustion
+        electric = total_electric
+        
+        a2 = fig.add_subplot(312)
+        df = pd.DataFrame({'Conventional': conventional, 'Electric': electric}, index=Y)
+        df.plot(ax=a2, kind = 'bar')
+        
+        a2.set_title('Annual cost')
+        a2.legend(['conventional', 'electric'])
+        a2.set_ylabel('Cost [millions COP]')
+        a2.set_xlabel('Year')
+
+        # currency, year, annual_distance, ipc = self.get_data_config()
+        # co2, co, nox, hc, pmx = self.emissions()
+        # emissions_c = [co2, co, nox]
+        # emissions_e = [0, 0, 0]
+        # for i in range(len(emissions_c)):
+        #     emissions_c[i] = emissions_c[i] * annual_distance / 1000
+        # index=['CO2','CO','NOx']
+        
+        # a3 = fig.add_subplot(133)
+        # # plt.bar(index, emissions, color ='r', width=0.2)
+        # df = pd.DataFrame({'Conventional': emissions_c, 'Electric': emissions_e}, index=index)
+        # df.plot(ax=a3, kind = 'bar')
+        # a3.set_title('Annual emissions')
+        # a3.set_ylabel('Total emissions [Kg]')
+        canvas3 = FigureCanvasTkAgg(fig, self)
+        canvas3.get_tk_widget().pack()
 
 
     def create_figure_accumulated(self):
