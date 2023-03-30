@@ -52,6 +52,10 @@ def plotData(data1, data2, name_file):
             plt.suptitle('%s Consumption [gl]'%name_file)
             plt.legend(['Rush hour', 'Peak off hour'])
             plt.savefig('figures/%s Consumption.png'%name_file, dpi=fig.dpi, transparent=True)
+        elif name_file=='Noise':
+            plt.suptitle('%s Emissions [dBA]'%name_file)
+            plt.legend(['Rush hour', 'Peak off hour'])
+            plt.savefig('figures/%s Emissions.png'%name_file, dpi=fig.dpi, transparent=True)
         else:
             plt.suptitle('%s Emissions [g]'%name_file)
             plt.legend(['Rush hour', 'Peak off hour'])
@@ -85,7 +89,7 @@ if __name__ == '__main__':
     with open('figures/ENOx_mean.json', 'w') as file:
             json.dump(NOx_mean, file, indent=4)
     Noise_mean = listDataperType(dataType[5])
-    with open('figures/ENOx_mean.json', 'w') as file:
+    with open('figures/Noise_mean.json', 'w') as file:
             json.dump(Noise_mean, file, indent=5)
     Fuel_mean = listDataperType(dataType[6])
     with open('figures/Fuel_mean.json', 'w') as file:
