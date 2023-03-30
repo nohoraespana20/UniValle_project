@@ -283,8 +283,8 @@ class Comparison(ttk.Frame):
         self.greet_button.pack()
         self.greet_label = ttk.Label(self)
         self.greet_label.pack()
-        myscrollbar=Scrollbar(self,orient="vertical")
-        myscrollbar.pack(side="right",fill="y")
+        # myscrollbar=Scrollbar(self,orient="vertical")
+        # myscrollbar.pack(side="right",fill="y")
         # myscrollbar.config(command=self.yview)
 
     def show_figures(self):
@@ -407,6 +407,9 @@ class Comparison(ttk.Frame):
         # a3.set_ylabel('Total emissions [Kg]')
         canvas3 = FigureCanvasTkAgg(fig, self)
         canvas3.get_tk_widget().pack()
+        # myscrollbar=Scrollbar(fig,orient="vertical")
+        # myscrollbar.pack(side="right",fill="y")
+        # myscrollbar.config(command=fig.yview)
 
 
     def create_figure_accumulated(self):
@@ -468,9 +471,11 @@ class Application(ttk.Frame):
 
         main_window.title("Vehicles APP")
         main_window.iconbitmap(os.path.join(images_folder, "logo.ico"))
-        self.notebook = ttk.Notebook(self)
-
-
+        self.notebook = ttk.Notebook(self, width=1000, height=500)
+        myscrollbar=Scrollbar(self.notebook,orient="vertical")
+        myscrollbar.pack(side="right",fill="y")
+        myscrollbar.config(command=self.notebook.yview)
+        
         self.main_panel()
 
         self.greeting_frame = ConventionalV(self.notebook)
