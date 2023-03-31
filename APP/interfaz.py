@@ -209,7 +209,7 @@ class ElectricV(ttk.Frame):
         #                     'SOAT cost': soat_cost,
         #                     'Other insurances': other_cost,
         #                     'Insurance raise': insurance_raise,
-        #                     'Daily consumption': 4,
+        #                     'Daily consumption': 12,
         #                     'Daily distance' : daily_distance,
         #                     'Batery capacity [kWh]' : 53,
         #                     'Repairs per year' : repairs
@@ -232,7 +232,7 @@ class ElectricV(ttk.Frame):
         tco = self.cost_equation()
         availability = (365 - (data['Repairs per year'] * 5) - 2.5) * 100 / 365
 
-        self.greet_label["text"] = "\ngl/100km = {} ".format(round(kWh_100km,3)) + \
+        self.greet_label["text"] = "\nkWh/100km = {} ".format(round(kWh_100km,3)) + \
                                    "\n\nICR = {} $/km".format(round(icr,3)) + \
                                    "\n\nTon CO2/km = {}".format(round(co2_km,4)) + \
                                    "\n\nTCO = $ {}".format(round(tco,2)) + \
@@ -562,16 +562,16 @@ class Application(ttk.Frame):
         elif options == 2:
             currency_name = "COP"
             currency =  1000000
-        # config = {'Annual distance' : annual_distance,
-        #           'Years' : int(years),
-        #           'Currency' : currency,
-        #           'Currency name' : currency_name
-        #           }
-        config = {'Annual distance' : 50000,
-                  'Years' : 10,
-                  'Currency' : 1000000,
-                  'Currency name' : "COP"
+        config = {'Annual distance' : annual_distance,
+                  'Years' : int(years),
+                  'Currency' : currency,
+                  'Currency name' : currency_name
                   }
+        # config = {'Annual distance' : 50000,
+        #           'Years' : 10,
+        #           'Currency' : 1000000,
+        #           'Currency name' : "COP"
+        #           }
         with open('data_files/data_config.json', 'w') as file:
             json.dump(config, file, indent=4)
 
