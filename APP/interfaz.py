@@ -48,27 +48,28 @@ class ConventionalV(ttk.Frame):
         daily_consumption = float(self.entries['Daily consumption [gl]'].get())
         daily_distance = float(self.entries['Daily distance [km]'].get())
         repairs = int(self.entries['Repairs per year'].get())
-        # data_combustion = { 'Vehicle cost': vehicle_cost,
-        #                     'Galon cost': galon_cost,
-        #                     'Fuel raise': fuel_raise,
-        #                     'Maintenance cost': maintenance_cost,
-        #                     'SOAT cost': soat_cost,
-        #                     'Other insurances': other_cost,
-        #                     'Insurance raise': insurance_raise,
-        #                     'Daily consumption': daily_consumption,
-        #                     'Daily distance' : daily_distance
-        #                 }
-        data_combustion = { 'Vehicle cost': 65000000,
-                            'Galon cost': 8932,
-                            'Fuel raise': 7,
-                            'Maintenance cost': 7000000,
-                            'SOAT cost': 300000,
-                            'Other insurances': 500000,
-                            'Insurance raise': 10,
-                            'Daily consumption': 5,
-                            'Daily distance' : 150,
-                            'Repairs per year' : 2
+        data_combustion = { 'Vehicle cost': vehicle_cost,
+                            'Galon cost': galon_cost,
+                            'Fuel raise': fuel_raise,
+                            'Maintenance cost': maintenance_cost,
+                            'SOAT cost': soat_cost,
+                            'Other insurances': other_cost,
+                            'Insurance raise': insurance_raise,
+                            'Daily consumption': daily_consumption,
+                            'Daily distance' : daily_distance,
+                            'Repairs per year' : repairs
                         }
+        # data_combustion = { 'Vehicle cost': 65000000,
+        #                     'Galon cost': 8932,
+        #                     'Fuel raise': 7,
+        #                     'Maintenance cost': 7000000,
+        #                     'SOAT cost': 300000,
+        #                     'Other insurances': 500000,
+        #                     'Insurance raise': 10,
+        #                     'Daily consumption': 5,
+        #                     'Daily distance' : 150,
+        #                     'Repairs per year' : 2
+        #                 }
         with open('data_files/data_combustion.json', 'w') as file:
             json.dump(data_combustion, file, indent=4)
 
@@ -188,31 +189,31 @@ class ElectricV(ttk.Frame):
         batery_capacity = float(self.entries['Batery capacity [kWh]'].get())
 
 
-        # data_electric = { 'Vehicle cost': vehicle_cost,
-        #                     'kWh cost': kWh_cost,
-        #                     'kWh raise': kWh_raise,
-        #                     'Maintenance cost': maintenance_cost,
-        #                     'SOAT cost': soat_cost,
-        #                     'Other insurances': other_cost,
-        #                     'Insurance raise': insurance_raise,
-        #                     'Daily consumption': daily_consumption,
-        #                     'Daily distance' : daily_distance,
-        #                     'Batery capacity [kWh]' : batery_capacity
-        #                     'Repairs per year' : repairs  
-        #                 }
-
-        data_electric = { 'Vehicle cost': 145000000,
-                            'kWh cost': 565,
-                            'kWh raise': 6,
+        data_electric = { 'Vehicle cost': vehicle_cost,
+                            'kWh cost': kWh_cost,
+                            'kWh raise': kWh_raise,
                             'Maintenance cost': maintenance_cost,
                             'SOAT cost': soat_cost,
                             'Other insurances': other_cost,
                             'Insurance raise': insurance_raise,
-                            'Daily consumption': 4,
+                            'Daily consumption': daily_consumption,
                             'Daily distance' : daily_distance,
-                            'Batery capacity [kWh]' : 53,
-                            'Repairs per year' : repairs
+                            'Batery capacity [kWh]' : batery_capacity,
+                            'Repairs per year' : repairs  
                         }
+
+        # data_electric = { 'Vehicle cost': 145000000,
+        #                     'kWh cost': 565,
+        #                     'kWh raise': 6,
+        #                     'Maintenance cost': maintenance_cost,
+        #                     'SOAT cost': soat_cost,
+        #                     'Other insurances': other_cost,
+        #                     'Insurance raise': insurance_raise,
+        #                     'Daily consumption': 4,
+        #                     'Daily distance' : daily_distance,
+        #                     'Batery capacity [kWh]' : 53,
+        #                     'Repairs per year' : repairs
+        #                 }
         with open('data_files/data_electric.json', 'w') as file:
             json.dump(data_electric, file, indent=4)
 
@@ -390,7 +391,8 @@ class Comparison(ttk.Frame):
         a1.plot(years, total_combustion, label = "conventional")
         a1.plot(years, total_electric, label = "electric")
         a1.grid()
-        a1.set_title ('%d km/año' %annual_distance, fontsize=8)
+        a1.set_title ('%d km/year' %annual_distance, fontsize=8)
+        a1.legend(['conventional', 'electric'], fontsize=8)
         a1.set_ylabel('Accumulated cost [millions COP]', fontsize=8)
         a1.set_xlabel('Year', fontsize=8)
 
@@ -419,16 +421,18 @@ class Comparison(ttk.Frame):
         currency, year, annual_distance, ipc = self.get_data_config()
         co2, co, nox, hc, pmx, noise_c, noise_e = self.emissions()
         emissions_c = [co2, co, nox]
-        emissions_e = [0, 0, 0, noise_e]
+        emissions_e = [0, 0, 0]
         for i in range(len(emissions_c)):
             emissions_c[i] = emissions_c[i] * annual_distance / 1000000
-        index=['CO2 [Ton]','CO [Ton]','NOx [Ton]', 'Noise [dB/km]']
-        emissions_c.append(noise_c)
+        index=['CO2','CO','NOx']
+        # emissions_c.append(noise_c)
 
         a3 = fig.add_subplot(133)
         df = pd.DataFrame({'Conventional': emissions_c, 'Electric': emissions_e}, index=index)
         df.plot(ax=a3, kind = 'bar', fontsize=8)
         a3.set_title('Annual emissions', fontsize=8)
+        a3.legend(['conventional', 'electric'], fontsize=8)
+        a3.set_ylabel('Tons of emissions', fontsize=8)
         canvas3 = FigureCanvasTkAgg(fig, self)
         canvas3.get_tk_widget().pack()
 
@@ -582,7 +586,7 @@ def end_action():
 
 if __name__ == '__main__':
     main_window = tk.Tk()
-    main_window.geometry("1680x1050")
+    main_window.geometry("1600x900")
     main_window.option_add('*Font', 'Calibri-Light 12')
     app = Application(main_window)
     button = ttk.Button(app, text="Quite", command=end_action)
