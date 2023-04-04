@@ -4,7 +4,7 @@
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
 	
     <vType id="TAXI_1" vClass="taxi" maxSpeed="22.22" accel="2.6" decel="4.5" 
-			length="5" width="1.8" height="1.5" emissionClass="Energy" color="255,255,0"/>
+			length="5" width="1.8" height="1.5" emissionClass="HBEFA4/PC_BEV" color="255,255,0"/>
     
 	<route id="route3_1" edges="430660462#4 567228565 268533820#6	-48268645
 								268533822#1	268533822#2	142724401#0	142724401#1
