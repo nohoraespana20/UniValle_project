@@ -5,7 +5,7 @@ def getMeanData(serie, route, dataType):
         with open(file) as file:
                 data = json.load(file)
         if dataType == 'FuelConsumption':
-            data_out.append((sum(data[dataType]))/(3785))
+            data_out.append((sum(data[dataType]))*(2.642e-7))
         elif dataType == 'NoiseEmission':
             data_out.append((sum(data[dataType]))/data['Step'])
         else:
