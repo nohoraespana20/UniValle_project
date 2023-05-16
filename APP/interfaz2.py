@@ -59,15 +59,15 @@ class ConventionalV(ttk.Frame):
                             'Daily distance' : daily_distance,
                             'Repairs per year' : repairs
                         }
-        # data_combustion = { 'Vehicle cost': 65000000,
-        #                     'Galon cost': 8932,
-        #                     'Fuel raise': 7,
-        #                     'Maintenance cost': 7000000,
-        #                     'SOAT cost': 300000,
-        #                     'Other insurances': 500000,
+        # data_combustion = { 'Vehicle cost': 350000000,
+        #                     'Galon cost': 8457,
+        #                     'Fuel raise': 7.12,
+        #                     'Maintenance cost': 14700000,
+        #                     'SOAT cost': 1200000,
+        #                     'Other insurances': 360000,
         #                     'Insurance raise': 10,
-        #                     'Daily consumption': 5,
-        #                     'Daily distance' : 150,
+        #                     'Daily consumption': 70,
+        #                     'Daily distance' : 173,
         #                     'Repairs per year' : 2
         #                 }
         with open('data_files/data_combustion.json', 'w') as file:
@@ -175,12 +175,12 @@ class ElectricV(ttk.Frame):
         file = 'data_files/data_combustion.json'
         with open(file) as file:
                 data = json.load(file)
-        maintenance_cost = data['Maintenance cost']*0.35
-        soat_cost =   data['SOAT cost']*0.9
-        other_cost = data['Other insurances']*0.9
+        maintenance_cost = data['Maintenance cost']#*0.35
+        soat_cost =   data['SOAT cost']#*0.9
+        other_cost = data['Other insurances']#*0.9
         insurance_raise = data['Insurance raise']
         daily_distance = data['Daily distance']
-        repairs = data['Repairs per year']*0.9
+        repairs = data['Repairs per year']#*0.9
 
         vehicle_cost = float(self.entries['Vehicle cost'].get())
         kWh_cost = float(self.entries['kWh cost'].get())
@@ -202,17 +202,17 @@ class ElectricV(ttk.Frame):
                             'Repairs per year' : repairs  
                         }
 
-        # data_electric = { 'Vehicle cost': 145000000,
-        #                     'kWh cost': 565,
-        #                     'kWh raise': 6,
-        #                     'Maintenance cost': maintenance_cost,
-        #                     'SOAT cost': soat_cost,
-        #                     'Other insurances': other_cost,
-        #                     'Insurance raise': insurance_raise,
-        #                     'Daily consumption': 12,
-        #                     'Daily distance' : daily_distance,
-        #                     'Batery capacity [kWh]' : 53,
-        #                     'Repairs per year' : repairs
+        # data_electric = { 'Vehicle cost': 700000000,
+        #                     'kWh cost': 670.55,
+        #                     'kWh raise': 6.6,
+        #                     'Maintenance cost': 14700000*0.35,
+        #                     'SOAT cost': 1200000*0.9,
+        #                     'Other insurances': 360000*0.7,
+        #                     'Insurance raise': 10,
+        #                     'Daily consumption': 35,
+        #                     'Daily distance' : 173,
+        #                     'Batery capacity [kWh]' : 324,
+        #                     'Repairs per year' : 2
         #                 }
         with open('data_files/data_electric.json', 'w') as file:
             json.dump(data_electric, file, indent=4)
@@ -413,10 +413,10 @@ class Comparison(ttk.Frame):
         df = pd.DataFrame({'Conventional': conventional, 'Electric': electric}, index=Y)
         df.plot(ax=a2, kind = 'bar')
         
-        a2.set_title('Annual cost', fontsize=8)
-        a2.legend(['conventional', 'electric'], fontsize=8)
-        a2.set_ylabel('Cost [millions COP]', fontsize=8)
-        a2.set_xlabel('Year', fontsize=8)
+        a2.set_title('Costo anual', fontsize=8)
+        a2.legend(['convencional', 'electrico'], fontsize=8)
+        a2.set_ylabel('Costo [Millones de COP]', fontsize=8)
+        a2.set_xlabel('Año', fontsize=8)
 
         currency, year, annual_distance, ipc = self.get_data_config()
         co2, co, nox, hc, pmx, noise_c, noise_e = self.emissions()
@@ -435,6 +435,7 @@ class Comparison(ttk.Frame):
         a3.set_ylabel('Tons of emissions', fontsize=8)
         canvas3 = FigureCanvasTkAgg(fig, self)
         canvas3.get_tk_widget().pack()
+        fig.savefig('images/APPGraphics', transparent=True)
 
 
 
