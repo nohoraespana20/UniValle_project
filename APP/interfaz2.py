@@ -61,7 +61,7 @@ class ConventionalV(ttk.Frame):
                         }
         # data_combustion = { 'Vehicle cost': 350000000,
         #                     'Galon cost': 8457,
-        #                     'Fuel raise': 7.12,
+        #                     'Fuel raise': 5,
         #                     'Maintenance cost': 14700000,
         #                     'SOAT cost': 1200000,
         #                     'Other insurances': 360000,
