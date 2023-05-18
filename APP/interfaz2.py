@@ -60,7 +60,7 @@ class ConventionalV(ttk.Frame):
                             'Repairs per year' : repairs
                         }
         # data_combustion = { 'Vehicle cost': 350000000,
-        #                     'Galon cost': 8457,
+        #                     'Galon cost': 8396,
         #                     'Fuel raise': 5,
         #                     'Maintenance cost': 14700000,
         #                     'SOAT cost': 1200000,
@@ -175,12 +175,12 @@ class ElectricV(ttk.Frame):
         file = 'data_files/data_combustion.json'
         with open(file) as file:
                 data = json.load(file)
-        maintenance_cost = data['Maintenance cost']#*0.35
-        soat_cost =   data['SOAT cost']#*0.9
-        other_cost = data['Other insurances']#*0.9
+        maintenance_cost = data['Maintenance cost']*0.35
+        soat_cost =   data['SOAT cost']*0.9
+        other_cost = data['Other insurances']*0.9
         insurance_raise = data['Insurance raise']
         daily_distance = data['Daily distance']
-        repairs = data['Repairs per year']#*0.9
+        repairs = data['Repairs per year']*0.9
 
         vehicle_cost = float(self.entries['Vehicle cost'].get())
         kWh_cost = float(self.entries['kWh cost'].get())
@@ -203,7 +203,7 @@ class ElectricV(ttk.Frame):
                         }
 
         # data_electric = { 'Vehicle cost': 700000000,
-        #                     'kWh cost': 670.55,
+        #                     'kWh cost': 756,
         #                     'kWh raise': 6.6,
         #                     'Maintenance cost': 14700000*0.35,
         #                     'SOAT cost': 1200000*0.9,
@@ -395,6 +395,9 @@ class Comparison(ttk.Frame):
         a1.legend(['conventional', 'electric'], fontsize=8)
         a1.set_ylabel('Accumulated cost [millions COP]', fontsize=8)
         a1.set_xlabel('Year', fontsize=8)
+
+        print(total_combustion)
+        print(total_electric)
 
         currency, year, annual_distance, ipc = self.get_data_config()
         initialCost_C, yearlyRaise_C, yearlyRaise_others, Cen_C, costMaintenance_C, others_C, other_C = self.get_data_combustion()
