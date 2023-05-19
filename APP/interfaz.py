@@ -11,6 +11,7 @@ from os import remove
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+from shapely.geometry import LineString
 
 class ConventionalV(ttk.Frame):
 
@@ -48,28 +49,28 @@ class ConventionalV(ttk.Frame):
         daily_consumption = float(self.entries['Daily consumption [gl]'].get())
         daily_distance = float(self.entries['Daily distance [km]'].get())
         repairs = int(self.entries['Repairs per year'].get())
-        data_combustion = { 'Vehicle cost': vehicle_cost,
-                            'Galon cost': galon_cost,
-                            'Fuel raise': fuel_raise,
-                            'Maintenance cost': maintenance_cost,
-                            'SOAT cost': soat_cost,
-                            'Other insurances': other_cost,
-                            'Insurance raise': insurance_raise,
-                            'Daily consumption': daily_consumption,
-                            'Daily distance' : daily_distance,
-                            'Repairs per year' : repairs
-                        }
-        # data_combustion = { 'Vehicle cost': 65000000,
-        #                     'Galon cost': 8932,
-        #                     'Fuel raise': 7,
-        #                     'Maintenance cost': 7000000,
-        #                     'SOAT cost': 300000,
-        #                     'Other insurances': 500000,
-        #                     'Insurance raise': 10,
-        #                     'Daily consumption': 5,
-        #                     'Daily distance' : 150,
-        #                     'Repairs per year' : 2
+        # data_combustion = { 'Vehicle cost': vehicle_cost,
+        #                     'Galon cost': galon_cost,
+        #                     'Fuel raise': fuel_raise,
+        #                     'Maintenance cost': maintenance_cost,
+        #                     'SOAT cost': soat_cost,
+        #                     'Other insurances': other_cost,
+        #                     'Insurance raise': insurance_raise,
+        #                     'Daily consumption': daily_consumption,
+        #                     'Daily distance' : daily_distance,
+        #                     'Repairs per year' : repairs
         #                 }
+        data_combustion = { 'Vehicle cost': 65000000,
+                            'Galon cost': 9916,
+                            'Fuel raise': 8,
+                            'Maintenance cost': 7000000,
+                            'SOAT cost': 300000,
+                            'Other insurances': 500000,
+                            'Insurance raise': 10,
+                            'Daily consumption': 5,
+                            'Daily distance' : 150,
+                            'Repairs per year' : 2
+                        }
         with open('data_files/data_combustion.json', 'w') as file:
             json.dump(data_combustion, file, indent=4)
 
@@ -189,30 +190,43 @@ class ElectricV(ttk.Frame):
         batery_capacity = float(self.entries['Batery capacity [kWh]'].get())
 
 
-        data_electric = { 'Vehicle cost': vehicle_cost,
-                            'kWh cost': kWh_cost,
-                            'kWh raise': kWh_raise,
-                            'Maintenance cost': maintenance_cost,
-                            'SOAT cost': soat_cost,
-                            'Other insurances': other_cost,
-                            'Insurance raise': insurance_raise,
-                            'Daily consumption': daily_consumption,
-                            'Daily distance' : daily_distance,
-                            'Batery capacity [kWh]' : batery_capacity,
-                            'Repairs per year' : repairs  
-                        }
-
-        # data_electric = { 'Vehicle cost': 145000000,
-        #                     'kWh cost': 565,
-        #                     'kWh raise': 6,
+        # data_electric = { 'Vehicle cost': vehicle_cost,
+        #                     'kWh cost': kWh_cost,
+        #                     'kWh raise': kWh_raise,
         #                     'Maintenance cost': maintenance_cost,
         #                     'SOAT cost': soat_cost,
         #                     'Other insurances': other_cost,
         #                     'Insurance raise': insurance_raise,
+        #                     'Daily consumption': daily_consumption,
+        #                     'Daily distance' : daily_distance,
+        #                     'Batery capacity [kWh]' : batery_capacity,
+        #                     'Repairs per year' : repairs  
+        #                 }
+
+        data_electric = { 'Vehicle cost': 145000000,
+                            'kWh cost': 756,
+                            'kWh raise': 6,
+                            'Maintenance cost': maintenance_cost,
+                            'SOAT cost': soat_cost,
+                            'Other insurances': other_cost,
+                            'Insurance raise': insurance_raise,
+                            'Daily consumption': 12,
+                            'Daily distance' : daily_distance,
+                            'Batery capacity [kWh]' : 53,
+                            'Repairs per year' : repairs
+                        }
+
+        # data_electric = { 'Vehicle cost': 145000000,  ###Escenario SIN descuentos
+        #                     'kWh cost': 756,
+        #                     'kWh raise': 8,
+        #                     'Maintenance cost': 7000000,
+        #                     'SOAT cost': 300000,
+        #                     'Other insurances':  500000,
+        #                     'Insurance raise': 10,
         #                     'Daily consumption': 12,
         #                     'Daily distance' : daily_distance,
         #                     'Batery capacity [kWh]' : 53,
-        #                     'Repairs per year' : repairs
+        #                     'Repairs per year' : 2
         #                 }
         with open('data_files/data_electric.json', 'w') as file:
             json.dump(data_electric, file, indent=4)
@@ -377,6 +391,7 @@ class Comparison(ttk.Frame):
         noise_e = self.mean_emission('data_files/Noise_e.json') 
         return co2, co, nox, hc, pmx, noise_c, noise_e
     
+    
     def create_figures(self):
         currency, year, annual_distance, ipc = self.get_data_config()
         initialCost_C, yearlyRaise_C, yearlyRaise_others, Cen_C, costMaintenance_C, others_C, other_C = self.get_data_combustion()
@@ -384,17 +399,22 @@ class Comparison(ttk.Frame):
         total_combustion, total_electric, j = FC.accumulatedCost2(initialCost_C, yearlyRaise_C, Cen_C, costMaintenance_C, others_C, other_C, yearlyRaise_others,
                      initialCost_E, yearlyRaise_E, yearlyRaise_batery, Cen_E, costMaintenance_E, others_E, other_E, batery_capacity,
                      currency, year, ipc, annual_distance )
+        
+        with open('images/44000C.json', 'w') as file:
+            json.dump(total_combustion, file, indent=4)
+        with open('images/44000E.json', 'w') as file:
+            json.dump(total_electric, file, indent=4)
 
         years = [*range(0, j+1, 1)]
         fig = Figure(figsize=(15,5))
         a1 = fig.add_subplot(131)
-        a1.plot(years, total_combustion, label = "conventional")
-        a1.plot(years, total_electric, label = "electric")
+        a1.plot(years, total_combustion, label = "Convencional")
+        a1.plot(years, total_electric, label = "Eléctrico")
         a1.grid()
-        a1.set_title ('%d km/year' %annual_distance, fontsize=8)
-        a1.legend(['conventional', 'electric'], fontsize=8)
-        a1.set_ylabel('Accumulated cost [millions COP]', fontsize=8)
-        a1.set_xlabel('Year', fontsize=8)
+        a1.set_title ('%d km/año' %annual_distance, fontsize=8)
+        a1.legend(['Convencional', 'Eléctrico'], fontsize=8)
+        a1.set_ylabel('Costo acumulado [millones COP]', fontsize=8)
+        a1.set_xlabel('Año', fontsize=8)
 
         currency, year, annual_distance, ipc = self.get_data_config()
         initialCost_C, yearlyRaise_C, yearlyRaise_others, Cen_C, costMaintenance_C, others_C, other_C = self.get_data_combustion()
@@ -410,33 +430,34 @@ class Comparison(ttk.Frame):
         electric = total_electric
         
         a2 = fig.add_subplot(132)
-        df = pd.DataFrame({'Conventional': conventional, 'Electric': electric}, index=Y)
+        df = pd.DataFrame({'Convencional': conventional, 'Eléctrico': electric}, index=Y)
         df.plot(ax=a2, kind = 'bar')
         
-        a2.set_title('Annual cost', fontsize=8)
-        a2.legend(['conventional', 'electric'], fontsize=8)
-        a2.set_ylabel('Cost [millions COP]', fontsize=8)
-        a2.set_xlabel('Year', fontsize=8)
+        a2.set_title('Costo anual', fontsize=8)
+        a2.legend(['Convencional', 'Eléctrico'], fontsize=8)
+        a2.set_ylabel('Costo [millones COP]', fontsize=8)
+        a2.set_xlabel('Año', fontsize=8)
 
         currency, year, annual_distance, ipc = self.get_data_config()
         co2, co, nox, hc, pmx, noise_c, noise_e = self.emissions()
         emissions_c = [co2, co, nox]
+        # emissions_e = [0, 0, 0, noise_e]
         emissions_e = [0, 0, 0]
         for i in range(len(emissions_c)):
             emissions_c[i] = emissions_c[i] * annual_distance / 1000000
-        index=['CO2','CO','NOx']
+        # index=['CO2','CO','NOx','Noise']
         # emissions_c.append(noise_c)
+        index=['CO2','CO','NOx']
 
         a3 = fig.add_subplot(133)
-        df = pd.DataFrame({'Conventional': emissions_c, 'Electric': emissions_e}, index=index)
+        df = pd.DataFrame({'Convencional': emissions_c, 'Eléctrico': emissions_e}, index=index)
         df.plot(ax=a3, kind = 'bar', fontsize=8)
-        a3.set_title('Annual emissions', fontsize=8)
-        a3.legend(['conventional', 'electric'], fontsize=8)
-        a3.set_ylabel('Tons of emissions', fontsize=8)
+        a3.set_title('Emisiones anuales', fontsize=8)
+        a3.legend(['Convencional', 'Eléctrico'], fontsize=8)
+        a3.set_ylabel('Toneladas de emisiones', fontsize=8)
         canvas3 = FigureCanvasTkAgg(fig, self)
         canvas3.get_tk_widget().pack()
-
-
+        fig.savefig('images/44000', transparent=True)
 
     def create_figure_accumulated(self):
         currency, year, annual_distance, ipc = self.get_data_config()
@@ -502,8 +523,6 @@ class Comparison(ttk.Frame):
         canvas.draw()
 
 class Application(ttk.Frame):
-
-
     def __init__(self, main_window):
         super().__init__(main_window)
 
@@ -511,7 +530,7 @@ class Application(ttk.Frame):
         images_folder = os.path.join(main_folder, 'images')
 
         main_window.title("Vehicles APP")
-        main_window.iconbitmap(os.path.join(images_folder, "logo.ico"))
+        # main_window.iconbitmap(os.path.join(images_folder, "logo.ico"))
         self.notebook = ttk.Notebook(self)
 
         self.main_panel()
@@ -562,16 +581,16 @@ class Application(ttk.Frame):
         elif options == 2:
             currency_name = "COP"
             currency =  1000000
-        config = {'Annual distance' : annual_distance,
-                  'Years' : int(years),
-                  'Currency' : currency,
-                  'Currency name' : currency_name
-                  }
-        # config = {'Annual distance' : 50000,
-        #           'Years' : 10,
-        #           'Currency' : 1000000,
-        #           'Currency name' : "COP"
+        # config = {'Annual distance' : annual_distance,
+        #           'Years' : int(years),
+        #           'Currency' : currency,
+        #           'Currency name' : currency_name
         #           }
+        config = {'Annual distance' : 44000,
+                  'Years' : 10,
+                  'Currency' : 1000000,
+                  'Currency name' : "COP"
+                  }
         with open('data_files/data_config.json', 'w') as file:
             json.dump(config, file, indent=4)
 
