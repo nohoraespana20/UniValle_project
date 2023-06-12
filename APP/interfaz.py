@@ -62,7 +62,7 @@ class ConventionalV(ttk.Frame):
         #                 }
         data_combustion = { 'Vehicle cost': 65000000,
                             'Galon cost': 9916,
-                            'Fuel raise': 8,
+                            'Fuel raise': 6.3,
                             'Maintenance cost': 7000000,
                             'SOAT cost': 300000,
                             'Other insurances': 500000,
@@ -88,12 +88,16 @@ class ConventionalV(ttk.Frame):
         co2, co, nox, hc, pmx = self.emissions()
         tco = self.cost_equation()
         availability = (365 - (data['Repairs per year'] * 5) - 6) * 100 / 365
+        E100km = (3.785*9.7*100)*(data['Daily consumption'] / data['Daily distance'])
+        social = co2 * data['Daily distance'] * 995000 / 1000000
 
         self.greet_label["text"] = "\ngl/100km = {} ".format(round(gl_100km,3)) + \
                                    "\n\nICR = {} $/km".format(round(icr,3)) + \
                                    "\n\ngr CO2/km = {}".format(co2) + \
                                    "\n\nTCO = {} $/km".format(round(tco,2)) + \
-                                   "\n\n Availability factor = {} %".format(round(availability,1))
+                                   "\n\n Availability factor = {} %".format(round(availability,1)) + \
+                                   "\n\n E100km = {} ".format(round(E100km,1)) + \
+                                   "\n\n social = {} ".format(round(social,1))
 
     def mean_emission(self, file):
         distances = [(4022.095899057417+2415.0392316822504)/2000,
@@ -205,7 +209,7 @@ class ElectricV(ttk.Frame):
 
         data_electric = { 'Vehicle cost': 145000000,
                             'kWh cost': 756,
-                            'kWh raise': 6,
+                            'kWh raise': 8,
                             'Maintenance cost': maintenance_cost,
                             'SOAT cost': soat_cost,
                             'Other insurances': other_cost,
@@ -245,12 +249,16 @@ class ElectricV(ttk.Frame):
         co2_km = 0
         tco = self.cost_equation()
         availability = (365 - (data['Repairs per year'] * 5) - 2.5) * 100 / 365
+        EVco2 = 164.38 * (data['Daily consumption'] / data['Daily distance'])
+        social = (EVco2 * data['Daily distance']) * 995000 / 1000000
 
         self.greet_label["text"] = "\nkWh/100km = {} ".format(round(kWh_100km,3)) + \
                                    "\n\nICR = {} $/km".format(round(icr,3)) + \
                                    "\n\nTon CO2/km = {}".format(round(co2_km,4)) + \
                                    "\n\nTCO = $ {}".format(round(tco,2)) + \
-                                   "\n\n Availability factor = {} %".format(round(availability,1))
+                                   "\n\n Availability factor = {} %".format(round(availability,1)) + \
+                                   "\n\n EV_CO2 = {} gr CO2/km".format(round(EVco2,1)) + \
+                                   "\n\n social = ${} ".format(round(social,1))
 
     def accumulated_electric_cost(self, yearlyRaise_others, initialCost_E, yearlyRaise_E, yearlyRaise_batery, Cen_E, 
                          Cm_E, othersE, otherE, batery_capacity, currency, year, IPC, Ec):
@@ -400,9 +408,9 @@ class Comparison(ttk.Frame):
                      initialCost_E, yearlyRaise_E, yearlyRaise_batery, Cen_E, costMaintenance_E, others_E, other_E, batery_capacity,
                      currency, year, ipc, annual_distance )
         
-        with open('images/44000C.json', 'w') as file:
+        with open('images/50000C.json', 'w') as file:
             json.dump(total_combustion, file, indent=4)
-        with open('images/44000E.json', 'w') as file:
+        with open('images/50000E.json', 'w') as file:
             json.dump(total_electric, file, indent=4)
 
         years = [*range(0, j+1, 1)]
@@ -457,7 +465,7 @@ class Comparison(ttk.Frame):
         a3.set_ylabel('Toneladas de emisiones', fontsize=8)
         canvas3 = FigureCanvasTkAgg(fig, self)
         canvas3.get_tk_widget().pack()
-        fig.savefig('images/44000', transparent=True)
+        fig.savefig('images/50000', transparent=True)
 
     def create_figure_accumulated(self):
         currency, year, annual_distance, ipc = self.get_data_config()
@@ -586,7 +594,7 @@ class Application(ttk.Frame):
         #           'Currency' : currency,
         #           'Currency name' : currency_name
         #           }
-        config = {'Annual distance' : 44000,
+        config = {'Annual distance' : 50000,
                   'Years' : 10,
                   'Currency' : 1000000,
                   'Currency name' : "COP"
