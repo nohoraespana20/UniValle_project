@@ -48,28 +48,28 @@ class ConventionalV(ttk.Frame):
         daily_consumption = float(self.entries['Daily consumption [gl]'].get())
         daily_distance = float(self.entries['Daily distance [km]'].get())
         repairs = int(self.entries['Repairs per year'].get())
-        data_combustion = { 'Vehicle cost': vehicle_cost,
-                            'Galon cost': galon_cost,
-                            'Fuel raise': fuel_raise,
-                            'Maintenance cost': maintenance_cost,
-                            'SOAT cost': soat_cost,
-                            'Other insurances': other_cost,
-                            'Insurance raise': insurance_raise,
-                            'Daily consumption': daily_consumption,
-                            'Daily distance' : daily_distance,
-                            'Repairs per year' : repairs
-                        }
-        # data_combustion = { 'Vehicle cost': 350000000,
-        #                     'Galon cost': 8396,
-        #                     'Fuel raise': 5,
-        #                     'Maintenance cost': 14700000,
-        #                     'SOAT cost': 1200000,
-        #                     'Other insurances': 360000,
-        #                     'Insurance raise': 10,
-        #                     'Daily consumption': 70,
-        #                     'Daily distance' : 173,
-        #                     'Repairs per year' : 2
+        # data_combustion = { 'Vehicle cost': vehicle_cost,
+        #                     'Galon cost': galon_cost,
+        #                     'Fuel raise': fuel_raise,
+        #                     'Maintenance cost': maintenance_cost,
+        #                     'SOAT cost': soat_cost,
+        #                     'Other insurances': other_cost,
+        #                     'Insurance raise': insurance_raise,
+        #                     'Daily consumption': daily_consumption,
+        #                     'Daily distance' : daily_distance,
+        #                     'Repairs per year' : repairs
         #                 }
+        data_combustion = { 'Vehicle cost': 214900000,
+                            'Galon cost': 8396,
+                            'Fuel raise': 4,
+                            'Maintenance cost': 14700000,
+                            'SOAT cost': 1200000,
+                            'Other insurances': 360000,
+                            'Insurance raise': 10,
+                            'Daily consumption': 70,
+                            'Daily distance' : 173,
+                            'Repairs per year' : 2
+                        }
         with open('data_files/data_combustion.json', 'w') as file:
             json.dump(data_combustion, file, indent=4)
 
@@ -91,6 +91,10 @@ class ConventionalV(ttk.Frame):
         self.greet_label["text"] = "\ngl/100km = {} ".format(round(gl_100km,3)) + \
                                    "\n\nICR = {} $/km".format(round(icr,3)) + \
                                    "\n\ngr CO2/km = {}".format(co2) + \
+                                   "\n\ngr CO/km = {}".format(co) + \
+                                   "\n\ngr NOx/km = {}".format(nox) + \
+                                   "\n\ngr HCkm = {}".format(hc) + \
+                                   "\n\ngr PMx/km = {}".format(pmx) + \
                                    "\n\nTCO = {} $/km".format(round(tco,2)) + \
                                    "\n\n Availability factor = {} %".format(round(availability,1))
 
@@ -189,31 +193,31 @@ class ElectricV(ttk.Frame):
         batery_capacity = float(self.entries['Batery capacity [kWh]'].get())
 
 
-        data_electric = { 'Vehicle cost': vehicle_cost,
-                            'kWh cost': kWh_cost,
-                            'kWh raise': kWh_raise,
-                            'Maintenance cost': maintenance_cost,
-                            'SOAT cost': soat_cost,
-                            'Other insurances': other_cost,
-                            'Insurance raise': insurance_raise,
-                            'Daily consumption': daily_consumption,
-                            'Daily distance' : daily_distance,
-                            'Batery capacity [kWh]' : batery_capacity,
-                            'Repairs per year' : repairs  
-                        }
-
-        # data_electric = { 'Vehicle cost': 700000000,
-        #                     'kWh cost': 756,
-        #                     'kWh raise': 6.6,
-        #                     'Maintenance cost': 14700000*0.35,
-        #                     'SOAT cost': 1200000*0.9,
-        #                     'Other insurances': 360000*0.7,
-        #                     'Insurance raise': 10,
-        #                     'Daily consumption': 35,
-        #                     'Daily distance' : 173,
-        #                     'Batery capacity [kWh]' : 324,
-        #                     'Repairs per year' : 2
+        # data_electric = { 'Vehicle cost': vehicle_cost,
+        #                     'kWh cost': kWh_cost,
+        #                     'kWh raise': kWh_raise,
+        #                     'Maintenance cost': maintenance_cost,
+        #                     'SOAT cost': soat_cost,
+        #                     'Other insurances': other_cost,
+        #                     'Insurance raise': insurance_raise,
+        #                     'Daily consumption': daily_consumption,
+        #                     'Daily distance' : daily_distance,
+        #                     'Batery capacity [kWh]' : batery_capacity,
+        #                     'Repairs per year' : repairs  
         #                 }
+
+        data_electric = { 'Vehicle cost': 1315132500,
+                            'kWh cost': 755.8,
+                            'kWh raise': 8,
+                            'Maintenance cost': 14700000*0.35,
+                            'SOAT cost': 1200000*0.9,
+                            'Other insurances': 360000*0.9,
+                            'Insurance raise': 10,
+                            'Daily consumption': 35,
+                            'Daily distance' : 173,
+                            'Batery capacity [kWh]' : 324,
+                            'Repairs per year' : 2*0.9
+                        }
         with open('data_files/data_electric.json', 'w') as file:
             json.dump(data_electric, file, indent=4)
 
@@ -391,10 +395,10 @@ class Comparison(ttk.Frame):
         a1.plot(years, total_combustion, label = "conventional")
         a1.plot(years, total_electric, label = "electric")
         a1.grid()
-        a1.set_title ('%d km/year' %annual_distance, fontsize=8)
-        a1.legend(['conventional', 'electric'], fontsize=8)
-        a1.set_ylabel('Accumulated cost [millions COP]', fontsize=8)
-        a1.set_xlabel('Year', fontsize=8)
+        a1.set_title ('%d km/año' %annual_distance, fontsize=8)
+        a1.legend(['convencional', 'eléctrico'], fontsize=8)
+        a1.set_ylabel('Costo acumulado [millones COP]', fontsize=8)
+        a1.set_xlabel('Año', fontsize=8)
 
         print(total_combustion)
         print(total_electric)
@@ -417,7 +421,7 @@ class Comparison(ttk.Frame):
         df.plot(ax=a2, kind = 'bar')
         
         a2.set_title('Costo anual', fontsize=8)
-        a2.legend(['convencional', 'electrico'], fontsize=8)
+        a2.legend(['convencional', 'eléctrico'], fontsize=8)
         a2.set_ylabel('Costo [Millones de COP]', fontsize=8)
         a2.set_xlabel('Año', fontsize=8)
 
@@ -481,10 +485,10 @@ class Comparison(ttk.Frame):
         df = pd.DataFrame({'Conventional': conventional, 'Electric': electric}, index=Y)
         df.plot(ax=a, kind = 'bar')
         
-        a.set_title('Annual cost')
-        a.legend(['conventional', 'electric'])
-        a.set_ylabel('Cost [millions COP]')
-        a.set_xlabel('Year')
+        a.set_title('Costo anual')
+        a.legend(['Convencional', 'Eléctrico'])
+        a.set_ylabel('Costo [millones COP]')
+        a.set_xlabel('Año')
         canvas = FigureCanvasTkAgg(fig, self)
         canvas.get_tk_widget().pack()
         canvas.draw()
