@@ -66,7 +66,7 @@ class ConventionalV(ttk.Frame):
                             'SOAT cost': 1200000,
                             'Other insurances': 360000,
                             'Insurance raise': 10,
-                            'Daily consumption': 70,
+                            'Daily consumption': 24.5,
                             'Daily distance' : 173,
                             'Repairs per year' : 2
                         }
@@ -97,6 +97,15 @@ class ConventionalV(ttk.Frame):
                                    "\n\ngr PMx/km = {}".format(pmx) + \
                                    "\n\nTCO = {} $/km".format(round(tco,2)) + \
                                    "\n\n Availability factor = {} %".format(round(availability,1))
+        
+        results = {
+        'gl/100km': round(gl_100km,3),
+        'ICR': round(icr,3), 
+        'TCO': round(tco,2)
+        }
+
+        with open('data_files/combustionTemp.json', 'w') as outfile:
+            json.dump(results, outfile)
 
     def mean_emission(self, file):
         distances = [(4022.095899057417+2415.0392316822504)/2000,
@@ -209,14 +218,14 @@ class ElectricV(ttk.Frame):
         data_electric = { 'Vehicle cost': 1315132500,
                             'kWh cost': 755.8,
                             'kWh raise': 8,
-                            'Maintenance cost': 14700000*0.35,
-                            'SOAT cost': 1200000*0.9,
-                            'Other insurances': 360000*0.9,
+                            'Maintenance cost': 14700000,
+                            'SOAT cost': 1200000,
+                            'Other insurances': 360000,
                             'Insurance raise': 10,
-                            'Daily consumption': 35,
+                            'Daily consumption': 83.3,
                             'Daily distance' : 173,
                             'Batery capacity [kWh]' : 324,
-                            'Repairs per year' : 2*0.9
+                            'Repairs per year' : 2
                         }
         with open('data_files/data_electric.json', 'w') as file:
             json.dump(data_electric, file, indent=4)
@@ -241,6 +250,15 @@ class ElectricV(ttk.Frame):
                                    "\n\nTon CO2/km = {}".format(round(co2_km,4)) + \
                                    "\n\nTCO = $ {}".format(round(tco,2)) + \
                                    "\n\n Availability factor = {} %".format(round(availability,1))
+        
+        results = {
+        'gl/100km': round(kWh_100km,3),
+        'ICR': round(icr,3), 
+        'TCO': round(tco,2)
+        }
+
+        with open('data_files/electricTemp.json', 'w') as outfile:
+            json.dump(results, outfile)
 
     def accumulated_electric_cost(self, yearlyRaise_others, initialCost_E, yearlyRaise_E, yearlyRaise_batery, Cen_E, 
                          Cm_E, othersE, otherE, batery_capacity, currency, year, IPC, Ec):
@@ -392,8 +410,10 @@ class Comparison(ttk.Frame):
         years = [*range(0, j+1, 1)]
         fig = Figure(figsize=(15,5))
         a1 = fig.add_subplot(131)
-        a1.plot(years, total_combustion, label = "conventional")
-        a1.plot(years, total_electric, label = "electric")
+        # a1.plot(years, total_combustion, label = "conventional")
+        # a1.plot(years, total_electric, label = "electric")
+        a1.plot(years, total_combustion, label = "conventional", color="#D46A47")
+        a1.plot(years, total_electric, label = "electric", color="#5EC29B")
         a1.grid()
         a1.set_title ('%d km/año' %annual_distance, fontsize=8)
         a1.legend(['convencional', 'eléctrico'], fontsize=8)
@@ -418,7 +438,7 @@ class Comparison(ttk.Frame):
         
         a2 = fig.add_subplot(132)
         df = pd.DataFrame({'Conventional': conventional, 'Electric': electric}, index=Y)
-        df.plot(ax=a2, kind = 'bar')
+        df.plot(ax=a2, kind = 'bar', color={"Conventional": "#D46A47", "Electric": "#5EC29B"})
         
         a2.set_title('Costo anual', fontsize=8)
         a2.legend(['convencional', 'eléctrico'], fontsize=8)
@@ -457,8 +477,8 @@ class Comparison(ttk.Frame):
         years = [*range(0, j+1, 1)]
         fig = Figure(figsize=(5,5),dpi=100)
         a = fig.add_subplot(221)
-        a.plot(years, total_combustion, label = "conventional")
-        a.plot(years, total_electric, label = "electric")
+        a.plot(years, total_combustion, label = "conventional", color="#D46A47")
+        a.plot(years, total_electric, label = "electric", color="#5EC29B")
         a.grid()
         a.set_title ('%d km/año' %annual_distance, fontsize=10)
         a.set_ylabel('Accumulated cost [millions COP]')
@@ -590,6 +610,10 @@ def end_action():
         remove('data_files/data_combustion.json')
     if path.exists('data_files/data_electric.json'):
         remove('data_files/data_electric.json')
+    if path.exists('data_files/electricTemp.json'):
+        remove('data_files/electricTemp.json')
+    if path.exists('data_files/combustionTemp.json'):
+        remove('data_files/combustionTemp.json')
     main_window.destroy()
 
 if __name__ == '__main__':
