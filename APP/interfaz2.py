@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import *
 import functions_cost as FC
+import intersection as IN
 import os
 from os import path
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -59,15 +60,15 @@ class ConventionalV(ttk.Frame):
         #                     'Daily distance' : daily_distance,
         #                     'Repairs per year' : repairs
         #                 }
-        data_combustion = { 'Vehicle cost': 214900000,
+        data_combustion = { 'Vehicle cost': 195400000, # Bus FRR --> https://casaeditorialeltiempo.pressreader.com/precios 195400000
                             'Galon cost': 8396,
-                            'Fuel raise': 4,
+                            'Fuel raise': 1,
                             'Maintenance cost': 14700000,
                             'SOAT cost': 1200000,
                             'Other insurances': 360000,
                             'Insurance raise': 10,
-                            'Daily consumption': 24.5,
-                            'Daily distance' : 173,
+                            'Daily consumption': 20.83,
+                            'Daily distance' : 148,
                             'Repairs per year' : 2
                         }
         with open('data_files/data_combustion.json', 'w') as file:
@@ -188,12 +189,12 @@ class ElectricV(ttk.Frame):
         file = 'data_files/data_combustion.json'
         with open(file) as file:
                 data = json.load(file)
-        maintenance_cost = data['Maintenance cost']*0.35
-        soat_cost =   data['SOAT cost']*0.9
-        other_cost = data['Other insurances']*0.9
+        maintenance_cost = data['Maintenance cost']#*0.35
+        soat_cost =   data['SOAT cost']#*0.9
+        other_cost = data['Other insurances']#*0.9
         insurance_raise = data['Insurance raise']
         daily_distance = data['Daily distance']
-        repairs = data['Repairs per year']*0.9
+        repairs = data['Repairs per year']#*0.9
 
         vehicle_cost = float(self.entries['Vehicle cost'].get())
         kWh_cost = float(self.entries['kWh cost'].get())
@@ -215,18 +216,30 @@ class ElectricV(ttk.Frame):
         #                     'Repairs per year' : repairs  
         #                 }
 
-        data_electric = { 'Vehicle cost': 1315132500,
-                            'kWh cost': 755.8,
-                            'kWh raise': 8,
+        # data_electric = { 'Vehicle cost': 185000*5118*1.35, # cost of Sunwin 8 m - 30 pasajeros with USD=5118 (historical maximum) and 35% of importation costs
+        #                     'kWh cost': 755.8,
+        #                     'kWh raise': 6,
+        #                     'Maintenance cost': 14700000*0.35,
+        #                     'SOAT cost': 1200000*0.9,
+        #                     'Other insurances': 360000*0.9,
+        #                     'Insurance raise': 10,
+        #                     'Daily consumption': 71.37,
+        #                     'Daily distance' : 148,
+        #                     'Batery capacity [kWh]' : 324,
+        #                     'Repairs per year' : 2*0.9
+        #                 } # this data is for EV
+        data_electric = { 'Vehicle cost': 195400000*1.1, # with a surcharge of 10%
+                            'kWh cost': 2086, # GNV cost at 2023 --> https://www.grupovanti.com/gas-natural-vehicular-gnv/precio-historico-del-gas-natural-vehicular/
+                            'kWh raise': 6.2,
                             'Maintenance cost': 14700000,
-                            'SOAT cost': 1200000,
-                            'Other insurances': 360000,
+                            'SOAT cost': 1200000*0.9,
+                            'Other insurances': 360000*0.9,
                             'Insurance raise': 10,
-                            'Daily consumption': 83.3,
-                            'Daily distance' : 173,
-                            'Batery capacity [kWh]' : 324,
-                            'Repairs per year' : 2
-                        }
+                            'Daily consumption': 82.69,
+                            'Daily distance' : 148,
+                            'Batery capacity [kWh]' : 0,
+                            'Repairs per year' : 2*0.9
+                        } # this data is for GNV
         with open('data_files/data_electric.json', 'w') as file:
             json.dump(data_electric, file, indent=4)
 
@@ -273,8 +286,8 @@ class ElectricV(ttk.Frame):
         totalE = []
         totalE = [*range(0, year, 1)]
         totalE[0] = initialCost_E
-        #capacidad bateria: 53.6 kWh # USD 156/kWh # tasa de cambio dolar 4997.9 # USD cambio a millones de pesos
-        bateryCost = batery_capacity * 156 * 4997.9 / currency 
+        #capacidad bateria: 53.6 kWh # USD 156/kWh # tasa de cambio dolar USD=5118 (historical maximum) cambio a millones de pesos
+        bateryCost = batery_capacity * 156 * 5118 / currency 
         for i in range(1,year,1):
             Cen_E = Cen_E + (Cen_E * yearlyRaise_E)
             Cm_E = Cm_E + (Cm_E * IPC)
@@ -412,16 +425,18 @@ class Comparison(ttk.Frame):
         a1 = fig.add_subplot(131)
         # a1.plot(years, total_combustion, label = "conventional")
         # a1.plot(years, total_electric, label = "electric")
-        a1.plot(years, total_combustion, label = "conventional", color="#D46A47")
-        a1.plot(years, total_electric, label = "electric", color="#5EC29B")
+        a1.plot(years, total_combustion, label = "Conventional", color="#A3AF9E")
+        a1.plot(years, total_electric, label = "electric", color="#00ADFF")
         a1.grid()
         a1.set_title ('%d km/año' %annual_distance, fontsize=8)
-        a1.legend(['convencional', 'eléctrico'], fontsize=8)
+        a1.legend(['Diesel', 'Gas'], fontsize=8)
         a1.set_ylabel('Costo acumulado [millones COP]', fontsize=8)
         a1.set_xlabel('Año', fontsize=8)
 
-        print(total_combustion)
-        print(total_electric)
+        # print(total_combustion)
+        # print(total_electric)
+        IN.getVectors(annual_distance, total_combustion, total_electric)
+        # print([total_combustion[año], total_electric[año]])
 
         currency, year, annual_distance, ipc = self.get_data_config()
         initialCost_C, yearlyRaise_C, yearlyRaise_others, Cen_C, costMaintenance_C, others_C, other_C = self.get_data_combustion()
@@ -438,10 +453,10 @@ class Comparison(ttk.Frame):
         
         a2 = fig.add_subplot(132)
         df = pd.DataFrame({'Conventional': conventional, 'Electric': electric}, index=Y)
-        df.plot(ax=a2, kind = 'bar', color={"Conventional": "#D46A47", "Electric": "#5EC29B"})
+        df.plot(ax=a2, kind = 'bar', color={"Conventional": "#A3AF9E", "Electric": "#00ADFF"})
         
         a2.set_title('Costo anual', fontsize=8)
-        a2.legend(['convencional', 'eléctrico'], fontsize=8)
+        a2.legend(['Diesel', 'Gas'], fontsize=8)
         a2.set_ylabel('Costo [Millones de COP]', fontsize=8)
         a2.set_xlabel('Año', fontsize=8)
 
@@ -477,8 +492,8 @@ class Comparison(ttk.Frame):
         years = [*range(0, j+1, 1)]
         fig = Figure(figsize=(5,5),dpi=100)
         a = fig.add_subplot(221)
-        a.plot(years, total_combustion, label = "conventional", color="#D46A47")
-        a.plot(years, total_electric, label = "electric", color="#5EC29B")
+        a.plot(years, total_combustion, label = "conventional", color="#A3AF9E")
+        a.plot(years, total_electric, label = "electric", color="#00ADFF")
         a.grid()
         a.set_title ('%d km/año' %annual_distance, fontsize=10)
         a.set_ylabel('Accumulated cost [millions COP]')
@@ -586,7 +601,7 @@ class Application(ttk.Frame):
         options  = option.get()
         if options == 1:
             currency_name = "USD"
-            currency = 4999
+            currency = 5118 # USD=5118 (historical maximum)
         elif options == 2:
             currency_name = "COP"
             currency =  1000000
