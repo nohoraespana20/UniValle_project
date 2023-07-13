@@ -62,7 +62,7 @@ class ConventionalV(ttk.Frame):
         #                 }
         data_combustion = { 'Vehicle cost': 195400000, # Bus FRR --> https://casaeditorialeltiempo.pressreader.com/precios 195400000
                             'Galon cost': 8396,
-                            'Fuel raise': 1,
+                            'Fuel raise': 4,
                             'Maintenance cost': 14700000,
                             'SOAT cost': 1200000,
                             'Other insurances': 360000,
@@ -230,7 +230,7 @@ class ElectricV(ttk.Frame):
         #                 } # this data is for EV
         data_electric = { 'Vehicle cost': 195400000*1.1, # with a surcharge of 10%
                             'kWh cost': 2086, # GNV cost at 2023 --> https://www.grupovanti.com/gas-natural-vehicular-gnv/precio-historico-del-gas-natural-vehicular/
-                            'kWh raise': 6.2,
+                            'kWh raise': 3.4,
                             'Maintenance cost': 14700000,
                             'SOAT cost': 1200000*0.9,
                             'Other insurances': 360000*0.9,
@@ -430,7 +430,8 @@ class Comparison(ttk.Frame):
         a1.grid()
         a1.set_title ('%d km/año' %annual_distance, fontsize=8)
         a1.legend(['Diesel', 'Gas'], fontsize=8)
-        a1.set_ylabel('Costo acumulado [millones COP]', fontsize=8)
+        # a1.set_ylabel('Costo acumulado [millones COP]', fontsize=8)
+        a1.set_ylabel('Cumulative Cost [USD]', fontsize=8)
         a1.set_xlabel('Año', fontsize=8)
 
         # print(total_combustion)
@@ -448,16 +449,26 @@ class Comparison(ttk.Frame):
 
         years = [*range(0, j+1, 1)]
         Y = [str(x) for x in years]
-        conventional = total_combustion
-        electric = total_electric
+        # conventional = total_combustion
+        conventional = []
+        # electric = total_electric
+        electric = []
+
+        for dataCom in total_combustion:
+             conventional.append(dataCom/1000)
+
+        for dataElec in total_electric:
+             electric.append(dataElec/1000)
         
         a2 = fig.add_subplot(132)
         df = pd.DataFrame({'Conventional': conventional, 'Electric': electric}, index=Y)
         df.plot(ax=a2, kind = 'bar', color={"Conventional": "#A3AF9E", "Electric": "#00ADFF"})
         
-        a2.set_title('Costo anual', fontsize=8)
+        # a2.set_title('Costo anual', fontsize=8)
+        a2.set_title('Annual Cost', fontsize=8)
         a2.legend(['Diesel', 'Gas'], fontsize=8)
-        a2.set_ylabel('Costo [Millones de COP]', fontsize=8)
+        # a2.set_ylabel('Costo [Millones de COP]', fontsize=8)
+        a2.set_ylabel('Cost [thousands of USD]', fontsize=8)
         a2.set_xlabel('Año', fontsize=8)
 
         currency, year, annual_distance, ipc = self.get_data_config()
