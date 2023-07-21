@@ -1,18 +1,58 @@
 {
     "40000.0": {
-        "combustion": "NO possible solution",
-        "electric": "NO possible solution"
+        "combustion": [
+            0,
+            195.4,
+            1,
+            516.6491183601654
+        ],
+        "electric": [
+            0,
+            214.94000000000003,
+            1,
+            475.02233973449364
+        ]
     },
     "60000.0": {
-        "combustion": "NO possible solution",
-        "electric": "NO possible solution"
+        "combustion": [
+            0,
+            195.4,
+            1,
+            668.0107825402481
+        ],
+        "electric": [
+            0,
+            214.94000000000003,
+            1,
+            597.2156146017404
+        ]
     },
     "80000.0": {
-        "combustion": "NO possible solution",
-        "electric": "NO possible solution"
+        "combustion": [
+            0,
+            195.4,
+            1,
+            819.3724467203308
+        ],
+        "electric": [
+            0,
+            214.94000000000003,
+            1,
+            719.4088894689872
+        ]
     },
     "100000.0": {
-        "combustion": "NO possible solution",
-        "electric": "NO possible solution"
+        "combustion": [
+            0,
+            195.4,
+            1,
+            970.7341109004135
+        ],
+        "electric": [
+            0,
+            214.94000000000003,
+            1,
+            841.6021643362342
+        ]
     }
 }
