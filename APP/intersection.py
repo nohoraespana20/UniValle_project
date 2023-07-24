@@ -1,8 +1,8 @@
 import json
 
 def getVectors(distance, combustion, electric):
-  # print('combustion: ', combustion)
-  # print('electric: ', electric)
+  print('combustion: ', combustion)
+  print('electric: ', electric)
   with open('data_files/intersection.json', "r") as file:
     data = json.load(file)
   diferencia = [e1 - e2 for e1, e2 in zip(combustion, electric)] # make the subtraction between the lists combustion and electric

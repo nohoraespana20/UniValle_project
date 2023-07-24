@@ -65,7 +65,7 @@ class ConventionalV(ttk.Frame):
                             'Fuel raise': 5,
                             'Maintenance cost': 14700000,
                             'SOAT cost': 1200000,
-                            'Other insurances': 360000,
+                            'Other insurances': 195400000*0.005,
                             'Insurance raise': 10,
                             'Daily consumption': 20.83,
                             'Daily distance' : 148,
@@ -216,30 +216,30 @@ class ElectricV(ttk.Frame):
         #                     'Repairs per year' : repairs  
         #                 }
 
-        # data_electric = { 'Vehicle cost': 185000*5118*1.35, # cost of Sunwin 8 m - 30 pasajeros with USD=5118 (historical maximum) and 35% of importation costs
-        #                     'kWh cost': 755.8,
-        #                     'kWh raise': 8,
-        #                     'Maintenance cost': 14700000*0.35,
+        data_electric = { 'Vehicle cost': 185000*5118*1.35, # cost of Sunwin 8 m - 30 pasajeros with USD=5118 (historical maximum) and 35% of importation costs
+                            'kWh cost': 755.8,
+                            'kWh raise': 8,
+                            'Maintenance cost': 14700000*0.35,
+                            'SOAT cost': 1200000*0.9,
+                            'Other insurances': 185000*5118*0.005*0.4, # descuento --> https://revistaelcongreso.com/vehiculos-hibridos-y-electricos-tendran-descuento-en-el-pago-del-impuesto-vehicular/
+                            'Insurance raise': 10,
+                            'Daily consumption': 71.37,
+                            'Daily distance' : 148,
+                            'Batery capacity [kWh]' : 324,
+                            'Repairs per year' : 2*0.9
+                        } # this data is for EV
+        # data_electric = { 'Vehicle cost': 195400000*1.1, # with a surcharge of 10%
+        #                     'kWh cost': 2086, # GNV cost at 2023 --> https://www.grupovanti.com/gas-natural-vehicular-gnv/precio-historico-del-gas-natural-vehicular/
+        #                     'kWh raise': 3.9,
+        #                     'Maintenance cost': 14700000,
         #                     'SOAT cost': 1200000*0.9,
         #                     'Other insurances': 360000*0.9,
         #                     'Insurance raise': 10,
-        #                     'Daily consumption': 71.37,
+        #                     'Daily consumption': 82.69,
         #                     'Daily distance' : 148,
-        #                     'Batery capacity [kWh]' : 324,
+        #                     'Batery capacity [kWh]' : 0,
         #                     'Repairs per year' : 2*0.9
-        #                 } # this data is for EV
-        data_electric = { 'Vehicle cost': 195400000*1.1, # with a surcharge of 10%
-                            'kWh cost': 2086, # GNV cost at 2023 --> https://www.grupovanti.com/gas-natural-vehicular-gnv/precio-historico-del-gas-natural-vehicular/
-                            'kWh raise': 3.9,
-                            'Maintenance cost': 14700000,
-                            'SOAT cost': 1200000*0.9,
-                            'Other insurances': 360000*0.9,
-                            'Insurance raise': 10,
-                            'Daily consumption': 82.69,
-                            'Daily distance' : 148,
-                            'Batery capacity [kWh]' : 0,
-                            'Repairs per year' : 2*0.9
-                        } # this data is for GNV
+        #                 } # this data is for GNV
         with open('data_files/data_electric.json', 'w') as file:
             json.dump(data_electric, file, indent=4)
 
