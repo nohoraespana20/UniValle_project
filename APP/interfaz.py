@@ -7,68 +7,78 @@ from tkinter import *
 from matplotlib.figure import Figure
 import pandas as pd
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from tkinter import messagebox as mb
 
 class Data():
     '''
         Get data from interface window and save in a .json file
     '''
     def saveConfig(self):
-        currency = self.currency.get()
-        modeTransport = self.modeTransport.get()
-        time = float(self.time.get())
-        annualDistance = float(self.annualDistance.get())
-        dailyDistance = float(self.dailyDistance.get())
-    
-        configuration = {  'Currency' : currency,
-                            'Mode of transport' : modeTransport,
-                            'Years' : int(time),
-                            'Annual distance' : int(annualDistance),
-                            'Daily distance' : int(dailyDistance),
-                        }
-        with open('data_files/data_config.json', 'w') as file:
-            json.dump(configuration, file, indent=4)
+        try:
+            currency = self.currency.get()
+            modeTransport = self.modeTransport.get()
+            time = float(self.time.get())
+            annualDistance = float(self.annualDistance.get())
+            dailyDistance = float(self.dailyDistance.get())
+        
+            configuration = {  'Currency' : currency,
+                                'Mode of transport' : modeTransport,
+                                'Years' : int(time),
+                                'Annual distance' : int(annualDistance),
+                                'Daily distance' : int(dailyDistance),
+                            }
+            with open('data_files/data_config.json', 'w') as file:
+                json.dump(configuration, file, indent=4)
+        except ValueError:
+            mb.showerror("Error","Hay casillas vacías en la sección Configuración")
     
     def saveCombustionData(self):
-        vehicleCost = float(self.combustionCost.get())
-        galonCost = float(self.fuelCost.get())
-        fuelRaise = float(self.fuelRaise.get())
-        maintenanceCost = float(self.combustionMaintenanceCost.get())
-        soatCost = float(self.soatCost.get())
-        checkCost = float(self.checkCost.get())
-        otherInsurance = float(self.otherInsurance.get())
-        insuranceRaise = float(self.insuranceRaise.get())
-        dailyConsumption = float(self.dailyConsumption.get())
-        repairs = float(self.repairs.get())
+        try: 
+            vehicleCost = float(self.combustionCost.get())
+            galonCost = float(self.fuelCost.get())
+            fuelRaise = float(self.fuelRaise.get())
+            maintenanceCost = float(self.combustionMaintenanceCost.get())
+            soatCost = float(self.soatCost.get())
+            checkCost = float(self.checkCost.get())
+            otherInsurance = float(self.otherInsurance.get())
+            insuranceRaise = float(self.insuranceRaise.get())
+            dailyConsumption = float(self.dailyConsumption.get())
+            repairs = float(self.repairs.get())
 
-        dataVCI = { 'Vehicle cost': vehicleCost,
-                    'Galon cost': galonCost,
-                    'Fuel raise': fuelRaise,
-                    'Daily consumption': dailyConsumption,
-                    'Maintenance cost': maintenanceCost,
-                    'SOAT cost': soatCost,
-                    'Other insurances' : otherInsurance,
-                    'Annual check': checkCost,
-                    'Insurance raise': insuranceRaise,
-                    'Repairs per year' : repairs
-                    }
-        with open('data_files/data_combustion.json', 'w') as file:
-            json.dump(dataVCI, file, indent=4)
+            dataVCI = { 'Vehicle cost': vehicleCost,
+                        'Galon cost': galonCost,
+                        'Fuel raise': fuelRaise,
+                        'Daily consumption': dailyConsumption,
+                        'Maintenance cost': maintenanceCost,
+                        'SOAT cost': soatCost,
+                        'Other insurances' : otherInsurance,
+                        'Annual check': checkCost,
+                        'Insurance raise': insuranceRaise,
+                        'Repairs per year' : repairs
+                        }
+            with open('data_files/data_combustion.json', 'w') as file:
+                json.dump(dataVCI, file, indent=4)
+        except ValueError:
+            mb.showerror("Error","Hay casillas vacías en la sección Vehículo Combustión Interna")
 
     def saveElectricData(self):
-        vehicleCost = float(self.electricCost.get())
-        kWhCost = float(self.kWhCost .get())
-        kWhRaise = float(self.kWhRaise.get())
-        dailykWh = float(self.dailyConsumption.get())
-        bateryCapacity = float(self.bateryCapacity.get())
+        try:
+            vehicleCost = float(self.electricCost.get())
+            kWhCost = float(self.kWhCost .get())
+            kWhRaise = float(self.kWhRaise.get())
+            dailykWh = float(self.dailyConsumption.get())
+            bateryCapacity = float(self.bateryCapacity.get())
 
-        dataVE = { 'Vehicle cost': vehicleCost,
-                    'kWh cost': kWhCost,
-                    'kWh raise': kWhRaise,
-                    'Daily consumption': dailykWh,
-                    'Batery capacity [kWh]' : bateryCapacity,
-                    }
-        with open('data_files/data_electric.json', 'w') as file:
-            json.dump(dataVE, file, indent=4)  
+            dataVE = { 'Vehicle cost': vehicleCost,
+                        'kWh cost': kWhCost,
+                        'kWh raise': kWhRaise,
+                        'Daily consumption': dailykWh,
+                        'Batery capacity [kWh]' : bateryCapacity,
+                        }
+            with open('data_files/data_electric.json', 'w') as file:
+                json.dump(dataVE, file, indent=4)  
+        except ValueError:
+            mb.showerror("Error","Hay casillas vacías en la sección Vehículo Eléctrico")
 
 class IndexCalculation():
     '''
@@ -367,7 +377,6 @@ class IndexCalculation():
         a2.set_xlabel('Año', fontsize=8)
         return fig
 
-
 class Interface():
     def __init__(self):
         self.window = tk.Tk()
@@ -378,20 +387,14 @@ class Interface():
         self.combustionFrame()
         self.electricFrame()
         self.resultsFrame()
+        self.generalMenu()
 
     def createWidgets(self):
         # Create some room around all the internal frames
         self.window['padx'] = 5
         self.window['pady'] = 5
 
-    def buttonClear(self,boxes,entries):
-        for box in boxes:
-            box.set('')
-        for entry in entries:
-            entry.delete(0,'end')
-
     def createBox(self, frame, text, variable, values, row):
-        print(text)
         textLabel = ttk.Label(frame, text=text)
         textLabel.grid(row=row, column=1, sticky=tk.W, pady=3)
         box = ttk.Combobox(frame, height=4, textvariable=variable)
@@ -401,7 +404,6 @@ class Interface():
         return box
     
     def createEntry(self, frame, text, variable, initialValue, row):
-        print(text)
         textLabel = ttk.Label(frame, text=text)
         textLabel.grid(row=row, column=1, sticky=tk.W + tk.N)
         entry = ttk.Entry(frame, textvariable=variable, width=20)
@@ -419,19 +421,14 @@ class Interface():
         self.annualDistance = tk.StringVar()
         self.dailyDistance = tk.StringVar()
 
-        box1 = self.createBox(cfgFrame, "Divisa", self.currency, ('', 'USD', 'COP'), 1)
-        box2 = self.createBox(cfgFrame, "Modo de transporte", self.modeTransport, (" ", "Taxi", "Bus"), 2)
-        entry1 = self.createEntry(cfgFrame, "Años", self.time, "", 3)
-        entry2 = self.createEntry(cfgFrame, "Distancia anual [km]", self.annualDistance, "", 4)
-        entry3 = self.createEntry(cfgFrame, "Distancia diaria [km]", self.dailyDistance, "", 5)
-        boxes = [box1, box2]
-        entries = [entry1, entry2, entry3]
-
-        buttonClean = tk.Button(cfgFrame, text="Limpiar", command=lambda:self.buttonClear(boxes, entries))
-        buttonClean.grid(row=6, column=1)
+        self.createBox(cfgFrame, "Divisa", self.currency, ('', 'USD', 'COP'), 1)
+        self.createBox(cfgFrame, "Modo de transporte", self.modeTransport, (" ", "Taxi", "Bus"), 2)
+        self.createEntry(cfgFrame, "Años", self.time, "", 3)
+        self.createEntry(cfgFrame, "Distancia anual [km]", self.annualDistance, "", 4)
+        self.createEntry(cfgFrame, "Distancia diaria [km]", self.dailyDistance, "", 5)
 
         buttonSave = tk.Button(cfgFrame, text="Guardar", command=lambda:Data.saveConfig(self))
-        buttonSave.grid(row=6, column=2)
+        buttonSave.grid(row=6, column=1)
 
     def combustionFrame(self):
         cFrame = ttk.LabelFrame(self.window, text="Vehículo combustión interna",
@@ -449,25 +446,19 @@ class Interface():
         self.insuranceRaise = tk.StringVar()
         self.repairs = tk.StringVar()
 
-        entry1 = self.createEntry(cFrame, "Costo de compra", self.combustionCost, "", 1)
-        entry2 = self.createEntry(cFrame, "Costo galón de combustible", self.fuelCost, "", 2)
-        entry3 = self.createEntry(cFrame, "% Incremento anual combustible", self.fuelRaise, "", 3)
-        entry4 = self.createEntry(cFrame, "Consumo diario [gl]", self.dailyConsumption, "", 4)
-        entry5 = self.createEntry(cFrame, "Costo anual mantenimiento", self.combustionMaintenanceCost, "", 5)
-        entry6 = self.createEntry(cFrame, "Costo anual SOAT", self.soatCost, "", 6)
-        entry7 = self.createEntry(cFrame, "Costo anual otros seguros", self.otherInsurance, "", 7)
-        entry8 = self.createEntry(cFrame, "Costo revisión tecnomecánica", self.checkCost, "", 8)
-        entry9 = self.createEntry(cFrame, "% Incremento anual seguros", self.insuranceRaise, "", 9)
-        entry10 = self.createEntry(cFrame, "Reparaciones por año", self.repairs, "", 10)
-
-        boxes = []
-        entries = [entry1, entry2, entry3, entry4, entry5, entry6, entry7, entry8, entry9, entry10]
-
-        buttonClean = tk.Button(cFrame, text="Limpiar", command=lambda:self.buttonClear(boxes, entries))
-        buttonClean.grid(row=12, column=1)
+        self.createEntry(cFrame, "Costo de compra", self.combustionCost, "", 1)
+        self.createEntry(cFrame, "Costo galón de combustible", self.fuelCost, "", 2)
+        self.createEntry(cFrame, "% Incremento anual combustible", self.fuelRaise, "", 3)
+        self.createEntry(cFrame, "Consumo diario [gl]", self.dailyConsumption, "", 4)
+        self.createEntry(cFrame, "Costo anual mantenimiento", self.combustionMaintenanceCost, "", 5)
+        self.createEntry(cFrame, "Costo anual SOAT", self.soatCost, "", 6)
+        self.createEntry(cFrame, "Costo anual otros seguros", self.otherInsurance, "", 7)
+        self.createEntry(cFrame, "Costo revisión tecnomecánica", self.checkCost, "", 8)
+        self.createEntry(cFrame, "% Incremento anual seguros", self.insuranceRaise, "", 9)
+        self.createEntry(cFrame, "Reparaciones por año", self.repairs, "", 10)
 
         buttonSave = tk.Button(cFrame, text="Guardar", command=lambda:Data.saveCombustionData(self))
-        buttonSave.grid(row=12, column=2)
+        buttonSave.grid(row=12, column=1)
 
     def electricFrame(self):
         eFrame = ttk.LabelFrame(self.window, text="Vehículo eléctrico",
@@ -480,20 +471,14 @@ class Interface():
         self.dailykWh = tk.StringVar()
         self.bateryCapacity = tk.StringVar()
 
-        entry1 = self.createEntry(eFrame, "Costo de compra", self.electricCost, "", 1)
-        entry2 = self.createEntry(eFrame, "Costo kWh", self.kWhCost, "", 2)
-        entry3 = self.createEntry(eFrame, "% Incremento anual kWh", self.kWhRaise, "", 3)
-        entry4 = self.createEntry(eFrame, "Consumo diario [kWh]", self.dailykWh, "", 4)
-        entry5 = self.createEntry(eFrame, "Capacidad de batería [kWh]", self.bateryCapacity, "", 5)
-
-        boxes = []
-        entries = [entry1, entry2, entry3, entry4, entry5]
-
-        buttonClean = tk.Button(eFrame, text="Limpiar", command=lambda:self.buttonClear(boxes, entries))
-        buttonClean.grid(row=6, column=1)
+        self.createEntry(eFrame, "Costo de compra", self.electricCost, "", 1)
+        self.createEntry(eFrame, "Costo kWh", self.kWhCost, "", 2)
+        self.createEntry(eFrame, "% Incremento anual kWh", self.kWhRaise, "", 3)
+        self.createEntry(eFrame, "Consumo diario [kWh]", self.dailykWh, "", 4)
+        self.createEntry(eFrame, "Capacidad de batería [kWh]", self.bateryCapacity, "", 5)
 
         buttonSave = tk.Button(eFrame, text="Guardar", command=lambda:Data.saveElectricData(self))
-        buttonSave.grid(row=6, column=2)
+        buttonSave.grid(row=6, column=1)
 
     def resultsFrame(self):
         rFrame = ttk.LabelFrame(self.window, text="Comparar", relief=tk.RIDGE, padding=10)
@@ -504,9 +489,9 @@ class Interface():
 
         buttonGraphics = tk.Button(rFrame, text="Mostrar gráficas", command=lambda:self.showGraphics())
         buttonGraphics.grid(row=4, column=2)
-
-        # # - - - - - - - - - - - - - - - - - - - - -
-        # # Menus
+        
+    
+    def generalMenu(self):
         menubar = tk.Menu(self.window)
 
         filemenu = tk.Menu(menubar, tearoff=0)
