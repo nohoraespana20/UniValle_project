@@ -8,6 +8,7 @@ from matplotlib.figure import Figure
 import pandas as pd
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from tkinter import messagebox as mb
+from tkhtmlview import HTMLLabel
 
 class Data():
     '''
@@ -84,9 +85,6 @@ class IndexCalculation():
     '''
     Import data and process to calculate the technical, economic, ambiental, and social indexes. 
     '''
-    def __init__(self):
-        self.importData()
-
     def readJson(file):
         with open(file) as file:
             data = json.load(file)
@@ -383,11 +381,39 @@ class Interface():
         self.window.title("Evaluación de vehículos")
         self.window.geometry("800x550")
         self.createWidgets()
+        self.generalMenu()
         self.configurationFrame()
         self.combustionFrame()
         self.electricFrame()
         self.resultsFrame()
-        self.generalMenu()
+        
+    
+    def generalMenu(self):
+        menubar = tk.Menu(self.window)
+
+        filemenu = tk.Menu(menubar, tearoff=0)
+        filemenu.add_command(label="Acerca de ", command=lambda:self.aboutFunction())
+        filemenu.add_command(label="Documentación", command=lambda:self.helpFunction())
+        filemenu.add_separator()
+        filemenu.add_command(label="Salir", command=self.window.quit)
+        menubar.add_cascade(label="Ayuda", menu=filemenu)
+
+        self.window.config(menu=menubar)
+
+        quitButton = ttk.Button(self.window, text="Cerrar", command=self.window.destroy)
+        quitButton.grid(row=1, column=3)
+    
+    def aboutFunction(self):
+        text = "Este trabajo ha sido financiado por el Fondo de Ciencia, Tecnología e Innovación \nSistema General de Regalías de Colombia \nProyecto SIGP 66777, BPIN2020020020000100041. \n\nDESARROLLO DE UN MODELO ALTERNATIVO DE ENERGÍA Y MOVILIDAD CON FUENTES NO CONVENCIONALES EN LA UNIVERSIDAD DE NARIÑO."
+        mb.showinfo("Acerca de ", text)
+
+    def helpFunction(self):
+        helpWindow = Toplevel()
+        helpWindow.geometry("600x400")
+        helpWindow.title("Ayuda")
+        html_label = HTMLLabel(helpWindow, html='<h1 style="color: blue; text-align: center"> Hello World </h1>')
+        html_label.pack(fill="both", expand=FALSE)
+        html_label.fit_height()
 
     def createWidgets(self):
         # Create some room around all the internal frames
@@ -488,25 +514,8 @@ class Interface():
         buttonIndex.grid(row=2, column=2)
 
         buttonGraphics = tk.Button(rFrame, text="Mostrar gráficas", command=lambda:self.showGraphics())
-        buttonGraphics.grid(row=4, column=2)
-        
+        buttonGraphics.grid(row=4, column=2)   
     
-    def generalMenu(self):
-        menubar = tk.Menu(self.window)
-
-        filemenu = tk.Menu(menubar, tearoff=0)
-        filemenu.add_command(label="Acerca de ", command=filedialog.askopenfilename)
-        filemenu.add_command(label="Documentación", command=filedialog.asksaveasfilename)
-        filemenu.add_separator()
-        filemenu.add_command(label="Salir", command=self.window.quit)
-        menubar.add_cascade(label="Ayuda", menu=filemenu)
-
-        self.window.config(menu=menubar)
-
-        # - - - - - - - - - - - - - - - - - - - - -
-        quitButton = ttk.Button(self.window, text="Cerrar", command=self.window.destroy)
-        quitButton.grid(row=1, column=3)
-
     def showIndexes(self):
         indexWindow = Toplevel()
         indexWindow.geometry("600x400")
@@ -585,13 +594,18 @@ class Interface():
         box3.grid(row=14, column=4, sticky=tk.W, pady=3)
         box3.insert(tk.END, str(socialEmissionsCostElectric)+" %s/tonCO2" %configuration[0])
 
+        quitButton = ttk.Button(indexWindow, text="Cerrar", command=indexWindow.destroy)
+        quitButton.grid(row=17, column=4)
+
     def showGraphics(self):
-        indexWindow = Toplevel()
-        indexWindow.geometry("600x800")
-        indexWindow.title("Gráficas comparativas")
+        graphicsWindow = Toplevel()
+        graphicsWindow.geometry("800x800")
+        graphicsWindow.title("Gráficas comparativas")
         fig = IndexCalculation.createGraphics()
-        canvas3 = FigureCanvasTkAgg(fig, indexWindow)
+        canvas3 = FigureCanvasTkAgg(fig, graphicsWindow)
         canvas3.get_tk_widget().pack()
+
+    
 
 # Create the entire GUI program
 program = Interface()
