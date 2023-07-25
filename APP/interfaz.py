@@ -365,7 +365,6 @@ class IndexCalculation():
         a2.grid()
         a2.set_ylabel('Costo en %s' %text, fontsize=8)
         a2.set_xlabel('Año', fontsize=8)
-        fig.savefig('graphicsAPP.png', transparent=True)
         return fig
 
 
@@ -385,6 +384,31 @@ class Interface():
         self.window['padx'] = 5
         self.window['pady'] = 5
 
+    def buttonClear(self,boxes,entries):
+        for box in boxes:
+            box.set('')
+        for entry in entries:
+            entry.delete(0,'end')
+
+    def createBox(self, frame, text, variable, values, row):
+        print(text)
+        textLabel = ttk.Label(frame, text=text)
+        textLabel.grid(row=row, column=1, sticky=tk.W, pady=3)
+        box = ttk.Combobox(frame, height=4, textvariable=variable)
+        box.grid(row=row, column=2)
+        box['values'] = values
+        box.current(0)
+        return box
+    
+    def createEntry(self, frame, text, variable, initialValue, row):
+        print(text)
+        textLabel = ttk.Label(frame, text=text)
+        textLabel.grid(row=row, column=1, sticky=tk.W + tk.N)
+        entry = ttk.Entry(frame, textvariable=variable, width=20)
+        entry.grid(row=row, column=2, sticky=tk.W, pady=3)
+        entry.insert(tk.END, initialValue)
+        return entry
+
     def configurationFrame(self):
         cfgFrame = ttk.LabelFrame(self.window, text="Configuración", relief=tk.SUNKEN, padding=10)
         cfgFrame.grid(row=1, column=1, sticky=tk.E + tk.W + tk.N + tk.S)
@@ -395,40 +419,15 @@ class Interface():
         self.annualDistance = tk.StringVar()
         self.dailyDistance = tk.StringVar()
 
-        text1 = ttk.Label(cfgFrame, text="Divisa")
-        text1.grid(row=1, column=1, sticky=tk.W, pady=3)
-        box1 = ttk.Combobox(cfgFrame, height=4, textvariable=self.currency)
-        box1.grid(row=1, column=2)
-        box1['values'] = (" ", "USD", "COP")
-        box1.current(0)
+        box1 = self.createBox(cfgFrame, "Divisa", self.currency, ('', 'USD', 'COP'), 1)
+        box2 = self.createBox(cfgFrame, "Modo de transporte", self.modeTransport, (" ", "Taxi", "Bus"), 2)
+        entry1 = self.createEntry(cfgFrame, "Años", self.time, "", 3)
+        entry2 = self.createEntry(cfgFrame, "Distancia anual [km]", self.annualDistance, "", 4)
+        entry3 = self.createEntry(cfgFrame, "Distancia diaria [km]", self.dailyDistance, "", 5)
+        boxes = [box1, box2]
+        entries = [entry1, entry2, entry3]
 
-        text2 = ttk.Label(cfgFrame, text="Modo de transporte")
-        text2.grid(row=2, column=1, sticky=tk.W, pady=3)
-        box2 = ttk.Combobox(cfgFrame, height=4, textvariable=self.modeTransport)
-        box2.grid(row=2, column=2)
-        box2['values'] = (" ", "Taxi", "Bus")
-        box2.current(0)
-
-        text3 = ttk.Label(cfgFrame, text="Años")
-        text3.grid(row=3, column=1, sticky=tk.W + tk.N)
-        box3 = ttk.Entry(cfgFrame, textvariable=self.time,width=20)
-        box3.grid(row=3, column=2, sticky=tk.W, pady=3)
-        box3.insert(tk.END, "")
-
-        text4 = ttk.Label(cfgFrame, text="Distancia anual [km]")
-        text4.grid(row=4, column=1, sticky=tk.W + tk.N)
-        box4 = ttk.Entry(cfgFrame, textvariable=self.annualDistance,width=20)
-        box4.grid(row=4, column=2, sticky=tk.W, pady=3)
-        box4.insert(tk.END, "")
-
-        text5 = ttk.Label(cfgFrame, text="Distancia diaria [km]")
-        text5.grid(row=5, column=1, sticky=tk.W + tk.N)
-        box5 = ttk.Entry(cfgFrame, textvariable=self.dailyDistance,width=20)
-        box5.grid(row=5, column=2, sticky=tk.W, pady=3)
-        box5.insert(tk.END, "")
-
-        # TODO: DEFINIR Y APLICAR FUNCIÓN PARA LIMPIAR CASILLAS
-        buttonClean = tk.Button(cfgFrame, text="Limpiar")
+        buttonClean = tk.Button(cfgFrame, text="Limpiar", command=lambda:self.buttonClear(boxes, entries))
         buttonClean.grid(row=6, column=1)
 
         buttonSave = tk.Button(cfgFrame, text="Guardar", command=lambda:Data.saveConfig(self))
@@ -448,71 +447,23 @@ class Interface():
         self.checkCost = tk.StringVar()
         self.otherInsurance = tk.StringVar()
         self.insuranceRaise = tk.StringVar()
-        
         self.repairs = tk.StringVar()
 
-        text1 = ttk.Label(cFrame, text="Costo de compra")
-        text1.grid(row=1, column=1, sticky=tk.W + tk.N)
-        box1 = ttk.Entry(cFrame, textvariable=self.combustionCost, width=20)
-        box1.grid(row=1, column=2, sticky=tk.W, pady=3)
-        box1.insert(tk.END, "")
+        entry1 = self.createEntry(cFrame, "Costo de compra", self.combustionCost, "", 1)
+        entry2 = self.createEntry(cFrame, "Costo galón de combustible", self.fuelCost, "", 2)
+        entry3 = self.createEntry(cFrame, "% Incremento anual combustible", self.fuelRaise, "", 3)
+        entry4 = self.createEntry(cFrame, "Consumo diario [gl]", self.dailyConsumption, "", 4)
+        entry5 = self.createEntry(cFrame, "Costo anual mantenimiento", self.combustionMaintenanceCost, "", 5)
+        entry6 = self.createEntry(cFrame, "Costo anual SOAT", self.soatCost, "", 6)
+        entry7 = self.createEntry(cFrame, "Costo anual otros seguros", self.otherInsurance, "", 7)
+        entry8 = self.createEntry(cFrame, "Costo revisión tecnomecánica", self.checkCost, "", 8)
+        entry9 = self.createEntry(cFrame, "% Incremento anual seguros", self.insuranceRaise, "", 9)
+        entry10 = self.createEntry(cFrame, "Reparaciones por año", self.repairs, "", 10)
 
-        text2 = ttk.Label(cFrame, text="Costo galón de combustible")
-        text2.grid(row=2, column=1, sticky=tk.W + tk.N)
-        box2 = ttk.Entry(cFrame, textvariable=self.fuelCost, width=20)
-        box2.grid(row=2, column=2, sticky=tk.W, pady=3)
-        box2.insert(tk.END, "")
+        boxes = []
+        entries = [entry1, entry2, entry3, entry4, entry5, entry6, entry7, entry8, entry9, entry10]
 
-        text3 = ttk.Label(cFrame, text="% Incremento anual combustible")
-        text3.grid(row=3, column=1, sticky=tk.W + tk.N)
-        box3 = ttk.Entry(cFrame, textvariable=self.fuelRaise, width=20)
-        box3.grid(row=3, column=2, sticky=tk.W, pady=3)
-        box3.insert(tk.END, "")
-
-        text4 = ttk.Label(cFrame, text="Consumo diario [gl]")
-        text4.grid(row=4, column=1, sticky=tk.W + tk.N)
-        box4 = ttk.Entry(cFrame, textvariable=self.dailyConsumption, width=20)
-        box4.grid(row=4, column=2, sticky=tk.W, pady=3)
-        box4.insert(tk.END, "")
-
-        text5 = ttk.Label(cFrame, text="Costo anual mantenimiento")
-        text5.grid(row=5, column=1, sticky=tk.W + tk.N)
-        box5 = ttk.Entry(cFrame, textvariable=self.combustionMaintenanceCost, width=20)
-        box5.grid(row=5, column=2, sticky=tk.W, pady=3)
-        box5.insert(tk.END, "")
-
-        text6 = ttk.Label(cFrame, text="Costo anual SOAT")
-        text6.grid(row=6, column=1, sticky=tk.W + tk.N)
-        box6 = ttk.Entry(cFrame, textvariable=self.soatCost, width=20)
-        box6.grid(row=6, column=2, sticky=tk.W, pady=3)
-        box6.insert(tk.END, "")
-
-        text7 = ttk.Label(cFrame, text="Costo anual otros seguros")
-        text7.grid(row=7, column=1, sticky=tk.W + tk.N)
-        box7 = ttk.Entry(cFrame, textvariable=self.otherInsurance, width=20)
-        box7.grid(row=7, column=2, sticky=tk.W, pady=3)
-        box7.insert(tk.END, "")
-
-        text8 = ttk.Label(cFrame, text="Costo revisión tecnomecánica")
-        text8.grid(row=8, column=1, sticky=tk.W + tk.N)
-        box8 = ttk.Entry(cFrame, textvariable=self.checkCost, width=20)
-        box8.grid(row=8, column=2, sticky=tk.W, pady=3)
-        box8.insert(tk.END, "")
-
-        text10 = ttk.Label(cFrame, text="% Incremento anual seguros")
-        text10.grid(row=10, column=1, sticky=tk.W + tk.N)
-        box10 = ttk.Entry(cFrame, textvariable=self.insuranceRaise, width=20)
-        box10.grid(row=10, column=2, sticky=tk.W, pady=3)
-        box10.insert(tk.END, "")
-        
-        text11 = ttk.Label(cFrame, text="Reparaciones por año")
-        text11.grid(row=11, column=1, sticky=tk.W + tk.N)
-        box11 = ttk.Entry(cFrame, textvariable=self.repairs,width=20)
-        box11.grid(row=11, column=2, sticky=tk.W, pady=3)
-        box11.insert(tk.END, "")
-
-        # TODO: APLICAR FUNCIÓN PARA LIMPIAR CASILLAS
-        buttonClean = tk.Button(cFrame, text="Limpiar")
+        buttonClean = tk.Button(cFrame, text="Limpiar", command=lambda:self.buttonClear(boxes, entries))
         buttonClean.grid(row=12, column=1)
 
         buttonSave = tk.Button(cFrame, text="Guardar", command=lambda:Data.saveCombustionData(self))
@@ -529,45 +480,22 @@ class Interface():
         self.dailykWh = tk.StringVar()
         self.bateryCapacity = tk.StringVar()
 
-        text1 = ttk.Label(eFrame, text="Costo de compra")
-        text1.grid(row=1, column=1, sticky=tk.W + tk.N)
-        box1 = ttk.Entry(eFrame, textvariable=self.electricCost, width=20)
-        box1.grid(row=1, column=2, sticky=tk.W, pady=3)
-        box1.insert(tk.END, "")
+        entry1 = self.createEntry(eFrame, "Costo de compra", self.electricCost, "", 1)
+        entry2 = self.createEntry(eFrame, "Costo kWh", self.kWhCost, "", 2)
+        entry3 = self.createEntry(eFrame, "% Incremento anual kWh", self.kWhRaise, "", 3)
+        entry4 = self.createEntry(eFrame, "Consumo diario [kWh]", self.dailykWh, "", 4)
+        entry5 = self.createEntry(eFrame, "Capacidad de batería [kWh]", self.bateryCapacity, "", 5)
 
-        text2 = ttk.Label(eFrame, text="Costo kWh")
-        text2.grid(row=2, column=1, sticky=tk.W + tk.N)
-        box2 = ttk.Entry(eFrame, textvariable=self.kWhCost, width=20)
-        box2.grid(row=2, column=2, sticky=tk.W, pady=3)
-        box2.insert(tk.END, "")
+        boxes = []
+        entries = [entry1, entry2, entry3, entry4, entry5]
 
-        text3 = ttk.Label(eFrame, text="% Incremento anual kWh")
-        text3.grid(row=3, column=1, sticky=tk.W + tk.N)
-        box3 = ttk.Entry(eFrame, textvariable=self.kWhRaise, width=20)
-        box3.grid(row=3, column=2, sticky=tk.W, pady=3)
-        box3.insert(tk.END, "")
-
-        text4 = ttk.Label(eFrame, text="Consumo diario [kWh]")
-        text4.grid(row=4, column=1, sticky=tk.W + tk.N)
-        box4 = ttk.Entry(eFrame, textvariable=self.dailykWh, width=20)
-        box4.grid(row=4, column=2, sticky=tk.W, pady=3)
-        box4.insert(tk.END, "")
-
-        text5 = ttk.Label(eFrame, text="Capacidad de batería [kWh]")
-        text5.grid(row=5, column=1, sticky=tk.W + tk.N)
-        box5 = ttk.Entry(eFrame, textvariable=self.bateryCapacity, width=20)
-        box5.grid(row=5, column=2, sticky=tk.W, pady=3)
-        box5.insert(tk.END, "")
-
-        # TODO: APLICAR FUNCIÓN PARA LIMPIAR CASILLAS
-        buttonClean = tk.Button(eFrame, text="Limpiar")
+        buttonClean = tk.Button(eFrame, text="Limpiar", command=lambda:self.buttonClear(boxes, entries))
         buttonClean.grid(row=6, column=1)
 
         buttonSave = tk.Button(eFrame, text="Guardar", command=lambda:Data.saveElectricData(self))
         buttonSave.grid(row=6, column=2)
 
     def resultsFrame(self):
-        # The Choices frame
         rFrame = ttk.LabelFrame(self.window, text="Comparar", relief=tk.RIDGE, padding=10)
         rFrame.grid(row=2, column=2, padx=6, sticky=tk.E + tk.W + tk.N + tk.S)
 
@@ -671,9 +599,6 @@ class Interface():
         box3 = ttk.Entry(indexWindow, width=30)
         box3.grid(row=14, column=4, sticky=tk.W, pady=3)
         box3.insert(tk.END, str(socialEmissionsCostElectric)+" %s/tonCO2" %configuration[0])
-
-        quitButton = ttk.Button(self.window, text="Cerrar", command=self.window.destroy)
-        quitButton.grid(row=15, column=3)
 
     def showGraphics(self):
         indexWindow = Toplevel()
