@@ -5,6 +5,9 @@
 <route-files value="../../routes_files/route3/route3_4.rou.xml"/>
 </input>
 
+<emissions>
+    <emissions.volumetric-fuel value="true"/>
+</emissions>
 
 <time>
 <begin value="0"/>
