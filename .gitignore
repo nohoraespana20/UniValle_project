@@ -1,0 +1,16 @@
+*.txt
+*.xlsx
+__pycache__
+report.log
+*.png
+*.bak
+data_combustion.json
+data_config.json
+data_electric.json
+electric_results/figures
+electric_results/results1
+electric_results/results2
+main_results/figures
+main_results/results1
+main_results/results2
+images

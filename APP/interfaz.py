@@ -1,0 +1,690 @@
+import tkinter as tk
+from tkinter import ttk
+from tkinter import filedialog
+import json
+import numpy as np
+from tkinter import *
+from matplotlib.figure import Figure
+import pandas as pd
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+class Data():
+    '''
+        Get data from interface window and save in a .json file
+    '''
+    def saveConfig(self):
+        currency = self.currency.get()
+        modeTransport = self.modeTransport.get()
+        time = float(self.time.get())
+        annualDistance = float(self.annualDistance.get())
+        dailyDistance = float(self.dailyDistance.get())
+    
+        configuration = {  'Currency' : currency,
+                            'Mode of transport' : modeTransport,
+                            'Years' : int(time),
+                            'Annual distance' : int(annualDistance),
+                            'Daily distance' : int(dailyDistance),
+                        }
+        with open('data_files/data_config.json', 'w') as file:
+            json.dump(configuration, file, indent=4)
+    
+    def saveCombustionData(self):
+        vehicleCost = float(self.combustionCost.get())
+        galonCost = float(self.fuelCost.get())
+        fuelRaise = float(self.fuelRaise.get())
+        maintenanceCost = float(self.combustionMaintenanceCost.get())
+        soatCost = float(self.soatCost.get())
+        checkCost = float(self.checkCost.get())
+        otherInsurance = float(self.otherInsurance.get())
+        insuranceRaise = float(self.insuranceRaise.get())
+        dailyConsumption = float(self.dailyConsumption.get())
+        repairs = float(self.repairs.get())
+
+        dataVCI = { 'Vehicle cost': vehicleCost,
+                    'Galon cost': galonCost,
+                    'Fuel raise': fuelRaise,
+                    'Daily consumption': dailyConsumption,
+                    'Maintenance cost': maintenanceCost,
+                    'SOAT cost': soatCost,
+                    'Other insurances' : otherInsurance,
+                    'Annual check': checkCost,
+                    'Insurance raise': insuranceRaise,
+                    'Repairs per year' : repairs
+                    }
+        with open('data_files/data_combustion.json', 'w') as file:
+            json.dump(dataVCI, file, indent=4)
+
+    def saveElectricData(self):
+        vehicleCost = float(self.electricCost.get())
+        kWhCost = float(self.kWhCost .get())
+        kWhRaise = float(self.kWhRaise.get())
+        dailykWh = float(self.dailyConsumption.get())
+        bateryCapacity = float(self.bateryCapacity.get())
+
+        dataVE = { 'Vehicle cost': vehicleCost,
+                    'kWh cost': kWhCost,
+                    'kWh raise': kWhRaise,
+                    'Daily consumption': dailykWh,
+                    'Batery capacity [kWh]' : bateryCapacity,
+                    }
+        with open('data_files/data_electric.json', 'w') as file:
+            json.dump(dataVE, file, indent=4)  
+
+class IndexCalculation():
+    '''
+    Import data and process to calculate the technical, economic, ambiental, and social indexes. 
+    '''
+    def __init__(self):
+        self.importData()
+
+    def readJson(file):
+        with open(file) as file:
+            data = json.load(file)
+        return data
+
+    def importData():
+        dataConfig = IndexCalculation.readJson('data_files/data_config.json')
+        dataCombustion = IndexCalculation.readJson('data_files/data_combustion.json')
+        dataElectric = IndexCalculation.readJson('data_files/data_electric.json')
+
+        currency = dataConfig['Currency']
+        vehicle = dataConfig['Mode of transport']
+        year = dataConfig['Years']
+        annualDistance = dataConfig['Annual distance']
+        dailyDistance = dataConfig['Daily distance']
+
+        vciCost = dataCombustion['Vehicle cost']
+        galonCost = dataCombustion['Galon cost']
+        fuelRaise = dataCombustion['Fuel raise']
+        dailyFuel = dataCombustion['Daily consumption']
+        maintenanceCombustionCost = dataCombustion['Maintenance cost']
+        soatCost = dataCombustion['SOAT cost']
+        otherInsurance = dataCombustion['Other insurances']
+        checkCost = dataCombustion['Annual check']
+        insuranceRaise = dataCombustion['Insurance raise']
+        repairs = dataCombustion['Repairs per year']
+
+        evCost = dataElectric['Vehicle cost']
+        kWhCost =  dataElectric['kWh cost']
+        kWhRaise =  dataElectric['kWh raise']
+        dailykWh =  dataElectric['Daily consumption']
+        bateryCapacity =  dataElectric['Batery capacity [kWh]']
+
+        configuration = [currency, vehicle, year, annualDistance, dailyDistance]
+        combustion = [vciCost, galonCost, fuelRaise, dailyFuel, maintenanceCombustionCost, soatCost, otherInsurance, checkCost, insuranceRaise, repairs]
+        electric = [evCost, kWhCost, kWhRaise, dailykWh, bateryCapacity]
+
+        return configuration, combustion, electric
+        
+    def averageData(data):
+        distances = [3.2, 5.3, 6.6] #Average distance from results of emissions simulation
+        average = []
+        for i in range(2):
+            average.append([np.mean(data[i][0:2])/distances[0], np.mean(data[i][2:4])/distances[1], np.mean(data[i][4:])/distances[2]])
+        averagePerKm = round(np.mean(average),2)
+        return averagePerKm
+
+    def consumptionIndex(dailyConsumption, distance, typeVehicle, modeTransport):
+        '''
+        typeVehicle parameter has two options: VCI or EV in string format
+        modeTransport parameter has two options: Taxi or Bus in string format
+        '''
+        if modeTransport == 'Taxi':
+            conversionFactor = 36.7
+        elif modeTransport == 'Bus':
+            conversionFactor = 40.5
+        else:
+            print('modeTransport parameter is not defined')
+        
+        if typeVehicle == 'VCI':
+            E100km = round(dailyConsumption * conversionFactor * 100 / distance, 2)
+        elif typeVehicle == 'EV':
+            E100km = round(dailyConsumption * 100 / distance, 2)
+        else:
+            print('typeVehicle parameter is not defined')
+        return E100km
+
+    def availabilityFactor(typeVehicle):
+        '''
+        typeVehicle parameter has two options: VCI or EV in string format
+        '''
+        _ , combustion, _ = IndexCalculation.importData()
+        if typeVehicle == 'VCI':
+            days2repair =  5
+            days2maintenance = 6
+        elif typeVehicle == 'EV':
+            days2repair =  5
+            days2maintenance = 2.5
+        else:
+            print('typeVehicle parameter is not defined')
+        avaliabilityFactor = round((365 - (combustion[9] * days2repair) - days2maintenance) * 100 / 365, 2)
+        return avaliabilityFactor
+    
+    def icrIndex(costConsumption, consumption, distance):
+        icr = round(costConsumption * consumption / (distance), 2)
+        return icr
+
+    def accumulatedCost(configuration, combustion, electric, icr, typeVehicle):
+        if configuration[0] == "USD":
+            currency = 1000
+        elif configuration[0] == "COP":
+            currency = 1000000
+        else:
+            print("currency parameter is not defined")
+
+        ipc = 0.0457 # Average value of IPC in Colombia
+        otherInsurance = combustion[6]
+        insuranceCostRaise = combustion[8] / 100 
+        totalCost = []
+        totalCost = [*range(0, configuration[2], 1)]
+
+        if typeVehicle == 'VCI':
+            totalCost[0] = combustion[0] 
+            taxCost = combustion[0] * 0.01 # Based on "Ley 1964 de 2019, Congreso de Colombia"
+            annualPowerCost = configuration[3] * icr
+            annualPowerCostRaise  = combustion[2] / 100
+            maintenanceCost = combustion[4]
+            soatCost = combustion[5]
+            otherInsurance = combustion[6] # Contractual insuarence and all damages insurance
+            checkCost = combustion[7]
+        elif typeVehicle == 'EV':
+            totalCost[0] = electric[0]
+            taxCost = combustion[0] * 0.01 * 0.4 # Based on "Ley 1964 de 2019, Congreso de Colombia"
+            annualPowerCost = configuration[3] * icr
+            annualPowerCostRaise  = electric[2] / 100
+            maintenanceCost = combustion[4] * 0.4
+            soatCost = combustion[5] * 0.9
+            checkCost = combustion[7] * 0.7 
+            bateryCost = electric[4] * 156 / 5000 # Batery cost in COP
+            batteryYearlyRaise = -0.0967 # According to technology reduction cost trend
+        else:
+            print('typeVehicle parameter is not defined ')
+
+        for i in range(1,configuration[2],1):
+            totalCost[i] = totalCost[i-1] + annualPowerCost + maintenanceCost + soatCost + otherInsurance + taxCost
+            if i >= 2:
+                #Annual variance of parameters costs
+                taxCost = taxCost * (1 + insuranceCostRaise)
+                annualPowerCost = annualPowerCost * (1 + annualPowerCostRaise)
+                maintenanceCost = maintenanceCost * (1 + ipc)
+                soatCost = soatCost * (1 + insuranceCostRaise)
+                otherInsurance = otherInsurance * (1 + insuranceCostRaise)
+                checkCost = checkCost * (1 + insuranceCostRaise)
+                totalCost[i] = totalCost[i-1] + annualPowerCost + maintenanceCost + soatCost + otherInsurance + \
+                    taxCost + checkCost
+                if typeVehicle == 'EV':
+                    bateryCost = bateryCost * (1 + batteryYearlyRaise)
+                    if i==8 or i==16 or i==24:
+                        totalCost[i] = totalCost[i-1] + annualPowerCost + maintenanceCost + soatCost + otherInsurance \
+                            + checkCost + taxCost + bateryCost
+        
+        for i in range(len(totalCost)):
+            totalCost[i] = round(totalCost[i] / currency , 2)
+        
+        return totalCost
+
+    def annualCost(configuration, combustion, electric, icr, typeVehicle):
+        if configuration[0] == "USD":
+            currency = 1000
+        elif configuration[0] == "COP":
+            currency = 1000000
+        else:
+            print("currency parameter is not defined")
+
+        ipc = 0.0457 # Average value of IPC in Colombia
+        otherInsurance = combustion[6]
+        insuranceCostRaise = combustion[8] / 100 
+        totalCost = []
+        totalCost = [*range(0, configuration[2], 1)]
+
+        if typeVehicle == 'VCI':
+            totalCost[0] = combustion[0] 
+            taxCost = combustion[0] * 0.01 # Based on "Ley 1964 de 2019, Congreso de Colombia"
+            annualPowerCost = configuration[3] * icr
+            annualPowerCostRaise  = combustion[2] / 100
+            maintenanceCost = combustion[4]
+            soatCost = combustion[5]
+            otherInsurance = combustion[6] # Contractual insuarence and all damages insurance
+            checkCost = combustion[7]
+        elif typeVehicle == 'EV':
+            totalCost[0] = electric[0]
+            taxCost = combustion[0] * 0.01 * 0.4 # Based on "Ley 1964 de 2019, Congreso de Colombia"
+            annualPowerCost = configuration[3] * icr
+            annualPowerCostRaise  = electric[2] / 100
+            maintenanceCost = combustion[4] * 0.4
+            soatCost = combustion[5] * 0.9
+            checkCost = combustion[7] * 0.7 
+            bateryCost = electric[4] * 156 / 5000 # Batery cost in COP
+            batteryYearlyRaise = -0.0967 # According to technology reduction cost trend
+        else:
+            print('typeVehicle parameter is not defined ')
+
+        for i in range(1,configuration[2],1):
+            totalCost[i] = totalCost[i] + annualPowerCost + maintenanceCost + soatCost + otherInsurance + taxCost
+            if i >= 2:
+                #Annual variance of parameters costs
+                taxCost = taxCost * (1 + insuranceCostRaise)
+                annualPowerCost = annualPowerCost * (1 + annualPowerCostRaise)
+                maintenanceCost = maintenanceCost * (1 + ipc)
+                soatCost = soatCost * (1 + insuranceCostRaise)
+                otherInsurance = otherInsurance * (1 + insuranceCostRaise)
+                checkCost = checkCost * (1 + insuranceCostRaise)
+                totalCost[i] = totalCost[i] + annualPowerCost + maintenanceCost + soatCost + otherInsurance + \
+                    taxCost + checkCost
+                if typeVehicle == 'EV':
+                    bateryCost = bateryCost * (1 + batteryYearlyRaise)
+                    if i==8 or i==16 or i==24:
+                        totalCost[i] = totalCost[i] + annualPowerCost + maintenanceCost + soatCost + otherInsurance \
+                            + checkCost + taxCost + bateryCost
+        
+        for i in range(len(totalCost)):
+            totalCost[i] = totalCost[i] / currency
+        
+        return totalCost
+
+    def emissionsPerKm():
+        co2PerKm = IndexCalculation.averageData(IndexCalculation.readJson('data_files/co2_mean.json'))
+        return round(co2PerKm, 2)
+
+    def indexesCalculation():
+        configuration, combustion, electric = IndexCalculation.importData()
+
+        if configuration[0] == 'USD':
+            socialFactor = 220
+        elif configuration[0] == 'COP':
+            socialFactor = 995000
+        else:
+            print('currency parameter is not defined')
+
+        combustionConsumption = IndexCalculation.consumptionIndex(combustion[3], configuration[4], 'VCI', configuration[1])
+        electricConsumption = IndexCalculation.consumptionIndex(electric[3], configuration[4], 'EV', configuration[1])
+        
+        avaliabilityCombustion = IndexCalculation.availabilityFactor('VCI')
+        avaliabilityElectric = IndexCalculation.availabilityFactor('EV')
+
+        icrCombustion = IndexCalculation.icrIndex(combustion[1], combustion[3], configuration[4])
+        icrElectric = IndexCalculation.icrIndex(electric[1], electric[3], configuration[4])
+
+        emissionsCombustion = IndexCalculation.emissionsPerKm() 
+        emissionsElectric = round(164.38 * electricConsumption / 100 , 2)
+
+        combustionAccumulatedCost = IndexCalculation.accumulatedCost(configuration, combustion, electric, 
+                                                                        icrCombustion, 'VCI')
+        electricAccumulatedCost = IndexCalculation.accumulatedCost(configuration, combustion, electric, 
+                                                                        icrElectric, 'EV')
+        
+        socialEmissionsCostCombustion = round(emissionsCombustion * socialFactor / 1000000 , 3)
+        socialEmissionsCostElectric = round(emissionsElectric * socialFactor / 1000000 , 3)
+
+        return combustionConsumption, electricConsumption, avaliabilityCombustion, avaliabilityElectric, \
+                    icrCombustion, icrElectric, emissionsCombustion , emissionsElectric, \
+                    combustionAccumulatedCost, electricAccumulatedCost, \
+                    socialEmissionsCostCombustion, socialEmissionsCostElectric
+    
+    def createGraphics():
+        configuration, combustion, electric = IndexCalculation.importData()
+        icrCombustion = IndexCalculation.icrIndex(combustion[1], combustion[3], configuration[4])
+        icrElectric = IndexCalculation.icrIndex(electric[1], electric[3], configuration[4])
+        combustionAccumulatedCost = IndexCalculation.accumulatedCost(configuration, combustion, electric, 
+                                                                        icrCombustion, 'VCI')
+        electricAccumulatedCost = IndexCalculation.accumulatedCost(configuration, combustion, electric, 
+                                                                        icrElectric, 'EV')
+        combustionAnnualCost = IndexCalculation.annualCost(configuration, combustion, electric, 
+                                                                        icrCombustion, 'VCI')
+        electricAnnualCost = IndexCalculation.annualCost(configuration, combustion, electric, 
+                                                                        icrElectric, 'EV')
+        
+        if configuration[0] == "USD":
+            text = "miles de dólares [USD]"
+        elif configuration[0] == "COP":
+            text = "millones de pesos [COP]"
+        else:
+            print("currency parameter is not defined")
+
+        years = [*range(0, configuration[2], 1)]
+        fig = Figure(figsize=(7,8))
+        a1 = fig.add_subplot(211)
+        a1.plot(years, combustionAccumulatedCost, label = "VCI", color='#A0A0A0')
+        a1.plot(years, electricAccumulatedCost, label = "VE", color='#33FF33')
+        a1.grid()
+        a1.set_title ('Costo acumulado para %d km/año' %configuration[3], fontsize=8)
+        a1.legend(['VCI', 'VE'], fontsize=8)
+        a1.set_ylabel('Costo en %s' %text, fontsize=8)
+        a1.set_xlabel('Año', fontsize=8)
+
+        Y = [str(x) for x in years]
+        conventional = combustionAnnualCost
+        electric = electricAnnualCost
+        
+        a2 = fig.add_subplot(212)
+        df = pd.DataFrame({'VCI': conventional, 'VE': electric}, index=Y)
+        df.plot(ax=a2, kind = 'bar', rot=0, color=['#A0A0A0', '#33FF33'])
+        
+        a2.set_title('Costo anual para %d km/año' %configuration[3], fontsize=8)
+        a2.legend(['VCI', 'VE'], fontsize=8)
+        a2.grid()
+        a2.set_ylabel('Costo en %s' %text, fontsize=8)
+        a2.set_xlabel('Año', fontsize=8)
+        fig.savefig('graphicsAPP.png', transparent=True)
+        return fig
+
+
+class Interface():
+    def __init__(self):
+        self.window = tk.Tk()
+        self.window.title("Evaluación de vehículos")
+        self.window.geometry("800x550")
+        self.createWidgets()
+        self.configurationFrame()
+        self.combustionFrame()
+        self.electricFrame()
+        self.resultsFrame()
+
+    def createWidgets(self):
+        # Create some room around all the internal frames
+        self.window['padx'] = 5
+        self.window['pady'] = 5
+
+    def configurationFrame(self):
+        cfgFrame = ttk.LabelFrame(self.window, text="Configuración", relief=tk.SUNKEN, padding=10)
+        cfgFrame.grid(row=1, column=1, sticky=tk.E + tk.W + tk.N + tk.S)
+
+        self.currency = tk.StringVar()
+        self.modeTransport = tk.StringVar()
+        self.time = tk.StringVar()
+        self.annualDistance = tk.StringVar()
+        self.dailyDistance = tk.StringVar()
+
+        text1 = ttk.Label(cfgFrame, text="Divisa")
+        text1.grid(row=1, column=1, sticky=tk.W, pady=3)
+        box1 = ttk.Combobox(cfgFrame, height=4, textvariable=self.currency)
+        box1.grid(row=1, column=2)
+        box1['values'] = (" ", "USD", "COP")
+        box1.current(0)
+
+        text2 = ttk.Label(cfgFrame, text="Modo de transporte")
+        text2.grid(row=2, column=1, sticky=tk.W, pady=3)
+        box2 = ttk.Combobox(cfgFrame, height=4, textvariable=self.modeTransport)
+        box2.grid(row=2, column=2)
+        box2['values'] = (" ", "Taxi", "Bus")
+        box2.current(0)
+
+        text3 = ttk.Label(cfgFrame, text="Años")
+        text3.grid(row=3, column=1, sticky=tk.W + tk.N)
+        box3 = ttk.Entry(cfgFrame, textvariable=self.time,width=20)
+        box3.grid(row=3, column=2, sticky=tk.W, pady=3)
+        box3.insert(tk.END, "")
+
+        text4 = ttk.Label(cfgFrame, text="Distancia anual [km]")
+        text4.grid(row=4, column=1, sticky=tk.W + tk.N)
+        box4 = ttk.Entry(cfgFrame, textvariable=self.annualDistance,width=20)
+        box4.grid(row=4, column=2, sticky=tk.W, pady=3)
+        box4.insert(tk.END, "")
+
+        text5 = ttk.Label(cfgFrame, text="Distancia diaria [km]")
+        text5.grid(row=5, column=1, sticky=tk.W + tk.N)
+        box5 = ttk.Entry(cfgFrame, textvariable=self.dailyDistance,width=20)
+        box5.grid(row=5, column=2, sticky=tk.W, pady=3)
+        box5.insert(tk.END, "")
+
+        # TODO: DEFINIR Y APLICAR FUNCIÓN PARA LIMPIAR CASILLAS
+        buttonClean = tk.Button(cfgFrame, text="Limpiar")
+        buttonClean.grid(row=6, column=1)
+
+        buttonSave = tk.Button(cfgFrame, text="Guardar", command=lambda:Data.saveConfig(self))
+        buttonSave.grid(row=6, column=2)
+
+    def combustionFrame(self):
+        cFrame = ttk.LabelFrame(self.window, text="Vehículo combustión interna",
+                                     relief=tk.RIDGE, padding=10)
+        cFrame.grid(row=2, column=1, sticky=tk.E + tk.W + tk.N + tk.S)
+
+        self.combustionCost = tk.StringVar()
+        self.fuelCost = tk.StringVar()
+        self.fuelRaise = tk.StringVar()
+        self.dailyConsumption = tk.StringVar()
+        self.combustionMaintenanceCost = tk.StringVar()
+        self.soatCost = tk.StringVar()
+        self.checkCost = tk.StringVar()
+        self.otherInsurance = tk.StringVar()
+        self.insuranceRaise = tk.StringVar()
+        
+        self.repairs = tk.StringVar()
+
+        text1 = ttk.Label(cFrame, text="Costo de compra")
+        text1.grid(row=1, column=1, sticky=tk.W + tk.N)
+        box1 = ttk.Entry(cFrame, textvariable=self.combustionCost, width=20)
+        box1.grid(row=1, column=2, sticky=tk.W, pady=3)
+        box1.insert(tk.END, "")
+
+        text2 = ttk.Label(cFrame, text="Costo galón de combustible")
+        text2.grid(row=2, column=1, sticky=tk.W + tk.N)
+        box2 = ttk.Entry(cFrame, textvariable=self.fuelCost, width=20)
+        box2.grid(row=2, column=2, sticky=tk.W, pady=3)
+        box2.insert(tk.END, "")
+
+        text3 = ttk.Label(cFrame, text="% Incremento anual combustible")
+        text3.grid(row=3, column=1, sticky=tk.W + tk.N)
+        box3 = ttk.Entry(cFrame, textvariable=self.fuelRaise, width=20)
+        box3.grid(row=3, column=2, sticky=tk.W, pady=3)
+        box3.insert(tk.END, "")
+
+        text4 = ttk.Label(cFrame, text="Consumo diario [gl]")
+        text4.grid(row=4, column=1, sticky=tk.W + tk.N)
+        box4 = ttk.Entry(cFrame, textvariable=self.dailyConsumption, width=20)
+        box4.grid(row=4, column=2, sticky=tk.W, pady=3)
+        box4.insert(tk.END, "")
+
+        text5 = ttk.Label(cFrame, text="Costo anual mantenimiento")
+        text5.grid(row=5, column=1, sticky=tk.W + tk.N)
+        box5 = ttk.Entry(cFrame, textvariable=self.combustionMaintenanceCost, width=20)
+        box5.grid(row=5, column=2, sticky=tk.W, pady=3)
+        box5.insert(tk.END, "")
+
+        text6 = ttk.Label(cFrame, text="Costo anual SOAT")
+        text6.grid(row=6, column=1, sticky=tk.W + tk.N)
+        box6 = ttk.Entry(cFrame, textvariable=self.soatCost, width=20)
+        box6.grid(row=6, column=2, sticky=tk.W, pady=3)
+        box6.insert(tk.END, "")
+
+        text7 = ttk.Label(cFrame, text="Costo anual otros seguros")
+        text7.grid(row=7, column=1, sticky=tk.W + tk.N)
+        box7 = ttk.Entry(cFrame, textvariable=self.otherInsurance, width=20)
+        box7.grid(row=7, column=2, sticky=tk.W, pady=3)
+        box7.insert(tk.END, "")
+
+        text8 = ttk.Label(cFrame, text="Costo revisión tecnomecánica")
+        text8.grid(row=8, column=1, sticky=tk.W + tk.N)
+        box8 = ttk.Entry(cFrame, textvariable=self.checkCost, width=20)
+        box8.grid(row=8, column=2, sticky=tk.W, pady=3)
+        box8.insert(tk.END, "")
+
+        text10 = ttk.Label(cFrame, text="% Incremento anual seguros")
+        text10.grid(row=10, column=1, sticky=tk.W + tk.N)
+        box10 = ttk.Entry(cFrame, textvariable=self.insuranceRaise, width=20)
+        box10.grid(row=10, column=2, sticky=tk.W, pady=3)
+        box10.insert(tk.END, "")
+        
+        text11 = ttk.Label(cFrame, text="Reparaciones por año")
+        text11.grid(row=11, column=1, sticky=tk.W + tk.N)
+        box11 = ttk.Entry(cFrame, textvariable=self.repairs,width=20)
+        box11.grid(row=11, column=2, sticky=tk.W, pady=3)
+        box11.insert(tk.END, "")
+
+        # TODO: APLICAR FUNCIÓN PARA LIMPIAR CASILLAS
+        buttonClean = tk.Button(cFrame, text="Limpiar")
+        buttonClean.grid(row=12, column=1)
+
+        buttonSave = tk.Button(cFrame, text="Guardar", command=lambda:Data.saveCombustionData(self))
+        buttonSave.grid(row=12, column=2)
+
+    def electricFrame(self):
+        eFrame = ttk.LabelFrame(self.window, text="Vehículo eléctrico",
+                                        relief=tk.RIDGE, padding=10)
+        eFrame.grid(row=1, column=2, sticky=tk.E + tk.W + tk.N + tk.S, padx=6)
+
+        self.electricCost = tk.StringVar()
+        self.kWhCost = tk.StringVar()
+        self.kWhRaise = tk.StringVar()
+        self.dailykWh = tk.StringVar()
+        self.bateryCapacity = tk.StringVar()
+
+        text1 = ttk.Label(eFrame, text="Costo de compra")
+        text1.grid(row=1, column=1, sticky=tk.W + tk.N)
+        box1 = ttk.Entry(eFrame, textvariable=self.electricCost, width=20)
+        box1.grid(row=1, column=2, sticky=tk.W, pady=3)
+        box1.insert(tk.END, "")
+
+        text2 = ttk.Label(eFrame, text="Costo kWh")
+        text2.grid(row=2, column=1, sticky=tk.W + tk.N)
+        box2 = ttk.Entry(eFrame, textvariable=self.kWhCost, width=20)
+        box2.grid(row=2, column=2, sticky=tk.W, pady=3)
+        box2.insert(tk.END, "")
+
+        text3 = ttk.Label(eFrame, text="% Incremento anual kWh")
+        text3.grid(row=3, column=1, sticky=tk.W + tk.N)
+        box3 = ttk.Entry(eFrame, textvariable=self.kWhRaise, width=20)
+        box3.grid(row=3, column=2, sticky=tk.W, pady=3)
+        box3.insert(tk.END, "")
+
+        text4 = ttk.Label(eFrame, text="Consumo diario [kWh]")
+        text4.grid(row=4, column=1, sticky=tk.W + tk.N)
+        box4 = ttk.Entry(eFrame, textvariable=self.dailykWh, width=20)
+        box4.grid(row=4, column=2, sticky=tk.W, pady=3)
+        box4.insert(tk.END, "")
+
+        text5 = ttk.Label(eFrame, text="Capacidad de batería [kWh]")
+        text5.grid(row=5, column=1, sticky=tk.W + tk.N)
+        box5 = ttk.Entry(eFrame, textvariable=self.bateryCapacity, width=20)
+        box5.grid(row=5, column=2, sticky=tk.W, pady=3)
+        box5.insert(tk.END, "")
+
+        # TODO: APLICAR FUNCIÓN PARA LIMPIAR CASILLAS
+        buttonClean = tk.Button(eFrame, text="Limpiar")
+        buttonClean.grid(row=6, column=1)
+
+        buttonSave = tk.Button(eFrame, text="Guardar", command=lambda:Data.saveElectricData(self))
+        buttonSave.grid(row=6, column=2)
+
+    def resultsFrame(self):
+        # The Choices frame
+        rFrame = ttk.LabelFrame(self.window, text="Comparar", relief=tk.RIDGE, padding=10)
+        rFrame.grid(row=2, column=2, padx=6, sticky=tk.E + tk.W + tk.N + tk.S)
+
+        buttonIndex = tk.Button(rFrame, text="Mostrar índices", command=lambda:self.showIndexes())
+        buttonIndex.grid(row=2, column=2)
+
+        buttonGraphics = tk.Button(rFrame, text="Mostrar gráficas", command=lambda:self.showGraphics())
+        buttonGraphics.grid(row=4, column=2)
+
+        # # - - - - - - - - - - - - - - - - - - - - -
+        # # Menus
+        menubar = tk.Menu(self.window)
+
+        filemenu = tk.Menu(menubar, tearoff=0)
+        filemenu.add_command(label="Acerca de ", command=filedialog.askopenfilename)
+        filemenu.add_command(label="Documentación", command=filedialog.asksaveasfilename)
+        filemenu.add_separator()
+        filemenu.add_command(label="Salir", command=self.window.quit)
+        menubar.add_cascade(label="Ayuda", menu=filemenu)
+
+        self.window.config(menu=menubar)
+
+        # - - - - - - - - - - - - - - - - - - - - -
+        quitButton = ttk.Button(self.window, text="Cerrar", command=self.window.destroy)
+        quitButton.grid(row=1, column=3)
+
+    def showIndexes(self):
+        indexWindow = Toplevel()
+        indexWindow.geometry("600x400")
+        indexWindow.title("Índices")
+        configuration, _, _ = IndexCalculation.importData()
+        combustionConsumption, electricConsumption, avaliabilityCombustion, avaliabilityElectric, \
+            icrCombustion, icrElectric, emissionsCombustion , emissionsElectric, \
+            combustionAccumulatedCost, electricAccumulatedCost, \
+            socialEmissionsCostCombustion, socialEmissionsCostElectric = IndexCalculation.indexesCalculation()
+
+        text1 = ttk.Label(indexWindow, text="Índices técnicos")
+        text1.grid(row=1, column=1, sticky=tk.W, pady=3)
+
+        text1 = ttk.Label(indexWindow, text="VCI")
+        text1.grid(row=2, column=2, sticky=tk.W, pady=3)
+        text1 = ttk.Label(indexWindow, text="VE")
+        text1.grid(row=2, column=4, sticky=tk.W, pady=3)
+
+        text1 = ttk.Label(indexWindow, text="Consumo")
+        text1.grid(row=3, column=1, sticky=tk.W, pady=3)
+        box3 = ttk.Entry(indexWindow, width=30)
+        box3.grid(row=3, column=2, sticky=tk.W, pady=3)
+        box3.insert(tk.END, str(combustionConsumption)+" kWh/100km")
+        box3 = ttk.Entry(indexWindow, width=30)
+        box3.grid(row=3, column=4, sticky=tk.W, pady=3)
+        box3.insert(tk.END, str(electricConsumption)+" kWh/100km")
+
+        text1 = ttk.Label(indexWindow, text="Factor de disponibilidad")
+        text1.grid(row=4, column=1, sticky=tk.W, pady=3)
+        box3 = ttk.Entry(indexWindow, width=30)
+        box3.grid(row=4, column=2, sticky=tk.W, pady=3)
+        box3.insert(tk.END, str(avaliabilityCombustion)+" %")
+        box3 = ttk.Entry(indexWindow, width=30)
+        box3.grid(row=4, column=4, sticky=tk.W, pady=3)
+        box3.insert(tk.END, str(avaliabilityElectric)+" %")
+
+        text1 = ttk.Label(indexWindow, text="Índices económicos")
+        text1.grid(row=6, column=1, sticky=tk.W, pady=3)
+
+        text1 = ttk.Label(indexWindow, text="Costo/recorrido")
+        text1.grid(row=8, column=1, sticky=tk.W, pady=3)
+        box3 = ttk.Entry(indexWindow, width=30)
+        box3.grid(row=8, column=2, sticky=tk.W, pady=3)
+        box3.insert(tk.END, str(icrCombustion)+" %s/km" %configuration[0])
+        box3 = ttk.Entry(indexWindow, width=30)
+        box3.grid(row=8, column=4, sticky=tk.W, pady=3)
+        box3.insert(tk.END, str(icrElectric)+" %s/km" %configuration[0])
+
+        text1 = ttk.Label(indexWindow, text="Costo acumulado")
+        text1.grid(row=9, column=1, sticky=tk.W, pady=3)
+        box3 = ttk.Entry(indexWindow, width=30)
+        box3.grid(row=9, column=2, sticky=tk.W, pady=3)
+        box3.insert(tk.END, str(combustionAccumulatedCost[-1])+" %s/km" %configuration[0])
+        box3 = ttk.Entry(indexWindow, width=30)
+        box3.grid(row=9, column=4, sticky=tk.W, pady=3)
+        box3.insert(tk.END, str(electricAccumulatedCost[-1])+" %s/km" %configuration[0])
+
+        text1 = ttk.Label(indexWindow, text="Índices ambientales")
+        text1.grid(row=11, column=1, sticky=tk.W, pady=3)
+
+        text1 = ttk.Label(indexWindow, text="Emisiones por kilómetro")
+        text1.grid(row=13, column=1, sticky=tk.W, pady=3)
+        box3 = ttk.Entry(indexWindow, width=30)
+        box3.grid(row=13, column=2, sticky=tk.W, pady=3)
+        box3.insert(tk.END, str(emissionsCombustion)+" gr CO2/km")
+        box3 = ttk.Entry(indexWindow, width=30)
+        box3.grid(row=13, column=4, sticky=tk.W, pady=3)
+        box3.insert(tk.END, str(emissionsElectric)+" gr CO2/km")
+
+        text1 = ttk.Label(indexWindow, text="Costo social por emisiones")
+        text1.grid(row=14, column=1, sticky=tk.W, pady=3)
+        box3 = ttk.Entry(indexWindow, width=30)
+        box3.grid(row=14, column=2, sticky=tk.W, pady=3)
+        box3.insert(tk.END, str(socialEmissionsCostCombustion)+" %s/tonCO2" %configuration[0])
+        box3 = ttk.Entry(indexWindow, width=30)
+        box3.grid(row=14, column=4, sticky=tk.W, pady=3)
+        box3.insert(tk.END, str(socialEmissionsCostElectric)+" %s/tonCO2" %configuration[0])
+
+        quitButton = ttk.Button(self.window, text="Cerrar", command=self.window.destroy)
+        quitButton.grid(row=15, column=3)
+
+    def showGraphics(self):
+        indexWindow = Toplevel()
+        indexWindow.geometry("600x800")
+        indexWindow.title("Gráficas comparativas")
+        fig = IndexCalculation.createGraphics()
+        canvas3 = FigureCanvasTkAgg(fig, indexWindow)
+        canvas3.get_tk_widget().pack()
+
+# Create the entire GUI program
+program = Interface()
+
+# Start the GUI event loop
+program.window.mainloop()
