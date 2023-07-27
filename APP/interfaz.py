@@ -291,7 +291,7 @@ class IndexCalculation():
         return totalCost
 
     def emissionsPerKm():
-        co2PerKm = IndexCalculation.averageData(IndexCalculation.readJson('data_files/co2_mean.json'))
+        co2PerKm = IndexCalculation.averageData(IndexCalculation.readJson('data_files/taxi/co2_mean.json'))
         return round(co2PerKm, 2)
 
     def indexesCalculation():
