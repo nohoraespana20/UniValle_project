@@ -291,7 +291,14 @@ class IndexCalculation():
         return totalCost
 
     def emissionsPerKm():
-        co2PerKm = IndexCalculation.averageData(IndexCalculation.readJson('data_files/taxi/co2_mean.json'))
+        configuration, _, _ = IndexCalculation.importData()
+        if configuration[1] == 'Taxi':
+            co2PerKm = IndexCalculation.averageData(IndexCalculation.readJson('data_files/taxi/co2_mean.json'))
+        elif configuration[1] == 'Bus':
+            co2PerKm = IndexCalculation.averageData(IndexCalculation.readJson('data_files/bus/co2_mean.json'))
+        else:
+            print('currency parameter is not defined')
+        
         return round(co2PerKm, 2)
 
     def indexesCalculation():
