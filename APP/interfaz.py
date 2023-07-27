@@ -187,18 +187,20 @@ class IndexCalculation():
         totalCost = [*range(0, configuration[2], 1)]
 
         if typeVehicle == 'VCI':
+            powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/Fuel_mean.json'))
             totalCost[0] = combustion[0] 
             taxCost = combustion[0] * 0.01 # Based on "Ley 1964 de 2019, Congreso de Colombia"
-            annualPowerCost = configuration[3] * icr
+            annualPowerCost = powerConsumption * icr
             annualPowerCostRaise  = combustion[2] / 100
             maintenanceCost = combustion[4]
             soatCost = combustion[5]
             otherInsurance = combustion[6] # Contractual insuarence and all damages insurance
             checkCost = combustion[7]
         elif typeVehicle == 'EV':
+            powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/kWh_mean.json'))
             totalCost[0] = electric[0]
             taxCost = combustion[0] * 0.01 * 0.4 # Based on "Ley 1964 de 2019, Congreso de Colombia"
-            annualPowerCost = configuration[3] * icr
+            annualPowerCost = powerConsumption * icr
             annualPowerCostRaise  = electric[2] / 100
             maintenanceCost = combustion[4] * 0.4
             soatCost = combustion[5] * 0.9
@@ -246,18 +248,20 @@ class IndexCalculation():
         totalCost = [*range(0, configuration[2], 1)]
 
         if typeVehicle == 'VCI':
+            powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/Fuel_mean.json'))
             totalCost[0] = combustion[0] 
             taxCost = combustion[0] * 0.01 # Based on "Ley 1964 de 2019, Congreso de Colombia"
-            annualPowerCost = configuration[3] * icr
+            annualPowerCost = powerConsumption * icr
             annualPowerCostRaise  = combustion[2] / 100
             maintenanceCost = combustion[4]
             soatCost = combustion[5]
             otherInsurance = combustion[6] # Contractual insuarence and all damages insurance
             checkCost = combustion[7]
         elif typeVehicle == 'EV':
+            powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/kWh_mean.json'))
             totalCost[0] = electric[0]
             taxCost = combustion[0] * 0.01 * 0.4 # Based on "Ley 1964 de 2019, Congreso de Colombia"
-            annualPowerCost = configuration[3] * icr
+            annualPowerCost = powerConsumption * icr
             annualPowerCostRaise  = electric[2] / 100
             maintenanceCost = combustion[4] * 0.4
             soatCost = combustion[5] * 0.9
@@ -386,8 +390,7 @@ class Interface():
         self.combustionFrame()
         self.electricFrame()
         self.resultsFrame()
-        
-    
+           
     def generalMenu(self):
         menubar = tk.Menu(self.window)
 
