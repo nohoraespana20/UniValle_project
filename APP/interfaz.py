@@ -67,7 +67,7 @@ class Data():
             vehicleCost = float(self.electricCost.get())
             kWhCost = float(self.kWhCost .get())
             kWhRaise = float(self.kWhRaise.get())
-            dailykWh = float(self.dailyConsumption.get())
+            dailykWh = float(self.dailykWh.get())
             bateryCapacity = float(self.bateryCapacity.get())
 
             dataVE = { 'Vehicle cost': vehicleCost,
@@ -197,7 +197,7 @@ class IndexCalculation():
         totalCost = [*range(0, configuration[2], 1)]
 
         if typeVehicle == 'VCI':
-            powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/taxi/Fuel_mean.json'))
+            powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/taxi/Fuel_mean.json'))*365/5
             totalCost[0] = combustion[0] 
             taxCost = combustion[0] * 0.01 # Based on "Ley 1964 de 2019, Congreso de Colombia"
             annualPowerCost = powerConsumption * icr
@@ -207,7 +207,7 @@ class IndexCalculation():
             otherInsurance = combustion[6] # Contractual insuarence and all damages insurance
             checkCost = combustion[7]
         elif typeVehicle == 'EV':
-            powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/taxi/kWh_mean.json'))
+            powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/taxi/kWh_mean.json'))*365/5
             totalCost[0] = electric[0]
             taxCost = combustion[0] * 0.01 * 0.4 # Based on "Ley 1964 de 2019, Congreso de Colombia"
             annualPowerCost = powerConsumption * icr
@@ -258,7 +258,7 @@ class IndexCalculation():
         totalCost = [*range(0, configuration[2], 1)]
 
         if typeVehicle == 'VCI':
-            powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/taxi/Fuel_mean.json'))
+            powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/taxi/Fuel_mean.json'))*365/5
             totalCost[0] = combustion[0] 
             taxCost = combustion[0] * 0.01 # Based on "Ley 1964 de 2019, Congreso de Colombia"
             annualPowerCost = powerConsumption * icr
@@ -268,7 +268,7 @@ class IndexCalculation():
             otherInsurance = combustion[6] # Contractual insuarence and all damages insurance
             checkCost = combustion[7]
         elif typeVehicle == 'EV':
-            powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/taxi/kWh_mean.json'))
+            powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/taxi/kWh_mean.json'))*365/5
             totalCost[0] = electric[0]
             taxCost = combustion[0] * 0.01 * 0.4 # Based on "Ley 1964 de 2019, Congreso de Colombia"
             annualPowerCost = powerConsumption * icr
