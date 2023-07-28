@@ -125,10 +125,20 @@ class IndexCalculation():
         return configuration, combustion, electric
         
     def averageData(data):
-        distances = [3.2, 5.3, 6.6] #Average distance from results of emissions simulation
-        average = []
-        for i in range(2):
-            average.append([np.mean(data[i][0:2])/distances[0], np.mean(data[i][2:4])/distances[1], np.mean(data[i][4:])/distances[2]])
+        configuration, _, _ = IndexCalculation.importData()
+        if configuration[1] == 'Taxi':
+            distances = [3.2, 5.3, 6.6] #Average distance from results of emissions simulation
+            average = []
+            for i in range(2):
+                average.append([np.mean(data[i][0:2])/distances[0], np.mean(data[i][2:4])/distances[1], np.mean(data[i][4:])/distances[2]])
+        elif configuration[1] == 'Bus':
+            distances = [24.5, 31.4, 25.0, 18.1] # C1, C16, E1, E2
+            average = []
+            for i in range(2):
+                average.append([np.mean(data[i][0])/distances[0], np.mean(data[i][1])/distances[1], np.mean(data[i][2])/distances[2], np.mean(data[i][3])/distances[3]])
+        else:
+            print('currency parameter is not defined')
+        
         averagePerKm = round(np.mean(average),2)
         return averagePerKm
 
@@ -187,7 +197,7 @@ class IndexCalculation():
         totalCost = [*range(0, configuration[2], 1)]
 
         if typeVehicle == 'VCI':
-            powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/Fuel_mean.json'))
+            powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/taxi/Fuel_mean.json'))
             totalCost[0] = combustion[0] 
             taxCost = combustion[0] * 0.01 # Based on "Ley 1964 de 2019, Congreso de Colombia"
             annualPowerCost = powerConsumption * icr
@@ -197,7 +207,7 @@ class IndexCalculation():
             otherInsurance = combustion[6] # Contractual insuarence and all damages insurance
             checkCost = combustion[7]
         elif typeVehicle == 'EV':
-            powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/kWh_mean.json'))
+            powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/taxi/kWh_mean.json'))
             totalCost[0] = electric[0]
             taxCost = combustion[0] * 0.01 * 0.4 # Based on "Ley 1964 de 2019, Congreso de Colombia"
             annualPowerCost = powerConsumption * icr
@@ -248,7 +258,7 @@ class IndexCalculation():
         totalCost = [*range(0, configuration[2], 1)]
 
         if typeVehicle == 'VCI':
-            powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/Fuel_mean.json'))
+            powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/taxi/Fuel_mean.json'))
             totalCost[0] = combustion[0] 
             taxCost = combustion[0] * 0.01 # Based on "Ley 1964 de 2019, Congreso de Colombia"
             annualPowerCost = powerConsumption * icr
@@ -258,7 +268,7 @@ class IndexCalculation():
             otherInsurance = combustion[6] # Contractual insuarence and all damages insurance
             checkCost = combustion[7]
         elif typeVehicle == 'EV':
-            powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/kWh_mean.json'))
+            powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/taxi/kWh_mean.json'))
             totalCost[0] = electric[0]
             taxCost = combustion[0] * 0.01 * 0.4 # Based on "Ley 1964 de 2019, Congreso de Colombia"
             annualPowerCost = powerConsumption * icr
