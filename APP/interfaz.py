@@ -172,7 +172,7 @@ class IndexCalculation():
         icr = round(costConsumption * consumption / (distance), 2)
         return icr
 
-    def accumulatedCost(configuration, combustion, electric, icr, typeVehicle):
+    def accumulatedCost(configuration, combustion, electric, typeVehicle):
         if configuration[0] == "USD":
             currency = 1000
         elif configuration[0] == "COP":
@@ -187,22 +187,20 @@ class IndexCalculation():
         totalCost = [*range(0, configuration[2], 1)]
 
         if typeVehicle == 'VCI':
-            powerConsumption = (IndexCalculation.averageData(IndexCalculation.readJson('data_files/Fuel_mean.json')))*365/5
-            print(powerConsumption)
+            powerConsumption = (IndexCalculation.averageData(IndexCalculation.readJson('data_files/Fuel_mean.json')))*configuration[3]
             totalCost[0] = combustion[0] 
             taxCost = combustion[0] * 0.01 # Based on "Ley 1964 de 2019, Congreso de Colombia"
-            annualPowerCost = powerConsumption * icr
+            annualPowerCost = powerConsumption * combustion[1]
             annualPowerCostRaise  = combustion[2] / 100
             maintenanceCost = combustion[4]
             soatCost = combustion[5]
             otherInsurance = combustion[6] # Contractual insuarence and all damages insurance
             checkCost = combustion[7]
         elif typeVehicle == 'EV':
-            powerConsumption = (IndexCalculation.averageData(IndexCalculation.readJson('data_files/kWh_mean.json')))*365/5
-            print(powerConsumption)
+            powerConsumption = (IndexCalculation.averageData(IndexCalculation.readJson('data_files/kWh_mean.json')))*configuration[3]
             totalCost[0] = electric[0]
             taxCost = combustion[0] * 0.01 * 0.4 # Based on "Ley 1964 de 2019, Congreso de Colombia"
-            annualPowerCost = powerConsumption * icr
+            annualPowerCost = powerConsumption * electric[1]
             annualPowerCostRaise  = electric[2] / 100
             maintenanceCost = combustion[4] * 0.4
             soatCost = combustion[5] * 0.9
@@ -235,7 +233,7 @@ class IndexCalculation():
         
         return totalCost
 
-    def annualCost(configuration, combustion, electric, icr, typeVehicle):
+    def annualCost(configuration, combustion, electric, typeVehicle):
         if configuration[0] == "USD":
             currency = 1000
         elif configuration[0] == "COP":
@@ -250,20 +248,20 @@ class IndexCalculation():
         totalCost = [*range(0, configuration[2], 1)]
 
         if typeVehicle == 'VCI':
-            powerConsumption = (IndexCalculation.averageData(IndexCalculation.readJson('data_files/Fuel_mean.json')))*365/5
+            powerConsumption = (IndexCalculation.averageData(IndexCalculation.readJson('data_files/Fuel_mean.json')))*configuration[3]
             totalCost[0] = combustion[0] 
             taxCost = combustion[0] * 0.01 # Based on "Ley 1964 de 2019, Congreso de Colombia"
-            annualPowerCost = powerConsumption * icr
+            annualPowerCost = powerConsumption * combustion[1]
             annualPowerCostRaise  = combustion[2] / 100
             maintenanceCost = combustion[4]
             soatCost = combustion[5]
             otherInsurance = combustion[6] # Contractual insuarence and all damages insurance
             checkCost = combustion[7]
         elif typeVehicle == 'EV':
-            powerConsumption = (IndexCalculation.averageData(IndexCalculation.readJson('data_files/kWh_mean.json')))*365/5
+            powerConsumption = (IndexCalculation.averageData(IndexCalculation.readJson('data_files/kWh_mean.json')))*configuration[3]
             totalCost[0] = electric[0]
             taxCost = combustion[0] * 0.01 * 0.4 # Based on "Ley 1964 de 2019, Congreso de Colombia"
-            annualPowerCost = powerConsumption * icr
+            annualPowerCost = powerConsumption * electric[1]
             annualPowerCostRaise  = electric[2] / 100
             maintenanceCost = combustion[4] * 0.4
             soatCost = combustion[5] * 0.9
@@ -322,10 +320,8 @@ class IndexCalculation():
         emissionsCombustion = IndexCalculation.emissionsPerKm() 
         emissionsElectric = round(164.38 * electricConsumption / 100 , 2)
 
-        combustionAccumulatedCost = IndexCalculation.accumulatedCost(configuration, combustion, electric, 
-                                                                        icrCombustion, 'VCI')
-        electricAccumulatedCost = IndexCalculation.accumulatedCost(configuration, combustion, electric, 
-                                                                        icrElectric, 'EV')
+        combustionAccumulatedCost = IndexCalculation.accumulatedCost(configuration, combustion, electric, 'VCI')
+        electricAccumulatedCost = IndexCalculation.accumulatedCost(configuration, combustion, electric, 'EV')
         
         socialEmissionsCostCombustion = round(emissionsCombustion * socialFactor / 1000000 , 3)
         socialEmissionsCostElectric = round(emissionsElectric * socialFactor / 1000000 , 3)
@@ -337,16 +333,10 @@ class IndexCalculation():
     
     def createGraphics():
         configuration, combustion, electric = IndexCalculation.importData()
-        icrCombustion = IndexCalculation.icrIndex(combustion[1], combustion[3], configuration[4])
-        icrElectric = IndexCalculation.icrIndex(electric[1], electric[3], configuration[4])
-        combustionAccumulatedCost = IndexCalculation.accumulatedCost(configuration, combustion, electric, 
-                                                                        icrCombustion, 'VCI')
-        electricAccumulatedCost = IndexCalculation.accumulatedCost(configuration, combustion, electric, 
-                                                                        icrElectric, 'EV')
-        combustionAnnualCost = IndexCalculation.annualCost(configuration, combustion, electric, 
-                                                                        icrCombustion, 'VCI')
-        electricAnnualCost = IndexCalculation.annualCost(configuration, combustion, electric, 
-                                                                        icrElectric, 'EV')
+        combustionAccumulatedCost = IndexCalculation.accumulatedCost(configuration, combustion, electric,'VCI')
+        electricAccumulatedCost = IndexCalculation.accumulatedCost(configuration, combustion, electric,'EV')
+        combustionAnnualCost = IndexCalculation.annualCost(configuration, combustion, electric,'VCI')
+        electricAnnualCost = IndexCalculation.annualCost(configuration, combustion, electric,'EV')
         
         if configuration[0] == "USD":
             text = "miles de dólares [USD]"
@@ -530,6 +520,11 @@ class Interface():
             icrCombustion, icrElectric, emissionsCombustion , emissionsElectric, \
             combustionAccumulatedCost, electricAccumulatedCost, \
             socialEmissionsCostCombustion, socialEmissionsCostElectric = IndexCalculation.indexesCalculation()
+        
+        if configuration[0] == "USD":
+            unit = " miles de "
+        elif configuration[0] == "COP":
+            unit = " millones de "
 
         text1 = ttk.Label(indexWindow, text="Índices técnicos")
         text1.grid(row=1, column=1, sticky=tk.W, pady=3)
@@ -573,10 +568,10 @@ class Interface():
         text1.grid(row=9, column=1, sticky=tk.W, pady=3)
         box3 = ttk.Entry(indexWindow, width=30)
         box3.grid(row=9, column=2, sticky=tk.W, pady=3)
-        box3.insert(tk.END, str(combustionAccumulatedCost[-1])+" %s/km" %configuration[0])
+        box3.insert(tk.END, str(combustionAccumulatedCost[-1])+unit+" %s" %configuration[0])
         box3 = ttk.Entry(indexWindow, width=30)
         box3.grid(row=9, column=4, sticky=tk.W, pady=3)
-        box3.insert(tk.END, str(electricAccumulatedCost[-1])+" %s/km" %configuration[0])
+        box3.insert(tk.END, str(electricAccumulatedCost[-1])+unit+" %s" %configuration[0])
 
         text1 = ttk.Label(indexWindow, text="Índices ambientales")
         text1.grid(row=11, column=1, sticky=tk.W, pady=3)
@@ -594,10 +589,10 @@ class Interface():
         text1.grid(row=14, column=1, sticky=tk.W, pady=3)
         box3 = ttk.Entry(indexWindow, width=30)
         box3.grid(row=14, column=2, sticky=tk.W, pady=3)
-        box3.insert(tk.END, str(socialEmissionsCostCombustion)+" %s/tonCO2" %configuration[0])
+        box3.insert(tk.END, str(socialEmissionsCostCombustion)+unit+"%s/tonCO2" %configuration[0])
         box3 = ttk.Entry(indexWindow, width=30)
         box3.grid(row=14, column=4, sticky=tk.W, pady=3)
-        box3.insert(tk.END, str(socialEmissionsCostElectric)+" %s/tonCO2" %configuration[0])
+        box3.insert(tk.END, str(socialEmissionsCostElectric)+unit+"%s/tonCO2" %configuration[0])
 
         quitButton = ttk.Button(indexWindow, text="Cerrar", command=indexWindow.destroy)
         quitButton.grid(row=17, column=4)
@@ -611,7 +606,6 @@ class Interface():
         canvas3.get_tk_widget().pack()
 
     
-
 # Create the entire GUI program
 program = Interface()
 
