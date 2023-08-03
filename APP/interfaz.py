@@ -132,7 +132,7 @@ class IndexCalculation():
             for i in range(2):
                 average.append([np.mean(data[i][0:2])/distances[0], np.mean(data[i][2:4])/distances[1], np.mean(data[i][4:])/distances[2]])
         elif configuration[1] == 'Bus':
-            distances = [24.5, 31.4, 25.0, 18.1] # C1, C16, E1, E2
+            distances = [24.5*6, 31.4*6, 25.0*6, 18.1*6] # C1, C16, E1, E2
             average = []
             for i in range(2):
                 average.append([np.mean(data[i][0])/distances[0], np.mean(data[i][1])/distances[1], np.mean(data[i][2])/distances[2], np.mean(data[i][3])/distances[3]])
@@ -140,6 +140,7 @@ class IndexCalculation():
             print('currency parameter is not defined')
         
         averagePerKm = round(np.mean(average),2)
+        # print(averagePerKm)
         return averagePerKm
 
     def consumptionIndex(dailyConsumption, distance, typeVehicle, modeTransport):
@@ -182,7 +183,7 @@ class IndexCalculation():
         icr = round(costConsumption * consumption / (distance), 2)
         return icr
 
-    def accumulatedCost(configuration, combustion, electric, icr, typeVehicle):
+    def accumulatedCost(configuration, combustion, electric, typeVehicle):
         if configuration[0] == "USD":
             currency = 1000
         elif configuration[0] == "COP":
@@ -197,20 +198,34 @@ class IndexCalculation():
         totalCost = [*range(0, configuration[2], 1)]
 
         if typeVehicle == 'VCI':
-            powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/taxi/Fuel_mean.json'))*365/5
+            configuration, _, _ = IndexCalculation.importData()
+            if configuration[1] == 'Taxi':
+                powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/taxi/Fuel_mean.json'))*configuration[3]
+            elif configuration[1] == 'Bus':
+                powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/bus/Fuel_mean.json'))*configuration[3]
+            else:
+                print('currency parameter is not defined')
+            
             totalCost[0] = combustion[0] 
             taxCost = combustion[0] * 0.01 # Based on "Ley 1964 de 2019, Congreso de Colombia"
-            annualPowerCost = powerConsumption * icr
+            annualPowerCost = powerConsumption * combustion[1]
             annualPowerCostRaise  = combustion[2] / 100
             maintenanceCost = combustion[4]
             soatCost = combustion[5]
             otherInsurance = combustion[6] # Contractual insuarence and all damages insurance
             checkCost = combustion[7]
         elif typeVehicle == 'EV':
-            powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/taxi/kWh_mean.json'))*365/5
+            configuration, _, _ = IndexCalculation.importData()
+            if configuration[1] == 'Taxi':
+                powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/taxi/kWh_mean.json'))*configuration[3]
+            elif configuration[1] == 'Bus':
+                powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/bus/kWh_mean.json'))*configuration[3]
+            else:
+                print('currency parameter is not defined')
+
             totalCost[0] = electric[0]
             taxCost = combustion[0] * 0.01 * 0.4 # Based on "Ley 1964 de 2019, Congreso de Colombia"
-            annualPowerCost = powerConsumption * icr
+            annualPowerCost = powerConsumption * electric[1]
             annualPowerCostRaise  = electric[2] / 100
             maintenanceCost = combustion[4] * 0.4
             soatCost = combustion[5] * 0.9
@@ -243,7 +258,7 @@ class IndexCalculation():
         
         return totalCost
 
-    def annualCost(configuration, combustion, electric, icr, typeVehicle):
+    def annualCost(configuration, combustion, electric, typeVehicle):
         if configuration[0] == "USD":
             currency = 1000
         elif configuration[0] == "COP":
@@ -258,20 +273,34 @@ class IndexCalculation():
         totalCost = [*range(0, configuration[2], 1)]
 
         if typeVehicle == 'VCI':
-            powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/taxi/Fuel_mean.json'))*365/5
+            configuration, _, _ = IndexCalculation.importData()
+            if configuration[1] == 'Taxi':
+                powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/taxi/Fuel_mean.json'))*configuration[3]
+            elif configuration[1] == 'Bus':
+                powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/bus/Fuel_mean.json'))*configuration[3]
+            else:
+                print('currency parameter is not defined')
+
             totalCost[0] = combustion[0] 
             taxCost = combustion[0] * 0.01 # Based on "Ley 1964 de 2019, Congreso de Colombia"
-            annualPowerCost = powerConsumption * icr
+            annualPowerCost = powerConsumption * combustion[1]
             annualPowerCostRaise  = combustion[2] / 100
             maintenanceCost = combustion[4]
             soatCost = combustion[5]
             otherInsurance = combustion[6] # Contractual insuarence and all damages insurance
             checkCost = combustion[7]
         elif typeVehicle == 'EV':
-            powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/taxi/kWh_mean.json'))*365/5
+            configuration, _, _ = IndexCalculation.importData()
+            if configuration[1] == 'Taxi':
+                powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/taxi/kWh_mean.json'))*configuration[3]
+            elif configuration[1] == 'Bus':
+                powerConsumption = IndexCalculation.averageData(IndexCalculation.readJson('data_files/bus/kWh_mean.json'))*configuration[3]
+            else:
+                print('currency parameter is not defined')
+                
             totalCost[0] = electric[0]
             taxCost = combustion[0] * 0.01 * 0.4 # Based on "Ley 1964 de 2019, Congreso de Colombia"
-            annualPowerCost = powerConsumption * icr
+            annualPowerCost = powerConsumption * electric[1]
             annualPowerCostRaise  = electric[2] / 100
             maintenanceCost = combustion[4] * 0.4
             soatCost = combustion[5] * 0.9
@@ -338,9 +367,9 @@ class IndexCalculation():
         emissionsElectric = round(164.38 * electricConsumption / 100 , 2)
 
         combustionAccumulatedCost = IndexCalculation.accumulatedCost(configuration, combustion, electric, 
-                                                                        icrCombustion, 'VCI')
+                                                                        'VCI')
         electricAccumulatedCost = IndexCalculation.accumulatedCost(configuration, combustion, electric, 
-                                                                        icrElectric, 'EV')
+                                                                        'EV')
         
         socialEmissionsCostCombustion = round(emissionsCombustion * socialFactor / 1000000 , 3)
         socialEmissionsCostElectric = round(emissionsElectric * socialFactor / 1000000 , 3)
@@ -355,13 +384,13 @@ class IndexCalculation():
         icrCombustion = IndexCalculation.icrIndex(combustion[1], combustion[3], configuration[4])
         icrElectric = IndexCalculation.icrIndex(electric[1], electric[3], configuration[4])
         combustionAccumulatedCost = IndexCalculation.accumulatedCost(configuration, combustion, electric, 
-                                                                        icrCombustion, 'VCI')
+                                                                        'VCI')
         electricAccumulatedCost = IndexCalculation.accumulatedCost(configuration, combustion, electric, 
-                                                                        icrElectric, 'EV')
+                                                                        'EV')
         combustionAnnualCost = IndexCalculation.annualCost(configuration, combustion, electric, 
-                                                                        icrCombustion, 'VCI')
+                                                                        'VCI')
         electricAnnualCost = IndexCalculation.annualCost(configuration, combustion, electric, 
-                                                                        icrElectric, 'EV')
+                                                                        'EV')
         
         if configuration[0] == "USD":
             text = "miles de dólares [USD]"
