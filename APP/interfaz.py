@@ -241,6 +241,8 @@ class IndexCalculation():
                 #Annual variance of parameters costs
                 taxCost = taxCost * (1 + insuranceCostRaise)
                 annualPowerCost = annualPowerCost * (1 + annualPowerCostRaise)
+                print('vehicle', typeVehicle)
+                print('costo anual', annualPowerCost)
                 maintenanceCost = maintenanceCost * (1 + ipc)
                 soatCost = soatCost * (1 + insuranceCostRaise)
                 otherInsurance = otherInsurance * (1 + insuranceCostRaise)
@@ -252,7 +254,9 @@ class IndexCalculation():
                     if i==8 or i==16 or i==24:
                         totalCost[i] = totalCost[i-1] + annualPowerCost + maintenanceCost + soatCost + otherInsurance \
                             + checkCost + taxCost + bateryCost
-        
+            # else:
+            #     totalCost[i] = totalCost[i-1] + annualPowerCost + maintenanceCost + soatCost + otherInsurance + taxCost
+
         for i in range(len(totalCost)):
             totalCost[i] = round(totalCost[i] / currency , 2)
         
