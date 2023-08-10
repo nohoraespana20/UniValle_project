@@ -8,7 +8,7 @@ from matplotlib.figure import Figure
 import pandas as pd
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from tkinter import messagebox as mb
-from tkhtmlview import HTMLLabel
+import os
 
 class Data():
     '''
@@ -442,7 +442,7 @@ class Interface():
 
         filemenu = tk.Menu(menubar, tearoff=0)
         filemenu.add_command(label="Acerca de ", command=lambda:self.aboutFunction())
-        filemenu.add_command(label="Documentación", command=lambda:self.helpFunction())
+        filemenu.add_command(label="Documentación", command=lambda:self.docFunction())
         filemenu.add_separator()
         filemenu.add_command(label="Salir", command=self.window.quit)
         menubar.add_cascade(label="Ayuda", menu=filemenu)
@@ -456,14 +456,10 @@ class Interface():
         text = "Este trabajo ha sido financiado por el Fondo de Ciencia, Tecnología e Innovación \nSistema General de Regalías de Colombia \nProyecto SIGP 66777, BPIN2020020020000100041. \n\nDESARROLLO DE UN MODELO ALTERNATIVO DE ENERGÍA Y MOVILIDAD CON FUENTES NO CONVENCIONALES EN LA UNIVERSIDAD DE NARIÑO."
         mb.showinfo("Acerca de ", text)
 
-    def helpFunction(self):
-        helpWindow = Toplevel()
-        helpWindow.geometry("600x400")
-        helpWindow.title("Ayuda")
-        html_label = HTMLLabel(helpWindow, html='<h1 style="color: blue; text-align: center"> Hello World </h1>')
-        html_label.pack(fill="both", expand=FALSE)
-        html_label.fit_height()
-
+    def docFunction(self):
+        file = "documentation.pdf"
+        os.startfile(file)
+        
     def createWidgets(self):
         # Create some room around all the internal frames
         self.window['padx'] = 5
@@ -617,10 +613,14 @@ class Interface():
         text1.grid(row=9, column=1, sticky=tk.W, pady=3)
         box3 = ttk.Entry(indexWindow, width=30)
         box3.grid(row=9, column=2, sticky=tk.W, pady=3)
-        box3.insert(tk.END, str(combustionAccumulatedCost[-1])+" %s/km" %configuration[0])
+        if configuration[0]=="USD":
+            text = " miles de "
+        if configuration[0]=="COP":
+            text = " millones de "
+        box3.insert(tk.END, str(combustionAccumulatedCost[-1])+text+"%s" %configuration[0])
         box3 = ttk.Entry(indexWindow, width=30)
         box3.grid(row=9, column=4, sticky=tk.W, pady=3)
-        box3.insert(tk.END, str(electricAccumulatedCost[-1])+" %s/km" %configuration[0])
+        box3.insert(tk.END, str(electricAccumulatedCost[-1])+text+"%s" %configuration[0])
 
         text1 = ttk.Label(indexWindow, text="Índices ambientales")
         text1.grid(row=11, column=1, sticky=tk.W, pady=3)
@@ -655,9 +655,9 @@ class Interface():
         canvas3.get_tk_widget().pack()
 
     
+if __name__ == '__main__':
+    # Create the entire GUI program
+    program = Interface()
 
-# Create the entire GUI program
-program = Interface()
-
-# Start the GUI event loop
-program.window.mainloop()
+    # Start the GUI event loop
+    program.window.mainloop()
