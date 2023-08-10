@@ -241,8 +241,6 @@ class IndexCalculation():
                 #Annual variance of parameters costs
                 taxCost = taxCost * (1 + insuranceCostRaise)
                 annualPowerCost = annualPowerCost * (1 + annualPowerCostRaise)
-                print('vehicle', typeVehicle)
-                print('costo anual', annualPowerCost)
                 maintenanceCost = maintenanceCost * (1 + ipc)
                 soatCost = soatCost * (1 + insuranceCostRaise)
                 otherInsurance = otherInsurance * (1 + insuranceCostRaise)
