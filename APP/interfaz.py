@@ -425,6 +425,7 @@ class IndexCalculation():
         a2.grid()
         a2.set_ylabel('Costo en %s' %text, fontsize=8)
         a2.set_xlabel('Año', fontsize=8)
+        fig.savefig("images/figura_600dpi.png", dpi=600)
         return fig
 
 class Interface():
