@@ -62,7 +62,7 @@ class ConventionalV(ttk.Frame):
         #                 }
         data_combustion = { 'Vehicle cost': 195400000, # Bus FRR --> https://casaeditorialeltiempo.pressreader.com/precios 195400000
                             'Galon cost': 8396,
-                            'Fuel raise': 5,
+                            'Fuel raise': 4,
                             'Maintenance cost': 14700000,
                             'SOAT cost': 1200000,
                             'Other insurances': 195400000*0.005,
@@ -216,12 +216,12 @@ class ElectricV(ttk.Frame):
         #                     'Repairs per year' : repairs  
         #                 }
 
-        data_electric = { 'Vehicle cost': 185000*5118*1.35, # cost of Sunwin 8 m - 30 pasajeros with USD=5118 (historical maximum) and 35% of importation costs
+        data_electric = { 'Vehicle cost': 185000*4000,#*5118*1.35, # cost of Sunwin 8 m - 30 pasajeros with USD=5118 (historical maximum) and 35% of importation costs
                             'kWh cost': 755.8,
                             'kWh raise': 8,
                             'Maintenance cost': 14700000*0.35,
                             'SOAT cost': 1200000*0.9,
-                            'Other insurances': 185000*5118*0.005*0.4, # descuento --> https://revistaelcongreso.com/vehiculos-hibridos-y-electricos-tendran-descuento-en-el-pago-del-impuesto-vehicular/
+                            'Other insurances': 185000*4000*0.005*0.4,#*5118*0.005*0.4, # descuento --> https://revistaelcongreso.com/vehiculos-hibridos-y-electricos-tendran-descuento-en-el-pago-del-impuesto-vehicular/
                             'Insurance raise': 10,
                             'Daily consumption': 71.37,
                             'Daily distance' : 148,
@@ -426,10 +426,10 @@ class Comparison(ttk.Frame):
         # a1.plot(years, total_combustion, label = "conventional")
         # a1.plot(years, total_electric, label = "electric")
         a1.plot(years, total_combustion, label = "Conventional", color="#A3AF9E")
-        a1.plot(years, total_electric, label = "electric", color="#00ADFF")
+        a1.plot(years, total_electric, label = "electric", color="#64FF00")
         a1.grid()
         a1.set_title ('%d km/Year' %annual_distance, fontsize=12)
-        a1.legend(['Diesel', 'Gas'], fontsize=10)
+        a1.legend(['Diesel', 'EV'], fontsize=10)
         # a1.set_ylabel('Costo acumulado [millones COP]', fontsize=8)
         a1.set_ylabel('Cumulative Cost [USD]', fontsize=10)
         a1.set_xlabel('Year', fontsize=10)
@@ -462,11 +462,11 @@ class Comparison(ttk.Frame):
         
         a2 = fig.add_subplot(132)
         df = pd.DataFrame({'Conventional': conventional, 'Electric': electric}, index=Y)
-        df.plot(ax=a2, kind = 'bar', color={"Conventional": "#A3AF9E", "Electric": "#00ADFF"})
+        df.plot(ax=a2, kind = 'bar', color={"Conventional": "#A3AF9E", "Electric": "#64FF00"})
         
         # a2.set_title('Costo anual', fontsize=8)
         a2.set_title('Annual Cost', fontsize=12)
-        a2.legend(['Diesel', 'Gas'], fontsize=10)
+        a2.legend(['Diesel', 'EV'], fontsize=10)
         # a2.set_ylabel('Costo [Millones de COP]', fontsize=8)
         a2.set_ylabel('Cost [thousands of USD]', fontsize=10)
         a2.set_xlabel('Year', fontsize=10)
@@ -504,7 +504,7 @@ class Comparison(ttk.Frame):
         fig = Figure(figsize=(5,5),dpi=100)
         a = fig.add_subplot(221)
         a.plot(years, total_combustion, label = "conventional", color="#A3AF9E")
-        a.plot(years, total_electric, label = "electric", color="#00ADFF")
+        a.plot(years, total_electric, label = "electric", color="#64FF00")
         a.grid()
         a.set_title ('%d km/año' %annual_distance, fontsize=10)
         a.set_ylabel('Accumulated cost [millions COP]')

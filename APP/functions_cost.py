@@ -39,7 +39,7 @@ def meanFuelPerKM_E(file):
     fuelPerTypePeak = fuel[1][0:]
     
     #Distance data from results of emissions simulation
-    distances = [24.5, 31.4, 25.0, 18.1] # C1, C16, E1, E2
+    distances = [24.5*6, 31.4*6, 25.0*6, 18.1*6] # C1, C16, E1, E2
     fuelPerKMPeak = []
     fuelPerKMPeakOff = []
     for i in range(len(distances)):
