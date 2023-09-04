@@ -9,6 +9,7 @@ import pandas as pd
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from tkinter import messagebox as mb
 import os
+import intersection as IN
 
 class Data():
     '''
@@ -230,8 +231,19 @@ class IndexCalculation():
             maintenanceCost = combustion[4] * 0.4
             soatCost = combustion[5] * 0.9
             checkCost = combustion[7] * 0.7 
-            bateryCost = electric[4] * 156 / 5000 # Batery cost in COP
+            # bateryCost = electric[4] * 156 * 4000 # Batery cost in COP
+            bateryCost = electric[4] * 156 # Batery cost in USD
             batteryYearlyRaise = -0.0967 # According to technology reduction cost trend
+
+            # totalCost[0] = electric[0]
+            # taxCost = combustion[0] * 0.01 * 0.9
+            # annualPowerCost = powerConsumption * electric[1]
+            # annualPowerCostRaise  = electric[2] / 100
+            # maintenanceCost = combustion[4]
+            # soatCost = combustion[5] * 0.9
+            # checkCost = combustion[7] 
+            # bateryCost = electric[4] * 156 / 5000 * 0# Batery cost in COP
+            # batteryYearlyRaise = -0.0967 # According to technology reduction cost trend
         else:
             print('typeVehicle parameter is not defined ')
 
@@ -245,13 +257,15 @@ class IndexCalculation():
                 soatCost = soatCost * (1 + insuranceCostRaise)
                 otherInsurance = otherInsurance * (1 + insuranceCostRaise)
                 checkCost = checkCost * (1 + insuranceCostRaise)
-                totalCost[i] = totalCost[i-1] + annualPowerCost + maintenanceCost + soatCost + otherInsurance + \
-                    taxCost + checkCost
+                # totalCost[i] = totalCost[i-1] + annualPowerCost + maintenanceCost + soatCost + otherInsurance + \
+                #     taxCost + checkCost
+                totalCost[i] = totalCost[i] + checkCost
                 if typeVehicle == 'EV':
                     bateryCost = bateryCost * (1 + batteryYearlyRaise)
                     if i==8 or i==16 or i==24:
-                        totalCost[i] = totalCost[i-1] + annualPowerCost + maintenanceCost + soatCost + otherInsurance \
-                            + checkCost + taxCost + bateryCost
+                        # totalCost[i] = totalCost[i-1] + annualPowerCost + maintenanceCost + soatCost + otherInsurance \
+                        #     + checkCost + taxCost + bateryCost
+                        totalCost[i] = totalCost[i] + bateryCost
             # else:
             #     totalCost[i] = totalCost[i-1] + annualPowerCost + maintenanceCost + soatCost + otherInsurance + taxCost
 
@@ -307,8 +321,19 @@ class IndexCalculation():
             maintenanceCost = combustion[4] * 0.4
             soatCost = combustion[5] * 0.9
             checkCost = combustion[7] * 0.7 
-            bateryCost = electric[4] * 156 / 5000 # Batery cost in COP
+            # bateryCost = electric[4] * 156 * 4000 # Batery cost in COP
+            bateryCost = electric[4] * 156 # Batery cost in USD
             batteryYearlyRaise = -0.0967 # According to technology reduction cost trend
+
+            # totalCost[0] = electric[0]
+            # taxCost = combustion[0] * 0.01 * 0.9
+            # annualPowerCost = powerConsumption * electric[1]
+            # annualPowerCostRaise  = electric[2] / 100
+            # maintenanceCost = combustion[4]
+            # soatCost = combustion[5] * 0.9
+            # checkCost = combustion[7] 
+            # bateryCost = electric[4] * 156 / 5000 * 0# Batery cost in COP
+            # batteryYearlyRaise = -0.0967 # According to technology reduction cost trend
         else:
             print('typeVehicle parameter is not defined ')
 
@@ -322,13 +347,16 @@ class IndexCalculation():
                 soatCost = soatCost * (1 + insuranceCostRaise)
                 otherInsurance = otherInsurance * (1 + insuranceCostRaise)
                 checkCost = checkCost * (1 + insuranceCostRaise)
-                totalCost[i] = totalCost[i] + annualPowerCost + maintenanceCost + soatCost + otherInsurance + \
-                    taxCost + checkCost
+                # totalCost[i] = totalCost[i] + annualPowerCost + maintenanceCost + soatCost + otherInsurance + \
+                #     taxCost + checkCost
+                totalCost[i] = totalCost[i] + checkCost
                 if typeVehicle == 'EV':
                     bateryCost = bateryCost * (1 + batteryYearlyRaise)
+                    # print('BateryCost: ', bateryCost)
                     if i==8 or i==16 or i==24:
-                        totalCost[i] = totalCost[i] + annualPowerCost + maintenanceCost + soatCost + otherInsurance \
-                            + checkCost + taxCost + bateryCost
+                        # totalCost[i] = totalCost[i] + annualPowerCost + maintenanceCost + soatCost + otherInsurance \
+                        #     + checkCost + taxCost + bateryCost
+                        totalCost[i] = totalCost[i] + bateryCost
         
         for i in range(len(totalCost)):
             totalCost[i] = totalCost[i] / currency
@@ -406,26 +434,30 @@ class IndexCalculation():
         a1 = fig.add_subplot(211)
         a1.plot(years, combustionAccumulatedCost, label = "VCI", color='#A0A0A0')
         a1.plot(years, electricAccumulatedCost, label = "VE", color='#33FF33')
+        # a1.plot(years, electricAccumulatedCost, label = "Gas", color='#00ADFF')
         a1.grid()
         a1.set_title ('Costo acumulado para %d km/año' %configuration[3], fontsize=8)
         a1.legend(['VCI', 'VE'], fontsize=8)
+        # a1.legend(['VCI', 'Gas'], fontsize=8)
         a1.set_ylabel('Costo en %s' %text, fontsize=8)
         a1.set_xlabel('Año', fontsize=8)
-
+        IN.getVectors(configuration[3], combustionAccumulatedCost, electricAccumulatedCost)
+        
         Y = [str(x) for x in years]
         conventional = combustionAnnualCost
         electric = electricAnnualCost
         
         a2 = fig.add_subplot(212)
-        df = pd.DataFrame({'VCI': conventional, 'VE': electric}, index=Y)
+        df = pd.DataFrame({'VCI': conventional, 'EV': electric}, index=Y)
         df.plot(ax=a2, kind = 'bar', rot=0, color=['#A0A0A0', '#33FF33'])
         
         a2.set_title('Costo anual para %d km/año' %configuration[3], fontsize=8)
         a2.legend(['VCI', 'VE'], fontsize=8)
+        # a2.legend(['VCI', 'Gas'], fontsize=8)
         a2.grid()
         a2.set_ylabel('Costo en %s' %text, fontsize=8)
         a2.set_xlabel('Año', fontsize=8)
-        fig.savefig("images/figura_600dpi.png", dpi=600)
+        fig.savefig("images/figura_600dpi.png", dpi=600, transparent=True)
         return fig
 
 class Interface():

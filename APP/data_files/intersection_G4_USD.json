@@ -1,0 +1,48 @@
+{
+    "40000": {
+        "combustion": "NO possible solution",
+        "electric": "NO possible solution"
+    },
+    "60000": {
+        "combustion": [
+            2,
+            93.56,
+            3,
+            116.62
+        ],
+        "electric": [
+            2,
+            93.71,
+            3,
+            115.56
+        ]
+    },
+    "80000": {
+        "combustion": [
+            1,
+            76.83,
+            2,
+            105.38
+        ],
+        "electric": [
+            1,
+            78.09,
+            2,
+            104.0
+        ]
+    },
+    "100000": {
+        "combustion": [
+            1,
+            82.71,
+            2,
+            117.2
+        ],
+        "electric": [
+            1,
+            83.08,
+            2,
+            114.29
+        ]
+    }
+}
