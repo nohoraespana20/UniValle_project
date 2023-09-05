@@ -224,26 +224,26 @@ class IndexCalculation():
             else:
                 print('currency parameter is not defined')
 
-            totalCost[0] = electric[0]
-            taxCost = combustion[0] * 0.01 * 0.4 # Based on "Ley 1964 de 2019, Congreso de Colombia"
-            annualPowerCost = powerConsumption * electric[1]
-            annualPowerCostRaise  = electric[2] / 100
-            maintenanceCost = combustion[4] * 0.4
-            soatCost = combustion[5] * 0.9
-            checkCost = combustion[7] * 0.7 
-            # bateryCost = electric[4] * 156 * 4000 # Batery cost in COP
-            bateryCost = electric[4] * 156 # Batery cost in USD
-            batteryYearlyRaise = -0.0967 # According to technology reduction cost trend
-
             # totalCost[0] = electric[0]
-            # taxCost = combustion[0] * 0.01 * 0.9
+            # taxCost = combustion[0] * 0.01 * 0.4 # Based on "Ley 1964 de 2019, Congreso de Colombia"
             # annualPowerCost = powerConsumption * electric[1]
             # annualPowerCostRaise  = electric[2] / 100
-            # maintenanceCost = combustion[4]
+            # maintenanceCost = combustion[4] * 0.4
             # soatCost = combustion[5] * 0.9
-            # checkCost = combustion[7] 
-            # bateryCost = electric[4] * 156 / 5000 * 0# Batery cost in COP
+            # checkCost = combustion[7] * 0.7 
+            # # bateryCost = electric[4] * 156 * 4000 # Batery cost in COP
+            # bateryCost = electric[4] * 156 # Batery cost in USD
             # batteryYearlyRaise = -0.0967 # According to technology reduction cost trend
+
+            totalCost[0] = electric[0]
+            taxCost = combustion[0] * 0.01 * 0.9
+            annualPowerCost = powerConsumption * electric[1]
+            annualPowerCostRaise  = electric[2] / 100
+            maintenanceCost = combustion[4]
+            soatCost = combustion[5] * 0.9
+            checkCost = combustion[7] 
+            bateryCost = electric[4] * 156 / 5000 * 0# Batery cost in COP
+            batteryYearlyRaise = -0.0967 # According to technology reduction cost trend
         else:
             print('typeVehicle parameter is not defined ')
 
@@ -314,26 +314,26 @@ class IndexCalculation():
             else:
                 print('currency parameter is not defined')
                 
-            totalCost[0] = electric[0]
-            taxCost = combustion[0] * 0.01 * 0.4 # Based on "Ley 1964 de 2019, Congreso de Colombia"
-            annualPowerCost = powerConsumption * electric[1]
-            annualPowerCostRaise  = electric[2] / 100
-            maintenanceCost = combustion[4] * 0.4
-            soatCost = combustion[5] * 0.9
-            checkCost = combustion[7] * 0.7 
-            # bateryCost = electric[4] * 156 * 4000 # Batery cost in COP
-            bateryCost = electric[4] * 156 # Batery cost in USD
-            batteryYearlyRaise = -0.0967 # According to technology reduction cost trend
-
             # totalCost[0] = electric[0]
-            # taxCost = combustion[0] * 0.01 * 0.9
+            # taxCost = combustion[0] * 0.01 * 0.4 # Based on "Ley 1964 de 2019, Congreso de Colombia"
             # annualPowerCost = powerConsumption * electric[1]
             # annualPowerCostRaise  = electric[2] / 100
-            # maintenanceCost = combustion[4]
+            # maintenanceCost = combustion[4] * 0.4
             # soatCost = combustion[5] * 0.9
-            # checkCost = combustion[7] 
-            # bateryCost = electric[4] * 156 / 5000 * 0# Batery cost in COP
+            # checkCost = combustion[7] * 0.7 
+            # # bateryCost = electric[4] * 156 * 4000 # Batery cost in COP
+            # bateryCost = electric[4] * 156 # Batery cost in USD
             # batteryYearlyRaise = -0.0967 # According to technology reduction cost trend
+
+            totalCost[0] = electric[0]
+            taxCost = combustion[0] * 0.01 * 0.9
+            annualPowerCost = powerConsumption * electric[1]
+            annualPowerCostRaise  = electric[2] / 100
+            maintenanceCost = combustion[4]
+            soatCost = combustion[5] * 0.9
+            checkCost = combustion[7] 
+            bateryCost = electric[4] * 156 / 5000 * 0# Batery cost in COP
+            batteryYearlyRaise = -0.0967 # According to technology reduction cost trend
         else:
             print('typeVehicle parameter is not defined ')
 
@@ -433,12 +433,12 @@ class IndexCalculation():
         fig = Figure(figsize=(7,8))
         a1 = fig.add_subplot(211)
         a1.plot(years, combustionAccumulatedCost, label = "VCI", color='#A0A0A0')
-        a1.plot(years, electricAccumulatedCost, label = "VE", color='#33FF33')
-        # a1.plot(years, electricAccumulatedCost, label = "Gas", color='#00ADFF')
+        # a1.plot(years, electricAccumulatedCost, label = "VE", color='#33FF33')
+        a1.plot(years, electricAccumulatedCost, label = "Gas", color='#00ADFF')
         a1.grid()
         a1.set_title ('Costo acumulado para %d km/año' %configuration[3], fontsize=8)
-        a1.legend(['VCI', 'VE'], fontsize=8)
-        # a1.legend(['VCI', 'Gas'], fontsize=8)
+        # a1.legend(['VCI', 'VE'], fontsize=8)
+        a1.legend(['VCI', 'Gas'], fontsize=8)
         a1.set_ylabel('Costo en %s' %text, fontsize=8)
         a1.set_xlabel('Año', fontsize=8)
         IN.getVectors(configuration[3], combustionAccumulatedCost, electricAccumulatedCost)
@@ -449,11 +449,12 @@ class IndexCalculation():
         
         a2 = fig.add_subplot(212)
         df = pd.DataFrame({'VCI': conventional, 'EV': electric}, index=Y)
-        df.plot(ax=a2, kind = 'bar', rot=0, color=['#A0A0A0', '#33FF33'])
+        # df.plot(ax=a2, kind = 'bar', rot=0, color=['#A0A0A0', '#33FF33'])
+        df.plot(ax=a2, kind = 'bar', rot=0, color=['#A0A0A0', '#00ADFF'])
         
         a2.set_title('Costo anual para %d km/año' %configuration[3], fontsize=8)
-        a2.legend(['VCI', 'VE'], fontsize=8)
-        # a2.legend(['VCI', 'Gas'], fontsize=8)
+        # a2.legend(['VCI', 'VE'], fontsize=8)
+        a2.legend(['VCI', 'Gas'], fontsize=8)
         a2.grid()
         a2.set_ylabel('Costo en %s' %text, fontsize=8)
         a2.set_xlabel('Año', fontsize=8)
