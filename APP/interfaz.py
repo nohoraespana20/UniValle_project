@@ -441,6 +441,7 @@ class IndexCalculation():
         a1.legend(['VCI', 'Gas'], fontsize=8)
         a1.set_ylabel('Costo en %s' %text, fontsize=8)
         a1.set_xlabel('Año', fontsize=8)
+        a1.set_xticks(range(0, configuration[2], 1))
         IN.getVectors(configuration[3], combustionAccumulatedCost, electricAccumulatedCost)
         
         Y = [str(x) for x in years]
