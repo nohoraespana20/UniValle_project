@@ -31,6 +31,10 @@ if __name__ == '__main__':
             total_route = total_per_trip(data_emissions, route, emission)
             total_emission_routes.append(total_route)
     total_emission_routes = pd.DataFrame(total_emission_routes, columns=emissions)
+    print(total_emission_routes)
+    distances = total_emission_routes.iloc[[0,5,10,15,20,25], 0]
+    distances.index = ['route_1','route_2','route_3','route_4','route_5','route_6']
+    print(distances)
     route1 = total_emission_routes.iloc[0:5, 1:7]
     route1.index = emission_classes
     route2 = total_emission_routes.iloc[5:10, 1:7]
@@ -43,6 +47,6 @@ if __name__ == '__main__':
     route5.index = emission_classes
     route6 = total_emission_routes.iloc[25:30, 1:7]
     route6.index = emission_classes
-    print(route1)
-    route1.plot( y=emissions[1], kind = "bar")
-    plt.show()
+    # print(route1)
+    # route1.plot( y=emissions[1], kind = "bar")
+    # plt.show()
