@@ -28,9 +28,10 @@ def saveDataVehicle(file_config, route):
     emission_classes = ['HBEFA4/PC_petrol_Euro-2', 'HBEFA4/PC_petrol_Euro-3', 
                         'HBEFA4/PC_petrol_Euro-4', 'HBEFA4/PC_petrol_Euro-5', 
                         'HBEFA4/PC_petrol_Euro-6d']
-    initialize(file_config)
+    
     for emission_class in emission_classes:
         step = 0;
+        initialize(file_config)
         while traci.simulation.getMinExpectedNumber() > 0:
             traci.simulationStep();
             vehicles = traci.vehicle.getIDList();
@@ -44,11 +45,11 @@ def saveDataVehicle(file_config, route):
                 data = getDataEmissions(vehicles[0])
                 with open('data_emissions.csv', 'a', newline='') as file:
                     writer = csv.writer(file)
-                    writer.writerow([route, emission_class, data[0], data[1], data[2], data[3], data[4],
+                    writer.writerow([route, emission_class, step, data[0], 
+                                     data[1], data[2], data[3], data[4], 
                                      data[5], data[6], data[7], data[8]])
             step = step + 1
-
-    traci.close()
+        traci.close()
 
 if __name__ == '__main__':
     import os, sys
@@ -60,8 +61,9 @@ if __name__ == '__main__':
                    'config_files/config3.sumocfg','config_files/config4.sumocfg',
                    'config_files/config5.sumocfg','config_files/config6.sumocfg']
     
-    field = ["route", "emission_class", "speed", "CO2Emission", "COEmission", "HCEmission",
-             "PMxEmission", "NOxEmission", "FuelConsumption", "NoiseEmission", "step", "distance"]
+    field = ["route", "emission_class", "step", "speed", "CO2Emission", "COEmission", 
+             "HCEmission", "PMxEmission", "NOxEmission", "FuelConsumption", 
+             "NoiseEmission", "distance"]
     with open('data_emissions.csv', 'a', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(field)
