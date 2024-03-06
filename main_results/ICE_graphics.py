@@ -1,6 +1,6 @@
 def total_per_trip(data, route, emission_class):
-    route = data[data["route"] == route]
-    route_class = route[route["emission_class"] == emission_class]
+    routee = data[data["route"] == route]
+    route_class = routee[routee["emission_class"] == emission_class]
 
     step_route = route_class.iloc[-1, route_class.columns.get_loc("step")]
     distance_route = route_class.iloc[-1, route_class.columns.get_loc("distance")]/1E3 #Distance in km
@@ -12,7 +12,7 @@ def total_per_trip(data, route, emission_class):
     total_NOx = route_class["NOxEmission"].sum()/1E6 #Emission in kg
     total_fuel = route_class["FuelConsumption"].sum()*(2.642e-7) #Fuel in gallons
     total_noise = route_class["NoiseEmission"].sum()/step_route  # Mean noise in dB
-    return [distance_route, total_CO2, total_CO, total_HC, total_PMx, total_NOx, total_fuel, total_noise]
+    return [route, emission_class, distance_route, total_CO2, total_CO, total_HC, total_PMx, total_NOx, total_fuel, total_noise]
     
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
@@ -21,7 +21,7 @@ if __name__ == '__main__':
     data_emissions = pd.read_csv("data_emissions.csv")
 
     routes = [1, 2, 3, 4, 5, 6]
-    emissions = ['distance', 'CO2', 'CO', 'HC', 'PMx', 'NOx', 'fuel', 'noise']
+    category = ['route','emission_class','distance [km]', 'CO2 [kg]', 'CO [kg]', 'HC [kg]', 'PMx [kg]', 'NOx [kg]', 'fuel [gl]', 'noise [dB]']
     emission_classes = ['HBEFA4/PC_petrol_Euro-2', 'HBEFA4/PC_petrol_Euro-3', 
                         'HBEFA4/PC_petrol_Euro-4', 'HBEFA4/PC_petrol_Euro-5', 
                         'HBEFA4/PC_petrol_Euro-6d']
@@ -30,23 +30,11 @@ if __name__ == '__main__':
         for emission in emission_classes:
             total_route = total_per_trip(data_emissions, route, emission)
             total_emission_routes.append(total_route)
-    total_emission_routes = pd.DataFrame(total_emission_routes, columns=emissions)
+    total_emission_routes = pd.DataFrame(total_emission_routes,columns=category)
     print(total_emission_routes)
-    distances = total_emission_routes.iloc[[0,5,10,15,20,25], 0]
-    distances.index = ['route_1','route_2','route_3','route_4','route_5','route_6']
+    distances = total_emission_routes.iloc[[0,5,10,15,20,25], 2]
     print(distances)
-    route1 = total_emission_routes.iloc[0:5, 1:7]
-    route1.index = emission_classes
-    route2 = total_emission_routes.iloc[5:10, 1:7]
-    route2.index = emission_classes
-    route3 = total_emission_routes.iloc[10:15, 1:7]
-    route3.index = emission_classes
-    route4 = total_emission_routes.iloc[15:20, 1:7]
-    route4.index = emission_classes
-    route5 = total_emission_routes.iloc[20:25, 1:7]
-    route5.index = emission_classes
-    route6 = total_emission_routes.iloc[25:30, 1:7]
-    route6.index = emission_classes
-    # print(route1)
-    # route1.plot( y=emissions[1], kind = "bar")
-    # plt.show()
+    route1 = total_emission_routes.iloc[0:5, [0,1,3,4,5,6,7,8]]
+    print(route1)
+    route1.plot( y=category[3], kind = "bar")
+    plt.show()

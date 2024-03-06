@@ -1,305 +1,305 @@
-<?xml version="1.0" ?>
-<additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
-   <vTypeDistribution id="vehDist">
-      <vType id="vehDist0" tau="0.825" sigma="0.401" length="5.151" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist1" tau="0.786" sigma="0.305" length="5.013" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist2" tau="0.683" sigma="0.848" length="4.835" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist3" tau="0.918" sigma="0.801" length="5.290" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist4" tau="1.031" sigma="0.407" length="5.196" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist5" tau="0.947" sigma="0.574" length="4.769" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist6" tau="0.706" sigma="0.310" length="4.973" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist7" tau="0.772" sigma="0.630" length="4.483" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist8" tau="0.707" sigma="0.562" length="4.814" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist9" tau="0.894" sigma="0.588" length="5.163" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist10" tau="0.746" sigma="0.529" length="5.184" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist11" tau="0.778" sigma="0.141" length="5.073" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist12" tau="0.679" sigma="0.635" length="4.677" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist13" tau="0.682" sigma="0.156" length="5.075" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist14" tau="0.800" sigma="0.308" length="4.944" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist15" tau="0.898" sigma="0.704" length="4.830" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist16" tau="0.662" sigma="0.605" length="4.881" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist17" tau="0.783" sigma="0.550" length="4.751" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist18" tau="0.778" sigma="0.332" length="4.765" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist19" tau="0.741" sigma="0.101" length="4.628" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist20" tau="0.744" sigma="0.848" length="4.856" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist21" tau="0.865" sigma="0.257" length="4.851" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist22" tau="0.920" sigma="0.449" length="5.065" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist23" tau="0.704" sigma="0.463" length="4.759" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist24" tau="0.809" sigma="0.644" length="4.894" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist25" tau="0.782" sigma="0.127" length="4.873" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist26" tau="0.834" sigma="0.332" length="4.957" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist27" tau="0.617" sigma="0.507" length="4.723" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist28" tau="0.850" sigma="0.397" length="5.078" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist29" tau="0.843" sigma="0.433" length="5.020" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist30" tau="0.621" sigma="0.352" length="4.984" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist31" tau="0.673" sigma="0.229" length="4.714" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist32" tau="0.773" sigma="0.886" length="5.055" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist33" tau="0.649" sigma="0.302" length="4.994" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist34" tau="0.831" sigma="0.458" length="4.864" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist35" tau="0.832" sigma="0.685" length="4.875" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist36" tau="0.952" sigma="0.775" length="4.762" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist37" tau="0.887" sigma="0.404" length="4.815" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist38" tau="0.873" sigma="0.611" length="4.381" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist39" tau="0.790" sigma="0.631" length="4.466" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist40" tau="0.911" sigma="0.581" length="5.116" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist41" tau="0.681" sigma="0.614" length="4.975" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist42" tau="0.753" sigma="0.211" length="4.947" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist43" tau="0.926" sigma="0.450" length="4.984" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist44" tau="0.590" sigma="0.608" length="4.789" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist45" tau="0.776" sigma="0.279" length="5.259" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist46" tau="0.724" sigma="0.443" length="4.999" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist47" tau="0.787" sigma="0.407" length="5.022" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist48" tau="0.653" sigma="0.569" length="5.339" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist49" tau="0.838" sigma="0.333" length="4.821" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist50" tau="0.627" sigma="0.497" length="5.274" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist51" tau="0.683" sigma="0.506" length="4.825" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist52" tau="1.128" sigma="0.847" length="5.052" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist53" tau="0.925" sigma="0.488" length="4.661" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist54" tau="0.895" sigma="0.560" length="4.697" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist55" tau="0.742" sigma="0.516" length="4.599" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist56" tau="0.838" sigma="0.431" length="4.864" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist57" tau="0.656" sigma="0.595" length="4.694" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist58" tau="0.745" sigma="0.540" length="4.777" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist59" tau="0.789" sigma="0.325" length="4.861" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist60" tau="0.794" sigma="0.543" length="4.817" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist61" tau="0.684" sigma="0.251" length="4.753" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist62" tau="0.872" sigma="1.014" length="4.807" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist63" tau="0.918" sigma="0.712" length="4.512" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist64" tau="0.814" sigma="0.794" length="4.610" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist65" tau="0.848" sigma="0.300" length="5.161" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist66" tau="0.840" sigma="0.675" length="5.201" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist67" tau="0.874" sigma="0.461" length="4.903" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist68" tau="0.936" sigma="0.626" length="4.489" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist69" tau="0.813" sigma="0.418" length="4.364" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist70" tau="0.887" sigma="0.469" length="4.857" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist71" tau="0.874" sigma="0.011" length="4.442" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist72" tau="0.848" sigma="0.484" length="5.085" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist73" tau="0.792" sigma="0.321" length="4.995" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist74" tau="0.827" sigma="0.518" length="5.026" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist75" tau="0.848" sigma="0.403" length="4.780" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist76" tau="0.826" sigma="0.362" length="4.880" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist77" tau="0.972" sigma="0.417" length="4.764" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist78" tau="0.808" sigma="0.578" length="5.148" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist79" tau="0.950" sigma="0.481" length="5.190" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist80" tau="0.892" sigma="0.106" length="4.931" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist81" tau="0.915" sigma="0.629" length="4.914" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist82" tau="0.730" sigma="0.606" length="4.773" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist83" tau="0.833" sigma="0.545" length="4.586" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist84" tau="0.864" sigma="0.763" length="4.844" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist85" tau="1.077" sigma="0.334" length="5.098" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist86" tau="0.759" sigma="0.716" length="5.204" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist87" tau="0.799" sigma="0.222" length="4.819" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist88" tau="0.936" sigma="0.581" length="4.871" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist89" tau="0.887" sigma="0.580" length="4.897" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist90" tau="0.761" sigma="0.910" length="4.709" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist91" tau="0.920" sigma="0.477" length="4.832" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist92" tau="0.812" sigma="0.332" length="5.135" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist93" tau="0.856" sigma="0.733" length="4.830" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist94" tau="0.825" sigma="0.239" length="4.920" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist95" tau="0.793" sigma="0.727" length="5.051" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist96" tau="0.565" sigma="0.529" length="5.194" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist97" tau="0.617" sigma="0.056" length="4.915" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist98" tau="0.747" sigma="0.496" length="4.920" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-      <vType id="vehDist99" tau="0.820" sigma="0.477" length="4.547" vClass=" passenger" carFollowModel=" Krauss">
-         <param key=" myCustomParameter" value=" normal(5, 2)"/>
-      </vType>
-   </vTypeDistribution>
+<?xml version="1.0" ?>
+<additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
+	<vTypeDistribution id="vehDist">
+		<vType id="vehDist0" tau="2.070" sigma="0.401" length="5.151" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="4.724"/>
+		</vType>
+		<vType id="vehDist1" tau="0.727" sigma="0.613" length="4.666" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="8.476"/>
+		</vType>
+		<vType id="vehDist2" tau="1.443" sigma="0.736" length="5.201" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="8.899"/>
+		</vType>
+		<vType id="vehDist3" tau="4.343" sigma="0.407" length="5.196" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="7.936"/>
+		</vType>
+		<vType id="vehDist4" tau="2.205" sigma="0.369" length="4.712" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="3.104"/>
+		</vType>
+		<vType id="vehDist5" tau="2.203" sigma="0.444" length="5.030" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="0.834"/>
+		</vType>
+		<vType id="vehDist6" tau="0.776" sigma="0.562" length="4.814" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="6.884"/>
+		</vType>
+		<vType id="vehDist7" tau="2.285" sigma="0.763" length="4.793" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="5.286"/>
+		</vType>
+		<vType id="vehDist8" tau="3.362" sigma="0.456" length="4.541" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="6.734"/>
+		</vType>
+		<vType id="vehDist9" tau="0.468" sigma="0.635" length="4.677" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="2.642"/>
+		</vType>
+		<vType id="vehDist10" tau="2.763" sigma="0.500" length="4.708" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="5.441"/>
+		</vType>
+		<vType id="vehDist11" tau="2.875" sigma="0.704" length="4.830" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="2.234"/>
+		</vType>
+		<vType id="vehDist12" tau="2.376" sigma="0.481" length="4.867" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="5.499"/>
+		</vType>
+		<vType id="vehDist13" tau="0.981" sigma="0.456" length="4.732" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="3.651"/>
+		</vType>
+		<vType id="vehDist14" tau="1.147" sigma="0.101" length="4.628" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="3.870"/>
+		</vType>
+		<vType id="vehDist15" tau="3.716" sigma="0.456" length="5.030" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="2.569"/>
+		</vType>
+		<vType id="vehDist16" tau="1.529" sigma="0.741" length="4.849" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="6.652"/>
+		</vType>
+		<vType id="vehDist17" tau="0.740" sigma="0.463" length="4.759" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="5.182"/>
+		</vType>
+		<vType id="vehDist18" tau="2.589" sigma="0.494" length="4.864" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="1.269"/>
+		</vType>
+		<vType id="vehDist19" tau="1.653" sigma="0.568" length="4.732" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="5.574"/>
+		</vType>
+		<vType id="vehDist20" tau="1.837" sigma="0.323" length="5.000" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="3.968"/>
+		</vType>
+		<vType id="vehDist21" tau="2.777" sigma="0.585" length="4.833" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="6.197"/>
+		</vType>
+		<vType id="vehDist22" tau="0.984" sigma="0.584" length="4.646" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="2.293"/>
+		</vType>
+		<vType id="vehDist23" tau="0.777" sigma="0.447" length="5.286" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="6.553"/>
+		</vType>
+		<vType id="vehDist24" tau="0.140" sigma="0.302" length="4.994" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="5.626"/>
+		</vType>
+		<vType id="vehDist25" tau="1.571" sigma="0.464" length="4.964" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="6.846"/>
+		</vType>
+		<vType id="vehDist26" tau="1.662" sigma="0.805" length="5.175" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="3.616"/>
+		</vType>
+		<vType id="vehDist27" tau="2.753" sigma="0.404" length="4.815" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="6.454"/>
+		</vType>
+		<vType id="vehDist28" tau="2.408" sigma="0.480" length="5.031" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="0.656"/>
+		</vType>
+		<vType id="vehDist29" tau="3.022" sigma="0.581" length="5.116" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="2.624"/>
+		</vType>
+		<vType id="vehDist30" tau="2.428" sigma="0.575" length="4.807" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="2.110"/>
+		</vType>
+		<vType id="vehDist31" tau="2.059" sigma="0.752" length="4.850" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="5.841"/>
+		</vType>
+		<vType id="vehDist32" tau="2.393" sigma="0.389" length="4.852" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="2.793"/>
+		</vType>
+		<vType id="vehDist33" tau="3.777" sigma="0.349" length="4.843" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="5.992"/>
+		</vType>
+		<vType id="vehDist34" tau="1.661" sigma="0.407" length="5.022" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="2.060"/>
+		</vType>
+		<vType id="vehDist35" tau="2.177" sigma="0.939" length="4.976" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="3.332"/>
+		</vType>
+		<vType id="vehDist36" tau="1.364" sigma="0.155" length="4.897" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="8.745"/>
+		</vType>
+		<vType id="vehDist37" tau="0.509" sigma="0.506" length="4.825" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="11.555"/>
+		</vType>
+		<vType id="vehDist38" tau="3.707" sigma="0.652" length="5.151" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="4.883"/>
+		</vType>
+		<vType id="vehDist39" tau="0.484" sigma="0.691" length="4.960" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="2.970"/>
+		</vType>
+		<vType id="vehDist40" tau="1.167" sigma="0.516" length="4.599" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="5.757"/>
+		</vType>
+		<vType id="vehDist41" tau="1.419" sigma="0.464" length="4.612" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="5.947"/>
+		</vType>
+		<vType id="vehDist42" tau="0.665" sigma="0.390" length="4.940" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="3.772"/>
+		</vType>
+		<vType id="vehDist43" tau="1.675" sigma="0.325" length="4.861" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="4.872"/>
+		</vType>
+		<vType id="vehDist44" tau="2.037" sigma="0.417" length="4.668" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="2.515"/>
+		</vType>
+		<vType id="vehDist45" tau="0.992" sigma="0.644" length="5.414" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="4.074"/>
+		</vType>
+		<vType id="vehDist46" tau="3.095" sigma="0.712" length="4.512" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="5.281"/>
+		</vType>
+		<vType id="vehDist47" tau="3.415" sigma="0.210" length="4.996" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="3.000"/>
+		</vType>
+		<vType id="vehDist48" tau="3.233" sigma="0.580" length="5.075" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="8.008"/>
+		</vType>
+		<vType id="vehDist49" tau="2.617" sigma="0.461" length="4.903" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="7.716"/>
+		</vType>
+		<vType id="vehDist50" tau="2.493" sigma="0.089" length="4.925" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="4.178"/>
+		</vType>
+		<vType id="vehDist51" tau="2.752" sigma="0.469" length="4.857" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="6.472"/>
+		</vType>
+		<vType id="vehDist52" tau="2.325" sigma="0.484" length="5.085" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="4.848"/>
+		</vType>
+		<vType id="vehDist53" tau="0.813" sigma="0.595" length="4.953" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="5.185"/>
+		</vType>
+		<vType id="vehDist54" tau="2.494" sigma="0.595" length="4.803" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="3.802"/>
+		</vType>
+		<vType id="vehDist55" tau="2.085" sigma="0.362" length="4.880" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="8.440"/>
+		</vType>
+		<vType id="vehDist56" tau="1.345" sigma="0.364" length="4.916" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="5.775"/>
+		</vType>
+		<vType id="vehDist57" tau="3.166" sigma="0.800" length="4.881" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="7.898"/>
+		</vType>
+		<vType id="vehDist58" tau="2.814" sigma="0.106" length="4.931" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="7.305"/>
+		</vType>
+		<vType id="vehDist59" tau="2.509" sigma="0.514" length="4.759" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="6.064"/>
+		</vType>
+		<vType id="vehDist60" tau="1.101" sigma="0.565" length="4.945" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="1.856"/>
+		</vType>
+		<vType id="vehDist61" tau="2.502" sigma="0.763" length="4.844" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="10.531"/>
+		</vType>
+		<vType id="vehDist62" tau="0.889" sigma="0.698" length="4.817" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="7.156"/>
+		</vType>
+		<vType id="vehDist63" tau="3.472" sigma="0.498" length="4.622" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="4.187"/>
+		</vType>
+		<vType id="vehDist64" tau="3.292" sigma="0.581" length="4.871" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="6.744"/>
+		</vType>
+		<vType id="vehDist65" tau="2.241" sigma="0.497" length="4.822" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="9.103"/>
+		</vType>
+		<vType id="vehDist66" tau="0.752" sigma="0.739" length="4.877" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="4.323"/>
+		</vType>
+		<vType id="vehDist67" tau="1.937" sigma="0.332" length="5.135" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="6.120"/>
+		</vType>
+		<vType id="vehDist68" tau="3.084" sigma="0.430" length="4.949" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="2.390"/>
+		</vType>
+		<vType id="vehDist69" tau="1.909" sigma="0.485" length="5.127" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="6.513"/>
+		</vType>
+		<vType id="vehDist70" tau="1.957" sigma="0.794" length="4.534" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="0.562"/>
+		</vType>
+		<vType id="vehDist71" tau="1.881" sigma="0.394" length="4.896" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="5.202"/>
+		</vType>
+		<vType id="vehDist72" tau="2.015" sigma="0.477" length="4.547" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="5.321"/>
+		</vType>
+		<vType id="vehDist73" tau="3.367" sigma="0.674" length="5.213" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="8.269"/>
+		</vType>
+		<vType id="vehDist74" tau="0.045" sigma="0.737" length="5.129" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="5.164"/>
+		</vType>
+		<vType id="vehDist75" tau="2.511" sigma="0.563" length="4.560" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="3.197"/>
+		</vType>
+		<vType id="vehDist76" tau="3.707" sigma="0.440" length="5.212" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="6.496"/>
+		</vType>
+		<vType id="vehDist77" tau="3.064" sigma="0.387" length="4.641" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="6.090"/>
+		</vType>
+		<vType id="vehDist78" tau="3.640" sigma="0.273" length="4.787" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="2.898"/>
+		</vType>
+		<vType id="vehDist79" tau="1.093" sigma="0.583" length="4.732" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="4.924"/>
+		</vType>
+		<vType id="vehDist80" tau="2.119" sigma="0.322" length="5.150" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="4.883"/>
+		</vType>
+		<vType id="vehDist81" tau="2.112" sigma="0.624" length="5.119" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="8.378"/>
+		</vType>
+		<vType id="vehDist82" tau="4.305" sigma="0.573" length="4.852" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="5.876"/>
+		</vType>
+		<vType id="vehDist83" tau="0.269" sigma="0.372" length="5.374" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="6.224"/>
+		</vType>
+		<vType id="vehDist84" tau="2.639" sigma="0.715" length="5.315" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="4.375"/>
+		</vType>
+		<vType id="vehDist85" tau="0.590" sigma="0.453" length="5.042" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="3.246"/>
+		</vType>
+		<vType id="vehDist86" tau="3.167" sigma="0.398" length="4.785" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="3.677"/>
+		</vType>
+		<vType id="vehDist87" tau="0.542" sigma="0.728" length="5.163" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="5.983"/>
+		</vType>
+		<vType id="vehDist88" tau="1.622" sigma="0.494" length="4.820" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="11.885"/>
+		</vType>
+		<vType id="vehDist89" tau="1.357" sigma="0.379" length="5.119" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="6.559"/>
+		</vType>
+		<vType id="vehDist90" tau="1.987" sigma="0.630" length="4.605" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="3.718"/>
+		</vType>
+		<vType id="vehDist91" tau="2.839" sigma="0.360" length="4.796" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="5.567"/>
+		</vType>
+		<vType id="vehDist92" tau="1.069" sigma="0.675" length="5.061" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="6.960"/>
+		</vType>
+		<vType id="vehDist93" tau="0.313" sigma="0.514" length="4.888" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="6.253"/>
+		</vType>
+		<vType id="vehDist94" tau="0.670" sigma="0.601" length="4.919" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="5.402"/>
+		</vType>
+		<vType id="vehDist95" tau="4.387" sigma="0.724" length="4.997" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="4.785"/>
+		</vType>
+		<vType id="vehDist96" tau="1.244" sigma="0.468" length="4.825" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="4.491"/>
+		</vType>
+		<vType id="vehDist97" tau="3.126" sigma="0.568" length="4.833" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="3.499"/>
+		</vType>
+		<vType id="vehDist98" tau="2.092" sigma="0.534" length="4.969" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="3.086"/>
+		</vType>
+		<vType id="vehDist99" tau="2.525" sigma="0.783" length="4.950" vClass="passenger" carFollowModel="Krauss">
+			<param key="myCustomParameter" value="4.026"/>
+		</vType>
+	</vTypeDistribution>
 </additional>

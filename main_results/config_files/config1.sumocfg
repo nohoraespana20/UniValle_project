@@ -3,11 +3,14 @@
 <input>
 <net-file value="../pasto_network.net.xml"/>
 <route-files value="../routes_files/route1.rou.xml"/>
+<additional-files value="../vTypeDistributions.add.xml"/>
 </input>
 
 <emissions>
     <emissions.volumetric-fuel value="true"/>
 </emissions>
+
+
 
 <time>
 <begin value="0"/>
