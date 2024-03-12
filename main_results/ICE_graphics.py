@@ -10,7 +10,7 @@ def total_per_trip(data, route, emission_class):
     total_HC = route_class["HCEmission"].sum()/1E6 #Emission in kg
     total_PMx = route_class["PMxEmission"].sum()/1E6 #Emission in kg
     total_NOx = route_class["NOxEmission"].sum()/1E6 #Emission in kg
-    total_fuel = route_class["FuelConsumption"].sum()*(2.642e-7) #Fuel in gallons
+    total_fuel = route_class["FuelConsumption"].sum()*(2.642e-7) #Fuel in gallons *3,785
     total_noise = route_class["NoiseEmission"].sum()/step_route  # Mean noise in dB
     return [route, emission_class, distance_route, total_CO2, total_CO, total_HC, total_PMx, total_NOx, total_fuel, total_noise]
     

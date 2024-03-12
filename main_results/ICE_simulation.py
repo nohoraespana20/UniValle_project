@@ -35,6 +35,7 @@ def saveDataVehicle(file_config, route):
         while traci.simulation.getMinExpectedNumber() > 0:
             traci.simulationStep();
             vehicles = traci.vehicle.getIDList();
+            
             for i in range(len(vehicles)):
                 traci.vehicle.setSpeedMode(vehicles[i],0) 
                 traci.vehicle.setEmissionClass(vehicles[0], emission_class)
@@ -42,6 +43,8 @@ def saveDataVehicle(file_config, route):
             if not vehicles:
                 print("Vehicles is empty")
             else:
+                if vehicles[0]!='1':
+                    break
                 data = getDataEmissions(vehicles[0])
                 with open('data_emissions.csv', 'a', newline='') as file:
                     writer = csv.writer(file)
