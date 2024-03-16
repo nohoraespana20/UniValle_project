@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 2024-03-15 11:31:41.531932 by randomTrips.py v1_19_0+0000-baa66a0f364
+<!-- generated on 2024-03-12 09:08:47.994755 by randomTrips.py v1_19_0+0000-baa66a0f364
 <configuration>
     <net-file value="pasto_network.net.xml"/>
     <output-trip-file value="bus.trips.xml"/>
     <prefix value="B"/>
     <vehicle-class value="bus"/>
-    <end value="400.0"/>
+    <end value="500.0"/>
 </configuration>
 -->
 
@@ -412,4 +412,104 @@
     <trip id="B397" depart="397.00" from="-79536649" to="79536206#2" type="B_bus"/>
     <trip id="B398" depart="398.00" from="1003472576" to="824684668#2" type="B_bus"/>
     <trip id="B399" depart="399.00" from="247549495#2" to="79536833#0" type="B_bus"/>
+    <trip id="B400" depart="400.00" from="-79536777#5" to="-79537460#2" type="B_bus"/>
+    <trip id="B401" depart="401.00" from="48563009#0" to="99555806#0" type="B_bus"/>
+    <trip id="B402" depart="402.00" from="247479003#4" to="-73569157#1" type="B_bus"/>
+    <trip id="B403" depart="403.00" from="436185379#2" to="-822309862#3" type="B_bus"/>
+    <trip id="B404" depart="404.00" from="48136202#1" to="48259118#2" type="B_bus"/>
+    <trip id="B405" depart="405.00" from="108452881#3" to="-821883636" type="B_bus"/>
+    <trip id="B406" depart="406.00" from="-78335847#10" to="78518703#1" type="B_bus"/>
+    <trip id="B407" depart="407.00" from="48395930#0" to="-79535632#1" type="B_bus"/>
+    <trip id="B408" depart="408.00" from="79535762#0" to="-180648646" type="B_bus"/>
+    <trip id="B409" depart="409.00" from="79091859#1" to="788630695" type="B_bus"/>
+    <trip id="B410" depart="410.00" from="79536455#2" to="-91859814" type="B_bus"/>
+    <trip id="B411" depart="411.00" from="751783836" to="79536833#3" type="B_bus"/>
+    <trip id="B412" depart="412.00" from="91908563#1" to="247557155#0" type="B_bus"/>
+    <trip id="B413" depart="413.00" from="-108452906#4" to="32951364#0" type="B_bus"/>
+    <trip id="B414" depart="414.00" from="48870937" to="821229029" type="B_bus"/>
+    <trip id="B415" depart="415.00" from="821217310#0" to="108452906#1" type="B_bus"/>
+    <trip id="B416" depart="416.00" from="376279914" to="247462323#0" type="B_bus"/>
+    <trip id="B417" depart="417.00" from="79091692#3" to="1007548957" type="B_bus"/>
+    <trip id="B418" depart="418.00" from="73569155#3" to="-77767451#2" type="B_bus"/>
+    <trip id="B419" depart="419.00" from="180648648#3" to="91399077#3" type="B_bus"/>
+    <trip id="B420" depart="420.00" from="-821907606" to="78335863#4" type="B_bus"/>
+    <trip id="B421" depart="421.00" from="633072642#5" to="79537494#1" type="B_bus"/>
+    <trip id="B422" depart="422.00" from="79537346#2" to="797569048#5" type="B_bus"/>
+    <trip id="B423" depart="423.00" from="-824678522#3" to="-821527096" type="B_bus"/>
+    <trip id="B424" depart="424.00" from="79091654#4" to="79092093#0" type="B_bus"/>
+    <trip id="B425" depart="425.00" from="819578580#7" to="-108452896" type="B_bus"/>
+    <trip id="B426" depart="426.00" from="-247536025#2" to="626983749#10" type="B_bus"/>
+    <trip id="B427" depart="427.00" from="824623406#1" to="98354379#5" type="B_bus"/>
+    <trip id="B428" depart="428.00" from="79091875#3" to="108333893#5" type="B_bus"/>
+    <trip id="B429" depart="429.00" from="-48509152#1" to="627284433" type="B_bus"/>
+    <trip id="B430" depart="430.00" from="819578582#1" to="141227931#3" type="B_bus"/>
+    <trip id="B431" depart="431.00" from="78335796#2" to="821965161" type="B_bus"/>
+    <trip id="B432" depart="432.00" from="-247462315#1" to="79536350#2" type="B_bus"/>
+    <trip id="B433" depart="433.00" from="-79537141#2" to="-88740939#0" type="B_bus"/>
+    <trip id="B434" depart="434.00" from="-572152394#8" to="47997597#0" type="B_bus"/>
+    <trip id="B435" depart="435.00" from="48359763#1" to="79536287" type="B_bus"/>
+    <trip id="B436" depart="436.00" from="-78046826#0" to="-345743062#1" type="B_bus"/>
+    <trip id="B437" depart="437.00" from="80175356#3" to="572111313#2" type="B_bus"/>
+    <trip id="B438" depart="438.00" from="-79535622#0" to="822358805#5" type="B_bus"/>
+    <trip id="B439" depart="439.00" from="-572146506#0" to="247462351#7" type="B_bus"/>
+    <trip id="B440" depart="440.00" from="-79536007#1" to="-79536222#0" type="B_bus"/>
+    <trip id="B441" depart="441.00" from="-1019984254#1" to="79536505#4" type="B_bus"/>
+    <trip id="B442" depart="442.00" from="821947005#0" to="78046885#5" type="B_bus"/>
+    <trip id="B443" depart="443.00" from="-759045799#2" to="111796785#2" type="B_bus"/>
+    <trip id="B444" depart="444.00" from="-821941555#2" to="530397319#2" type="B_bus"/>
+    <trip id="B445" depart="445.00" from="59861597#1" to="107286359#0" type="B_bus"/>
+    <trip id="B446" depart="446.00" from="-79535902#0" to="79537359#1" type="B_bus"/>
+    <trip id="B447" depart="447.00" from="-79091663" to="-917429256#1" type="B_bus"/>
+    <trip id="B448" depart="448.00" from="247478957#5" to="-79535768#6" type="B_bus"/>
+    <trip id="B449" depart="449.00" from="48395930#2" to="48563025#6" type="B_bus"/>
+    <trip id="B450" depart="450.00" from="96319746" to="-79537421#0" type="B_bus"/>
+    <trip id="B451" depart="451.00" from="91859845#1" to="76503806#1" type="B_bus"/>
+    <trip id="B452" depart="452.00" from="-79536611#1" to="48509139#5" type="B_bus"/>
+    <trip id="B453" depart="453.00" from="78046881#1" to="79091939#0" type="B_bus"/>
+    <trip id="B454" depart="454.00" from="-247462340" to="571423421#0" type="B_bus"/>
+    <trip id="B455" depart="455.00" from="247536020#4" to="821965455" type="B_bus"/>
+    <trip id="B456" depart="456.00" from="-79536872#1" to="79536362#36" type="B_bus"/>
+    <trip id="B457" depart="457.00" from="551105959#1" to="-824631901#2" type="B_bus"/>
+    <trip id="B458" depart="458.00" from="573389361#1" to="572115256#0" type="B_bus"/>
+    <trip id="B459" depart="459.00" from="78046810#6" to="79091736#4" type="B_bus"/>
+    <trip id="B460" depart="460.00" from="74842973#4" to="79537213" type="B_bus"/>
+    <trip id="B461" depart="461.00" from="572107637#0" to="821965161" type="B_bus"/>
+    <trip id="B462" depart="462.00" from="633036930#5" to="-821221638" type="B_bus"/>
+    <trip id="B463" depart="463.00" from="107286372#0" to="49156615#0" type="B_bus"/>
+    <trip id="B464" depart="464.00" from="79091752#1" to="-48259119#1" type="B_bus"/>
+    <trip id="B465" depart="465.00" from="-79537176#5" to="79091958#1" type="B_bus"/>
+    <trip id="B466" depart="466.00" from="-78046881#3" to="-572106607#3" type="B_bus"/>
+    <trip id="B467" depart="467.00" from="436441827#3" to="916130890#1" type="B_bus"/>
+    <trip id="B468" depart="468.00" from="419628732#2" to="824288447#2" type="B_bus"/>
+    <trip id="B469" depart="469.00" from="79536854" to="-79536307#1" type="B_bus"/>
+    <trip id="B470" depart="470.00" from="79536767#4" to="247536025#4" type="B_bus"/>
+    <trip id="B471" depart="471.00" from="79536362#3" to="79091951" type="B_bus"/>
+    <trip id="B472" depart="472.00" from="-821907607#1" to="-571298455" type="B_bus"/>
+    <trip id="B473" depart="473.00" from="90972284#1" to="-573845943#0" type="B_bus"/>
+    <trip id="B474" depart="474.00" from="91393352#2" to="797703535#2" type="B_bus"/>
+    <trip id="B475" depart="475.00" from="79091700#1" to="91908550#0" type="B_bus"/>
+    <trip id="B476" depart="476.00" from="91399037#1" to="79536505#3" type="B_bus"/>
+    <trip id="B477" depart="477.00" from="-824623406#1" to="79536213#1" type="B_bus"/>
+    <trip id="B478" depart="478.00" from="-107286290#3" to="48136201#12" type="B_bus"/>
+    <trip id="B479" depart="479.00" from="108452867#0" to="78046855#8" type="B_bus"/>
+    <trip id="B480" depart="480.00" from="78046716#4" to="49188674" type="B_bus"/>
+    <trip id="B481" depart="481.00" from="79536734#1" to="869736333" type="B_bus"/>
+    <trip id="B482" depart="482.00" from="-503110275#10" to="-79535658#0" type="B_bus"/>
+    <trip id="B483" depart="483.00" from="-107286395" to="821885337#0" type="B_bus"/>
+    <trip id="B484" depart="484.00" from="48268641#0" to="824301591#1" type="B_bus"/>
+    <trip id="B485" depart="485.00" from="-79091865#1" to="-247535956#1" type="B_bus"/>
+    <trip id="B486" depart="486.00" from="79536746#0" to="822235830#0" type="B_bus"/>
+    <trip id="B487" depart="487.00" from="-79537358#6" to="1006141643" type="B_bus"/>
+    <trip id="B488" depart="488.00" from="-572108385#1" to="88520196#10" type="B_bus"/>
+    <trip id="B489" depart="489.00" from="-79537449#0" to="247549499#13" type="B_bus"/>
+    <trip id="B490" depart="490.00" from="-48399847#2" to="821902703" type="B_bus"/>
+    <trip id="B491" depart="491.00" from="-572102640#0" to="189083681#1" type="B_bus"/>
+    <trip id="B492" depart="492.00" from="77767450#2" to="79091925#5" type="B_bus"/>
+    <trip id="B493" depart="493.00" from="88520194" to="107286307#1" type="B_bus"/>
+    <trip id="B494" depart="494.00" from="79091841#0" to="-77767453#0" type="B_bus"/>
+    <trip id="B495" depart="495.00" from="1002973601" to="-48562548#6" type="B_bus"/>
+    <trip id="B496" depart="496.00" from="247478999#1" to="1006064981#1" type="B_bus"/>
+    <trip id="B497" depart="497.00" from="88750479#3" to="-108333963#6" type="B_bus"/>
+    <trip id="B498" depart="498.00" from="-824638087#0" to="135714171" type="B_bus"/>
+    <trip id="B499" depart="499.00" from="88747141" to="795401133" type="B_bus"/>
 </routes>

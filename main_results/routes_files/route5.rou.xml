@@ -39,8 +39,6 @@
 
 		
 <vehicle id="1" route="route5_1" type="TAXI_1" depart="0.00" departPos="0.00">			
-	<stop	lane="503110276#4_0"  endPos="13.06"	duration="60.6"	/>
-	<stop	lane="-107286291#3_0"  endPos="-5"	duration="60.6"	/>
 </vehicle>
 
 </routes>

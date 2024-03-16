@@ -2,16 +2,19 @@
 
 <input>
 <net-file value="../pasto_network.net.xml"/>
-<route-files value="../routes_files/route3.rou.xml"/>
+<route-files value="../routes_files/route3.rou.xml,../bus.trips.xml,../taxi.trips.xml,../moto.trips.xml,../vehicle.trips.xml"/>
 </input>
 
 <emissions>
     <emissions.volumetric-fuel value="true"/>
 </emissions>
 
-<time>
-<begin value="0"/>
-<end value="2000"/>
-</time>
+<processing>
+    <ignore-route-errors value="true"/>
+</processing>
+
+<report>
+    <no-warnings value="true"/>
+</report>
 
 </configuration>

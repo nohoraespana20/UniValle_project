@@ -16,15 +16,7 @@
 								375278864#11   -268532188#2 ">
 	</route> 
 
-
 <vehicle id="1" route="route2_1" type="TAXI_1" depart="0.00" departPos="0.00">
-	<stop	lane="932018780#8_0"  endPos="30.14"	duration="60.6"	/>
-	<stop	lane="788613104#2_0" endPos="-2"	duration="20.5"	/>
-	<stop	lane="788613104#3_0" endPos="-2"	duration="20.5"	/>
-	<stop	lane="788613104#4_0" endPos="-2"	duration="20.5"	/>
-	<stop	lane="633072642#0_0" endPos="-2"	duration="20.5"	/>
-	<stop	lane="-268532188#2_0"  endPos="42.68"	duration="60.6"	/>  
 </vehicle>
-
 
 </routes>
