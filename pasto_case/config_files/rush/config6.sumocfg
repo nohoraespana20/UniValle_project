@@ -2,7 +2,7 @@
 
 <input>
 <net-file value="../pasto_network.net.xml"/>
-<route-files value="../routes_files/route6.rou.xml,../bus.trips.xml,../taxi.trips.xml,../moto.trips.xml,../vehicle.trips.xml"/>
+<route-files value="../route6.rou.xml,bus.trips.xml,taxi.trips.xml,moto.trips.xml,vehicle.trips.xml"/>
 </input>
 
 <emissions>

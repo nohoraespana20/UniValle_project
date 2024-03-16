@@ -1,0 +1,20 @@
+<configuration>
+
+<input>
+<net-file value="../pasto_network.net.xml"/>
+<route-files value="../route5.rou.xml,bus.trips.xml,taxi.trips.xml,moto.trips.xml,vehicle.trips.xml"/>
+</input>
+
+<emissions>
+    <emissions.volumetric-fuel value="true"/>
+</emissions>
+
+<processing>
+    <ignore-route-errors value="true"/>
+</processing>
+
+<report>
+    <no-warnings value="true"/>
+</report>
+
+</configuration>
