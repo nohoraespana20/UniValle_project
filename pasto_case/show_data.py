@@ -18,7 +18,7 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     import pandas as pd
 
-    data_emissions = pd.read_csv("data_emissions_rush.csv")
+    data_emissions = pd.read_csv("./results/rush/data_emissions_ICE.csv")
 
     routes = [1, 2, 3, 4, 5, 6]
     category = ['route','emission_class','distance [km]', 'CO2 [kg]', 'CO [kg]', 'HC [kg]', 'PMx [kg]', 'NOx [kg]', 'fuel [gl]', 'noise [dB]']
@@ -37,7 +37,7 @@ if __name__ == '__main__':
     route1 = total_emission_routes.iloc[20:25, [0,1,3,4,5,6,7,8]]
     print(route1)
 
-    data_emissions = pd.read_csv("data_emissions_off_peak.csv")
+    data_emissions = pd.read_csv("./results/off_peak/data_emissions_ICE.csv")
 
     routes = [1, 2, 3, 4, 5, 6]
     category = ['route','emission_class','distance [km]', 'CO2 [kg]', 'CO [kg]', 'HC [kg]', 'PMx [kg]', 'NOx [kg]', 'fuel [gl]', 'noise [dB]']
@@ -55,6 +55,3 @@ if __name__ == '__main__':
     print(distances)
     route1 = total_emission_routes.iloc[20:25, [0,1,3,4,5,6,7,8]]
     print(route1)
-
-    # route1.plot( y=category[3], kind = "bar")
-    # plt.show()
