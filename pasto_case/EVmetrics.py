@@ -34,6 +34,36 @@ def generate_data_frame(emission_classes, file):
     data_frame = total_data_frame.iloc[:, [0,1,3,4,5,6,7,8,9,10]]
     return data_frame
 
+def consumption_metric(vehType, distance, consumption):
+    if vehType == "ICE":
+        E_100km = (consumption*3.785*10.7*100)/distance
+    elif vehType == "EV":
+        E_100km = (consumption*100)/distance
+    else:
+        print('Vehicle type is not defined')
+    return E_100km
+
+def autonomy_metric(vehType, E_100km, capacity):
+    if vehType == "ICE":
+        consumption = (E_100km/(100*3.785*10.7))
+        autonomy = capacity / consumption
+    elif vehType == "EV":
+        autonomy = capacity / (E_100km/100)
+    else:
+        print('Vehicle type is not defined')
+    return autonomy
+
+def ICR_metric(powerCost, consumption, distance):
+    icr = powerCost * consumption / distance
+    return icr
+
+def CA_metric(years, maintenance, insurance, tax, tm_inspection, consumption):
+#TODO: include the values to annual increase. Write the equation.
+    CA = []
+    for i in range(years):
+        CA    
+    return CA
+
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
     import pandas as pd
