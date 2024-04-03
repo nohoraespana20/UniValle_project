@@ -1,0 +1,12 @@
+{
+    "Vehicle cost": 65000000.0,
+    "Galon cost": 13600.0,
+    "Fuel raise": 16.0,
+    "Daily consumption": 5.0,
+    "Maintenance cost": 7000000.0,
+    "SOAT cost": 400000.0,
+    "Other insurances": 400000.0,
+    "Annual check": 300000.0,
+    "Insurance raise": 10.0,
+    "Repairs per year": 2.0
+}
