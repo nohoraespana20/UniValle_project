@@ -128,79 +128,104 @@ def importData():
     return configuration, combustion, electric
 
 def accumulatedCost(configuration, combustion, electric, vehType, E_100km):
-#TODO: update data config and simplify the function
-        if configuration[0] == "USD":
-            currency = 1000
-        elif configuration[0] == "COP":
-            currency = 1000000
-        else:
-            print("currency parameter is not defined")
+    '''
+    Initial investment plus the sum of operating costs (insurance, vehicle tax, 
+    technical-mechanical inspection, fuel), and maintenance, including annual increases. 
+    In the case of EVs, governmental incentives must be included. 
+    '''
 
-        ipc = 0.0457 # Average value of IPC in Colombia
-        otherInsurance = combustion[6]
-        insuranceCostRaise = combustion[8] / 100 
-        totalCost = []
-        totalCost = [*range(0, configuration[2], 1)]
+    if configuration[0] == "USD":
+        currency = 1000
+    elif configuration[0] == "COP":
+        currency = 1000000
+    else:
+        print("currency parameter is not defined")
 
-        if vehType == 'ICE':
-            powerConsumption = (E_100km/(100*3.785*10.7))*configuration[3]
+    ipc = 0.0457 # Average value of IPC in Colombia
+    otherInsurance = combustion[6]
+    insuranceCostRaise = combustion[8] / 100 
+    totalCost = []
+    totalCost = [*range(0, configuration[2], 1)]
+
+    if vehType == 'ICE':
+        powerConsumption = (E_100km/(100*3.785*10.7))*configuration[3]
             
-            totalCost[0] = combustion[0] 
-            taxCost = combustion[0] * 0.01 # Based on "Ley 1964 de 2019, Congreso de Colombia"
-            annualPowerCost = powerConsumption * combustion[1]
-            annualPowerCostRaise  = combustion[2] / 100
-            maintenanceCost = combustion[4]
-            soatCost = combustion[5]
-            otherInsurance = combustion[6] # Contractual insuarence and all damages insurance
-            checkCost = combustion[7]
-        elif vehType == 'EV':
-            powerConsumption = (E_100km/100)*configuration[3]
+        totalCost[0] = combustion[0] 
+        taxCost = combustion[0] * 0.01 # Based on "Ley 1964 de 2019, Congreso de Colombia"
+        annualPowerCost = powerConsumption * combustion[1]
+        annualPowerCostRaise  = combustion[2] / 100
+        maintenanceCost = combustion[4]
+        soatCost = combustion[5]
+        otherInsurance = combustion[6] # Contractual insuarence and all damages insurance
+        checkCost = combustion[7]
+    elif vehType == 'EV':
+        powerConsumption = (E_100km/100)*configuration[3]
             
-            totalCost[0] = electric[0]
-            taxCost = combustion[0] * 0.01 * 0.4 # Based on "Ley 1964 de 2019, Congreso de Colombia"
-            annualPowerCost = powerConsumption * electric[1]
-            annualPowerCostRaise  = electric[2] / 100
-            maintenanceCost = combustion[4] * 0.4
-            soatCost = combustion[5] * 0.9
-            checkCost = combustion[7] * 0.7 
-            bateryCost = electric[4] * 156 / 5000 # Batery cost in COP
-            batteryYearlyRaise = -0.0967 # According to technology reduction cost trend
-        else:
-            print('vehType parameter is not defined ')
+        totalCost[0] = electric[0]
+        taxCost = combustion[0] * 0.01 * 0.4 # Based on "Ley 1964 de 2019, Congreso de Colombia"
+        annualPowerCost = powerConsumption * electric[1]
+        annualPowerCostRaise  = electric[2] / 100
+        maintenanceCost = combustion[4] * 0.4
+        soatCost = combustion[5] * 0.9
+        checkCost = combustion[7] * 0.7 
+        bateryCost = electric[4] * 156 / 5000 # Batery cost in COP
+        batteryYearlyRaise = -0.0967 # According to technology reduction cost trend
+    else:
+        print('vehType parameter is not defined ')
 
-        for i in range(1,configuration[2],1):
-            totalCost[i] = totalCost[i-1] + annualPowerCost + maintenanceCost + soatCost + otherInsurance + taxCost
-            if i >= 2:
-                #Annual variance of parameters costs
-                taxCost = taxCost * (1 + insuranceCostRaise)
-                annualPowerCost = annualPowerCost * (1 + annualPowerCostRaise)
-                maintenanceCost = maintenanceCost * (1 + ipc)
-                soatCost = soatCost * (1 + insuranceCostRaise)
-                otherInsurance = otherInsurance * (1 + insuranceCostRaise)
-                checkCost = checkCost * (1 + insuranceCostRaise)
-                totalCost[i] = totalCost[i-1] + annualPowerCost + maintenanceCost + soatCost + otherInsurance + \
-                    taxCost + checkCost
-                if vehType == 'EV':
-                    bateryCost = bateryCost * (1 + batteryYearlyRaise)
-                    if i==8 or i==16 or i==24:
-                        totalCost[i] = totalCost[i-1] + annualPowerCost + maintenanceCost + soatCost + otherInsurance \
-                            + checkCost + taxCost + bateryCost
+    for i in range(1,configuration[2],1):
+        totalCost[i] = totalCost[i-1] + annualPowerCost + maintenanceCost + soatCost + otherInsurance + taxCost
+        if i >= 2:
+        #Annual variance of parameters costs
+            taxCost = taxCost * (1 + insuranceCostRaise)
+            annualPowerCost = annualPowerCost * (1 + annualPowerCostRaise)
+            maintenanceCost = maintenanceCost * (1 + ipc)
+            soatCost = soatCost * (1 + insuranceCostRaise)
+            otherInsurance = otherInsurance * (1 + insuranceCostRaise)
+            checkCost = checkCost * (1 + insuranceCostRaise)
+            totalCost[i] = totalCost[i-1] + annualPowerCost + maintenanceCost + soatCost + otherInsurance + \
+            taxCost + checkCost
+            if vehType == 'EV':
+                bateryCost = bateryCost * (1 + batteryYearlyRaise)
+                if i==8 or i==16 or i==24:
+                    totalCost[i] = totalCost[i-1] + annualPowerCost + maintenanceCost + soatCost + otherInsurance \
+                        + checkCost + taxCost + bateryCost
 
-        for i in range(len(totalCost)):
-            totalCost[i] = round(totalCost[i] / currency , 2)
+    for i in range(len(totalCost)):
+        totalCost[i] = round(totalCost[i] / currency , 2)
         
-        return totalCost
+    return totalCost
 
 def ICR_metric(powerCost, consumption, distance):
+    '''
+    Relates the duration of the trip to the fuel or electricity expenditure during that trip. 
+    powerCost: cost per gallon of fuel or cost per kWh.
+    consumption: fuel consumption in gallons or electricity consumption in kWh.
+    distance: the distance traveled in kilometers.
+    '''
     icr = powerCost * consumption / distance
-    return icr
+    return round(icr,2)
 
-def CA_metric(years, maintenance, insurance, tax, tm_inspection, consumption):
-#TODO: include the values to annual increase. Write the equation.
-    CA = []
-    for i in range(years):
-        CA    
-    return CA
+def emission_metric(co2Emission, consumption, distance, vehType):
+    '''
+    Expressed in grams of CO2 per kilometer for both ICEVs and EVs. 
+    '''
+    if vehType == 'ICE':
+        emissionPerKilometer = co2Emission * 1000 / distance
+    elif vehType == 'EV':
+        emissionPerKilometer = 164.38 * consumption / distance
+    else:
+        print('Vehicle type is not defined')
+    return round(emissionPerKilometer, 2)
+
+def socialCost_metric(co2Emission):
+    '''
+    Refers to the economic and environmental impact attributed to the 
+    release of CO2 and other greenhouse gasses into the atmosphere. 
+    co2Emission: CO2 per trip in kg. 
+    '''
+    socialEmission = co2Emission * 1000 * 199 / 1000000
+    return round(socialEmission, 2)
 
 def mean_daily(vehType, dataFrame, numberPaths, category):
     '''
@@ -241,6 +266,9 @@ if __name__ == '__main__':
     import numpy as np
     import json
 
+    # Load configuration data 
+    configuration, combustion, electric = importData()
+
     #Generate data frame for EV
     emission_classes_EV = ['Energy/unknown']
     rush_df_EV = generate_data_frame(emission_classes_EV,"./results/rush/data_emissions_EV.csv")
@@ -252,7 +280,6 @@ if __name__ == '__main__':
                         'HBEFA4/PC_petrol_Euro-6d']
     rush_df_ICE = generate_data_frame(emission_classes_ICE,"./results/rush/data_emissions_ICE.csv")
     offPeak_df_ICE = generate_data_frame(emission_classes_ICE,"./results/off_peak/data_emissions_ICE.csv")
-    
 
     #category=[0:'route', 1:'emission_class', 2:'distance [km]', 3:'CO2 [kg]', 4:'CO [kg]', 5:'HC [kg]', 6:'PMx [kg]', 7:'NOx [kg]', 8:'fuel [gl]', 9:'energy [kWh]', 10:'noise [dB]']
 
@@ -260,13 +287,24 @@ if __name__ == '__main__':
     print('RUSH HOUR\n')
     E100km_ICE = consumption_metric('ICE', mean_daily('ICE', rush_df_ICE, 35, 2), mean_daily('ICE', rush_df_ICE, 35, 8))
     E100km_EV = consumption_metric('EV', mean_daily('EV', rush_df_EV, 35, 2), mean_daily('EV', rush_df_EV, 35, 9))
-
     print('E100km_ICE [kWh/100km] = ', E100km_ICE, '\nE100km_EV [kWh/100km] = ', E100km_EV)
 
     autonomy_ICE = autonomy_metric('ICE', E100km_ICE, 9.35) #View KIA grand EKO Taxi datasheet (tank capacity)
     autonomy_EV = autonomy_metric('EV', E100km_EV, 53.5) #View BYD D1 datasheet (battery capacity)
     print('Autonomy ICE [km]= ', autonomy_ICE, '\nAutonomy EV [km]= ', autonomy_EV)
 
-    configuration, combustion, electric = importData()
-    print('Cost ICE = ', accumulatedCost(configuration, combustion, electric, 'ICE', E100km_ICE))
-    print('Cost EV = ', accumulatedCost(configuration, combustion, electric, 'EV', E100km_EV))
+    icr_ICE = ICR_metric(combustion[1] , mean_daily('ICE', rush_df_ICE, 35, 8) , mean_daily('ICE', rush_df_ICE, 35, 2))
+    icr_EV = ICR_metric(electric[1] , mean_daily('EV', rush_df_EV, 35, 9) , mean_daily('EV', rush_df_EV, 35, 2))
+    print('ICR ICE = ', icr_ICE, '\nICR EV = ', icr_EV)
+
+    accumulatedCost_ICE = accumulatedCost(configuration, combustion, electric, 'ICE', E100km_ICE)
+    accumulatedCost_EV = accumulatedCost(configuration, combustion, electric, 'EV', E100km_EV)
+    print('Cost ICE = ', accumulatedCost_ICE, '\nCost EV = ', accumulatedCost_EV)
+
+    emission_ICE = emission_metric(mean_daily('ICE', rush_df_ICE, 35, 3), mean_daily('ICE', rush_df_ICE, 35, 8), mean_daily('ICE', rush_df_ICE, 35, 2), 'ICE')
+    emission_EV = emission_metric(mean_daily('EV', rush_df_EV, 35, 3), mean_daily('EV', rush_df_EV, 35, 9), mean_daily('EV', rush_df_EV, 35, 2), 'EV')
+    print('CO2/km ICE = ', emission_ICE, '\nCO2/km EV = ', emission_EV)
+
+    socialCost_ICE = socialCost_metric(mean_daily('ICE', rush_df_ICE, 35, 3))
+    socialCost_EV = socialCost_metric(mean_daily('EV', rush_df_EV, 35, 3))
+    print('Social Cost Emission ICE = ', socialCost_ICE, '\nSocial Cost Emission EV = ', socialCost_EV)
