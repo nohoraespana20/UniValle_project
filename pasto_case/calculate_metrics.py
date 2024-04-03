@@ -65,6 +65,132 @@ def autonomy_metric(vehType, E_100km, capacity):
         print('Vehicle type is not defined')
     return round(autonomy, 2)
 
+        # self.createBox(cfgFrame, "Divisa", self.currency, ('', 'USD', 'COP'), 1)
+        # self.createBox(cfgFrame, "Modo de transporte", self.modeTransport, (" ", "Taxi", "Bus"), 2)
+        # self.createEntry(cfgFrame, "Años", self.time, "", 3)
+        # self.createEntry(cfgFrame, "Distancia anual [km]", self.annualDistance, "", 4)
+        # self.createEntry(cfgFrame, "Distancia diaria [km]", self.dailyDistance, "", 5)
+
+        # self.createEntry(cFrame, "Costo de compra", self.combustionCost, "", 1)
+        # self.createEntry(cFrame, "Costo galón de combustible", self.fuelCost, "", 2)
+        # self.createEntry(cFrame, "% Incremento anual combustible", self.fuelRaise, "", 3)
+        # self.createEntry(cFrame, "Consumo diario [gl]", self.dailyConsumption, "", 4)
+        # self.createEntry(cFrame, "Costo anual mantenimiento", self.combustionMaintenanceCost, "", 5)
+        # self.createEntry(cFrame, "Costo anual SOAT", self.soatCost, "", 6)
+        # self.createEntry(cFrame, "Costo anual otros seguros", self.otherInsurance, "", 7)
+        # self.createEntry(cFrame, "Costo revisión tecnomecánica", self.checkCost, "", 8)
+        # self.createEntry(cFrame, "% Incremento anual seguros", self.insuranceRaise, "", 9)
+        # self.createEntry(cFrame, "Reparaciones por año", self.repairs, "", 10)
+
+        # self.createEntry(eFrame, "Costo de compra", self.electricCost, "", 1)
+        # self.createEntry(eFrame, "Costo kWh", self.kWhCost, "", 2)
+        # self.createEntry(eFrame, "% Incremento anual kWh", self.kWhRaise, "", 3)
+        # self.createEntry(eFrame, "Consumo diario [kWh]", self.dailykWh, "", 4)
+        # self.createEntry(eFrame, "Capacidad de batería [kWh]", self.bateryCapacity, "", 5)
+
+def readJson(file):
+    with open(file) as file:
+        data = json.load(file)
+    return data
+
+def importData():
+    dataConfig = readJson('config_files/data_config.json')
+    dataCombustion = readJson('config_files/data_combustion.json')
+    dataElectric = readJson('config_files/data_electric.json')
+
+    currency = dataConfig['Currency']
+    vehicle = dataConfig['Mode of transport']
+    year = dataConfig['Years']
+    annualDistance = dataConfig['Annual distance']
+    dailyDistance = dataConfig['Daily distance']
+
+    vciCost = dataCombustion['Vehicle cost']
+    galonCost = dataCombustion['Galon cost']
+    fuelRaise = dataCombustion['Fuel raise']
+    dailyFuel = dataCombustion['Daily consumption']
+    maintenanceCombustionCost = dataCombustion['Maintenance cost']
+    soatCost = dataCombustion['SOAT cost']
+    otherInsurance = dataCombustion['Other insurances']
+    checkCost = dataCombustion['Annual check']
+    insuranceRaise = dataCombustion['Insurance raise']
+    repairs = dataCombustion['Repairs per year']
+
+    evCost = dataElectric['Vehicle cost']
+    kWhCost =  dataElectric['kWh cost']
+    kWhRaise =  dataElectric['kWh raise']
+    dailykWh =  dataElectric['Daily consumption']
+    bateryCapacity =  dataElectric['Batery capacity [kWh]']
+
+    configuration = [currency, vehicle, year, annualDistance, dailyDistance]
+    combustion = [vciCost, galonCost, fuelRaise, dailyFuel, maintenanceCombustionCost, soatCost, otherInsurance, checkCost, insuranceRaise, repairs]
+    electric = [evCost, kWhCost, kWhRaise, dailykWh, bateryCapacity]
+
+    return configuration, combustion, electric
+
+def accumulatedCost(configuration, combustion, electric, vehType, E_100km):
+#TODO: update data config and simplify the function
+        if configuration[0] == "USD":
+            currency = 1000
+        elif configuration[0] == "COP":
+            currency = 1000000
+        else:
+            print("currency parameter is not defined")
+
+        ipc = 0.0457 # Average value of IPC in Colombia
+        otherInsurance = combustion[6]
+        insuranceCostRaise = combustion[8] / 100 
+        totalCost = []
+        totalCost = [*range(0, configuration[2], 1)]
+
+        if vehType == 'ICE':
+            powerConsumption = (E_100km/(100*3.785*10.7))*configuration[3]
+            
+            totalCost[0] = combustion[0] 
+            taxCost = combustion[0] * 0.01 # Based on "Ley 1964 de 2019, Congreso de Colombia"
+            annualPowerCost = powerConsumption * combustion[1]
+            annualPowerCostRaise  = combustion[2] / 100
+            maintenanceCost = combustion[4]
+            soatCost = combustion[5]
+            otherInsurance = combustion[6] # Contractual insuarence and all damages insurance
+            checkCost = combustion[7]
+        elif vehType == 'EV':
+            powerConsumption = (E_100km/100)*configuration[3]
+            
+            totalCost[0] = electric[0]
+            taxCost = combustion[0] * 0.01 * 0.4 # Based on "Ley 1964 de 2019, Congreso de Colombia"
+            annualPowerCost = powerConsumption * electric[1]
+            annualPowerCostRaise  = electric[2] / 100
+            maintenanceCost = combustion[4] * 0.4
+            soatCost = combustion[5] * 0.9
+            checkCost = combustion[7] * 0.7 
+            bateryCost = electric[4] * 156 / 5000 # Batery cost in COP
+            batteryYearlyRaise = -0.0967 # According to technology reduction cost trend
+        else:
+            print('vehType parameter is not defined ')
+
+        for i in range(1,configuration[2],1):
+            totalCost[i] = totalCost[i-1] + annualPowerCost + maintenanceCost + soatCost + otherInsurance + taxCost
+            if i >= 2:
+                #Annual variance of parameters costs
+                taxCost = taxCost * (1 + insuranceCostRaise)
+                annualPowerCost = annualPowerCost * (1 + annualPowerCostRaise)
+                maintenanceCost = maintenanceCost * (1 + ipc)
+                soatCost = soatCost * (1 + insuranceCostRaise)
+                otherInsurance = otherInsurance * (1 + insuranceCostRaise)
+                checkCost = checkCost * (1 + insuranceCostRaise)
+                totalCost[i] = totalCost[i-1] + annualPowerCost + maintenanceCost + soatCost + otherInsurance + \
+                    taxCost + checkCost
+                if vehType == 'EV':
+                    bateryCost = bateryCost * (1 + batteryYearlyRaise)
+                    if i==8 or i==16 or i==24:
+                        totalCost[i] = totalCost[i-1] + annualPowerCost + maintenanceCost + soatCost + otherInsurance \
+                            + checkCost + taxCost + bateryCost
+
+        for i in range(len(totalCost)):
+            totalCost[i] = round(totalCost[i] / currency , 2)
+        
+        return totalCost
+
 def ICR_metric(powerCost, consumption, distance):
     icr = powerCost * consumption / distance
     return icr
@@ -113,6 +239,7 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     import pandas as pd
     import numpy as np
+    import json
 
     #Generate data frame for EV
     emission_classes_EV = ['Energy/unknown']
@@ -139,3 +266,7 @@ if __name__ == '__main__':
     autonomy_ICE = autonomy_metric('ICE', E100km_ICE, 9.35) #View KIA grand EKO Taxi datasheet (tank capacity)
     autonomy_EV = autonomy_metric('EV', E100km_EV, 53.5) #View BYD D1 datasheet (battery capacity)
     print('Autonomy ICE [km]= ', autonomy_ICE, '\nAutonomy EV [km]= ', autonomy_EV)
+
+    configuration, combustion, electric = importData()
+    print('Cost ICE = ', accumulatedCost(configuration, combustion, electric, 'ICE', E100km_ICE))
+    print('Cost EV = ', accumulatedCost(configuration, combustion, electric, 'EV', E100km_EV))
