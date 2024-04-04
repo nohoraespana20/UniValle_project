@@ -227,6 +227,14 @@ def socialCost_metric(co2Emission):
     socialEmission = co2Emission * 1000 * 199 / 1000000
     return round(socialEmission, 2)
 
+def chargingTime_metric(chargeNeeded, chargingSpeed, consumption, distance, capacity, E100km):
+    print('consumption = ', consumption, ' distance = ', distance)
+    hourChargingTime = chargeNeeded / chargingSpeed
+    numberCharges = ((E100km/100) * distance * 365) / capacity
+    print(hourChargingTime, numberCharges)
+    availability_factor = hourChargingTime * numberCharges / 24
+    return round(availability_factor, 2)
+
 def mean_daily(vehType, dataFrame, numberPaths, category):
     '''
     Calculate the mean daily for all categories in vehicle data.
@@ -284,27 +292,31 @@ if __name__ == '__main__':
     #category=[0:'route', 1:'emission_class', 2:'distance [km]', 3:'CO2 [kg]', 4:'CO [kg]', 5:'HC [kg]', 6:'PMx [kg]', 7:'NOx [kg]', 8:'fuel [gl]', 9:'energy [kWh]', 10:'noise [dB]']
 
     #Calculate the consumption metric - E100km - Rush hour
-    print('RUSH HOUR\n')
+    # print('RUSH HOUR\n')
     E100km_ICE = consumption_metric('ICE', mean_daily('ICE', rush_df_ICE, 35, 2), mean_daily('ICE', rush_df_ICE, 35, 8))
     E100km_EV = consumption_metric('EV', mean_daily('EV', rush_df_EV, 35, 2), mean_daily('EV', rush_df_EV, 35, 9))
-    print('E100km_ICE [kWh/100km] = ', E100km_ICE, '\nE100km_EV [kWh/100km] = ', E100km_EV)
+    # print('E100km_ICE [kWh/100km] = ', E100km_ICE, '\nE100km_EV [kWh/100km] = ', E100km_EV)
 
-    autonomy_ICE = autonomy_metric('ICE', E100km_ICE, 9.35) #View KIA grand EKO Taxi datasheet (tank capacity)
-    autonomy_EV = autonomy_metric('EV', E100km_EV, 53.5) #View BYD D1 datasheet (battery capacity)
-    print('Autonomy ICE [km]= ', autonomy_ICE, '\nAutonomy EV [km]= ', autonomy_EV)
+    # autonomy_ICE = autonomy_metric('ICE', E100km_ICE, 9.35) #View KIA grand EKO Taxi datasheet (tank capacity)
+    # autonomy_EV = autonomy_metric('EV', E100km_EV, 53.5) #View BYD D1 datasheet (battery capacity)
+    # print('Autonomy ICE [km]= ', autonomy_ICE, '\nAutonomy EV [km]= ', autonomy_EV)
 
-    icr_ICE = ICR_metric(combustion[1] , mean_daily('ICE', rush_df_ICE, 35, 8) , mean_daily('ICE', rush_df_ICE, 35, 2))
-    icr_EV = ICR_metric(electric[1] , mean_daily('EV', rush_df_EV, 35, 9) , mean_daily('EV', rush_df_EV, 35, 2))
-    print('ICR ICE = ', icr_ICE, '\nICR EV = ', icr_EV)
+    # icr_ICE = ICR_metric(combustion[1] , mean_daily('ICE', rush_df_ICE, 35, 8) , mean_daily('ICE', rush_df_ICE, 35, 2))
+    # icr_EV = ICR_metric(electric[1] , mean_daily('EV', rush_df_EV, 35, 9) , mean_daily('EV', rush_df_EV, 35, 2))
+    # print('ICR ICE = ', icr_ICE, '\nICR EV = ', icr_EV)
 
-    accumulatedCost_ICE = accumulatedCost(configuration, combustion, electric, 'ICE', E100km_ICE)
-    accumulatedCost_EV = accumulatedCost(configuration, combustion, electric, 'EV', E100km_EV)
-    print('Cost ICE = ', accumulatedCost_ICE, '\nCost EV = ', accumulatedCost_EV)
+    # accumulatedCost_ICE = accumulatedCost(configuration, combustion, electric, 'ICE', E100km_ICE)
+    # accumulatedCost_EV = accumulatedCost(configuration, combustion, electric, 'EV', E100km_EV)
+    # print('Cost ICE = ', accumulatedCost_ICE, '\nCost EV = ', accumulatedCost_EV)
 
-    emission_ICE = emission_metric(mean_daily('ICE', rush_df_ICE, 35, 3), mean_daily('ICE', rush_df_ICE, 35, 8), mean_daily('ICE', rush_df_ICE, 35, 2), 'ICE')
-    emission_EV = emission_metric(mean_daily('EV', rush_df_EV, 35, 3), mean_daily('EV', rush_df_EV, 35, 9), mean_daily('EV', rush_df_EV, 35, 2), 'EV')
-    print('CO2/km ICE = ', emission_ICE, '\nCO2/km EV = ', emission_EV)
+    # emission_ICE = emission_metric(mean_daily('ICE', rush_df_ICE, 35, 3), mean_daily('ICE', rush_df_ICE, 35, 8), mean_daily('ICE', rush_df_ICE, 35, 2), 'ICE')
+    # emission_EV = emission_metric(mean_daily('EV', rush_df_EV, 35, 3), mean_daily('EV', rush_df_EV, 35, 9), mean_daily('EV', rush_df_EV, 35, 2), 'EV')
+    # print('CO2/km ICE = ', emission_ICE, '\nCO2/km EV = ', emission_EV)
 
-    socialCost_ICE = socialCost_metric(mean_daily('ICE', rush_df_ICE, 35, 3))
-    socialCost_EV = socialCost_metric(mean_daily('EV', rush_df_EV, 35, 3))
-    print('Social Cost Emission ICE = ', socialCost_ICE, '\nSocial Cost Emission EV = ', socialCost_EV)
+    # socialCost_ICE = socialCost_metric(mean_daily('ICE', rush_df_ICE, 35, 3))
+    # socialCost_EV = socialCost_metric(mean_daily('EV', rush_df_EV, 35, 3))
+    # print('Social Cost Emission ICE = ', socialCost_ICE, '\nSocial Cost Emission EV = ', socialCost_EV)
+
+    # availabilityFactor_ICE = chargingTime_metric(chargeNeeded, chargingSpeed, consumption, distance, capacity)
+    availabilityFactor_EV = chargingTime_metric(53.5, 50, mean_daily('EV', rush_df_EV, 35, 9), mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV)
+    print('Availability factor EV = ', availabilityFactor_EV)
