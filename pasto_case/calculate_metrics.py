@@ -227,12 +227,12 @@ def socialCost_metric(co2Emission):
     socialEmission = co2Emission * 1000 * 199 / 1000000
     return round(socialEmission, 2)
 
-def chargingTime_metric(chargeNeeded, chargingSpeed, consumption, distance, capacity, E100km):
-    print('consumption = ', consumption, ' distance = ', distance)
+def chargingTime_metric(chargeNeeded, chargingSpeed, distance, capacity, E100km):
+    consumption = E100km / 100
+    annualDistance = distance * 365
     hourChargingTime = chargeNeeded / chargingSpeed
-    numberCharges = ((E100km/100) * distance * 365) / capacity
-    print(hourChargingTime, numberCharges)
-    availability_factor = hourChargingTime * numberCharges / 24
+    numberCharges = (consumption * annualDistance) / capacity
+    availability_factor = (365 - (hourChargingTime * numberCharges / 24))*100/365
     return round(availability_factor, 2)
 
 def mean_daily(vehType, dataFrame, numberPaths, category):
@@ -317,6 +317,14 @@ if __name__ == '__main__':
     # socialCost_EV = socialCost_metric(mean_daily('EV', rush_df_EV, 35, 3))
     # print('Social Cost Emission ICE = ', socialCost_ICE, '\nSocial Cost Emission EV = ', socialCost_EV)
 
-    # availabilityFactor_ICE = chargingTime_metric(chargeNeeded, chargingSpeed, consumption, distance, capacity)
-    availabilityFactor_EV = chargingTime_metric(53.5, 50, mean_daily('EV', rush_df_EV, 35, 9), mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV)
+    availabilityFactor_ICE = chargingTime_metric(9.25, 951.02, mean_daily('ICE', rush_df_ICE, 35, 2), 9.25, E100km_ICE)
+    print('Availability factor ICE = ', availabilityFactor_ICE)
+
+    availabilityFactor_EV = chargingTime_metric(53.5, 1, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV)
+    print('Availability factor EV = ', availabilityFactor_EV)
+
+    availabilityFactor_EV = chargingTime_metric(53.5, 6, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV)
+    print('Availability factor EV = ', availabilityFactor_EV)
+
+    availabilityFactor_EV = chargingTime_metric(53.5, 50, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV)
     print('Availability factor EV = ', availabilityFactor_EV)
