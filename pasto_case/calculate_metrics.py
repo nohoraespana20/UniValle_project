@@ -12,8 +12,8 @@ def total_per_trip(data, route, emission_class):
     total_CO = route_class["COEmission"].sum()/1E6 #Emission in kg
     total_HC = route_class["HCEmission"].sum()/1E6 #Emission in kg
     total_PMx = route_class["PMxEmission"].sum()/1E6 #Emission in kg
-    total_NOx = route_class["NOxEmission"].sum()/1E6 #Emission in kg
-    total_fuel = route_class["FuelConsumption"].sum()*(0.000264) #Fuel in gallons
+    total_NOx = route_class["NOxEmission"].sum()/1E6 #Emission in kg 
+    total_fuel = route_class["FuelConsumption"].sum()/(1000) #Fuel in liters
     total_energy = route_class["ElectricityConsumption"].sum()/1E3 #Energy in kWh
     total_noise = route_class["NoiseEmission"].sum()/step_route  # Mean noise in dB
     return [route, emission_class, distance_route, total_CO2, total_CO, total_HC, total_PMx, total_NOx, total_fuel, total_energy, total_noise]
@@ -36,13 +36,14 @@ def generate_data_frame(emission_classes, file):
 
 def consumption_metric(vehType, distance, consumption):
     '''
-    Efficiency is quantified in terms of consumption per kilometer traveled 
+    Efficiency is quantified in terms of consumption per 100 kilometer traveled 
     vehType: EV (Electric Vehicle) or ICE (Internal Combustion Engine)
     distance: paths in km
     consumption: fuel or kwh consumed in paths
     '''
     if vehType == "ICE":
-        E_100km = (consumption*3.785*10.7*100)/distance
+        # E_100km = (consumption*3.785*8.9*100)/distance
+        E_100km = (consumption*8.9*100)/distance
     elif vehType == "EV":
         E_100km = (consumption*100)/distance
     else:
@@ -57,36 +58,13 @@ def autonomy_metric(vehType, E_100km, capacity):
     capacity: tank (gallons) or battery (kWh) capacity depends from vehType
     '''
     if vehType == "ICE":
-        consumption = (E_100km/(100*3.785*10.7))
+        consumption = (E_100km/(100*8.9))
         autonomy = capacity / consumption
     elif vehType == "EV":
         autonomy = capacity * 0.85 / (E_100km/100)
     else:
         print('Vehicle type is not defined')
     return round(autonomy, 2)
-
-        # self.createBox(cfgFrame, "Divisa", self.currency, ('', 'USD', 'COP'), 1)
-        # self.createBox(cfgFrame, "Modo de transporte", self.modeTransport, (" ", "Taxi", "Bus"), 2)
-        # self.createEntry(cfgFrame, "Años", self.time, "", 3)
-        # self.createEntry(cfgFrame, "Distancia anual [km]", self.annualDistance, "", 4)
-        # self.createEntry(cfgFrame, "Distancia diaria [km]", self.dailyDistance, "", 5)
-
-        # self.createEntry(cFrame, "Costo de compra", self.combustionCost, "", 1)
-        # self.createEntry(cFrame, "Costo galón de combustible", self.fuelCost, "", 2)
-        # self.createEntry(cFrame, "% Incremento anual combustible", self.fuelRaise, "", 3)
-        # self.createEntry(cFrame, "Consumo diario [gl]", self.dailyConsumption, "", 4)
-        # self.createEntry(cFrame, "Costo anual mantenimiento", self.combustionMaintenanceCost, "", 5)
-        # self.createEntry(cFrame, "Costo anual SOAT", self.soatCost, "", 6)
-        # self.createEntry(cFrame, "Costo anual otros seguros", self.otherInsurance, "", 7)
-        # self.createEntry(cFrame, "Costo revisión tecnomecánica", self.checkCost, "", 8)
-        # self.createEntry(cFrame, "% Incremento anual seguros", self.insuranceRaise, "", 9)
-        # self.createEntry(cFrame, "Reparaciones por año", self.repairs, "", 10)
-
-        # self.createEntry(eFrame, "Costo de compra", self.electricCost, "", 1)
-        # self.createEntry(eFrame, "Costo kWh", self.kWhCost, "", 2)
-        # self.createEntry(eFrame, "% Incremento anual kWh", self.kWhRaise, "", 3)
-        # self.createEntry(eFrame, "Consumo diario [kWh]", self.dailykWh, "", 4)
-        # self.createEntry(eFrame, "Capacidad de batería [kWh]", self.bateryCapacity, "", 5)
 
 def readJson(file):
     with open(file) as file:
@@ -148,11 +126,11 @@ def accumulatedCost(configuration, combustion, electric, vehType, E_100km):
     totalCost = [*range(0, configuration[2], 1)]
 
     if vehType == 'ICE':
-        powerConsumption = (E_100km/(100*3.785*10.7))*configuration[3]
-            
+        powerConsumption = (E_100km / (100 * 8.9)) * configuration[3]
+        combustion[1] = combustion[1] / 3.785
         totalCost[0] = combustion[0] 
         taxCost = combustion[0] * 0.01 # Based on "Ley 1964 de 2019, Congreso de Colombia"
-        annualPowerCost = powerConsumption * combustion[1]
+        annualPowerCost = powerConsumption * combustion[1] 
         annualPowerCostRaise  = combustion[2] / 100
         maintenanceCost = combustion[4]
         soatCost = combustion[5]
@@ -203,20 +181,20 @@ def ICR_metric(powerCost, consumption, distance):
     consumption: fuel consumption in gallons or electricity consumption in kWh.
     distance: the distance traveled in kilometers.
     '''
-    icr = powerCost * consumption / distance
+    icr = powerCost * consumption  / distance
     return round(icr,2)
 
 def emission_metric(co2Emission, consumption, distance, vehType):
     '''
-    Expressed in grams of CO2 per kilometer for both ICEVs and EVs. 
+    Expressed in kilograms of CO2 per kilometer for both ICEVs and EVs. 
     '''
     if vehType == 'ICE':
-        emissionPerKilometer = co2Emission * 1000 / distance
+        emissionPerKilometer = (co2Emission * 1000) / distance
     elif vehType == 'EV':
         emissionPerKilometer = 164.38 * consumption / distance
     else:
         print('Vehicle type is not defined')
-    return round(emissionPerKilometer, 2)
+    return round(emissionPerKilometer / 1000, 2)
 
 def socialCost_metric(co2Emission):
     '''
@@ -267,6 +245,52 @@ def mean_daily(vehType, dataFrame, numberPaths, category):
     mean = route1*np_np + route2*np_p + route3*p_p
     return round(mean,2)
 
+def production_emission(vehType, mass, capacity):
+    e_body = 4.56
+    e_bat = 83.5
+    if vehType == 'ICE':
+        productionEmission = mass * e_body
+    elif vehType == 'EV':
+        productionEmission = (mass * e_body) + (capacity * e_bat)
+    else:
+        print('Vehicle type is not defined')
+    return round(productionEmission, 2)
+
+def utilization_emission(emission, annualDistance):
+    
+    # if vehType == 'ICE':
+    #     E100km = E100km / 8.9 
+    #     e_wtw = 2.83
+    # elif vehType == 'EV': 
+    #     if elecType == 'conventional':
+    #         e_wtw = 0.401
+    #     elif elecType == 'renewable':
+    #         e_wtw = 0.036
+    #     else:
+    #         print('Electricity type is not defined')
+    # else:
+    #     print('Vehicle type is not defined')
+    # utilizationEmission = E100km * e_wtw * annualDistance / 100
+    utilizationEmission = emission * annualDistance
+    return round(utilizationEmission, 2)
+
+def recycling_emission(vehType, mass, capacity):
+    e_body = -2.93
+    e_bat = -48.4
+    if vehType == 'ICE':
+        productionEmission = mass * e_body
+    elif vehType == 'EV':
+        productionEmission = (mass * e_body) + (capacity * e_bat)
+    else:
+        print('Vehicle type is not defined')
+    return round(productionEmission, 2)
+
+def lifecycle_emissions(vehType, mass, capacity, emission, annualDistance):
+    production = production_emission(vehType, mass, capacity)
+    utilization = utilization_emission(emission, annualDistance)
+    recycling = recycling_emission(vehType, mass, capacity)
+    lifecycleTotalEmissions = production + utilization + recycling
+    return round(lifecycleTotalEmissions, 2)
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
@@ -276,12 +300,10 @@ if __name__ == '__main__':
 
     # Load configuration data 
     configuration, combustion, electric = importData()
-
     #Generate data frame for EV
     emission_classes_EV = ['Energy/unknown']
     rush_df_EV = generate_data_frame(emission_classes_EV,"./results/rush/data_emissions_EV.csv")
     offPeak_df_EV = generate_data_frame(emission_classes_EV,"./results/off_peak/data_emissions_EV.csv")
-
     #Generate data frame for ICE
     emission_classes_ICE = ['HBEFA4/PC_petrol_Euro-2', 'HBEFA4/PC_petrol_Euro-3', 
                         'HBEFA4/PC_petrol_Euro-4', 'HBEFA4/PC_petrol_Euro-5', 
@@ -292,39 +314,42 @@ if __name__ == '__main__':
     #category=[0:'route', 1:'emission_class', 2:'distance [km]', 3:'CO2 [kg]', 4:'CO [kg]', 5:'HC [kg]', 6:'PMx [kg]', 7:'NOx [kg]', 8:'fuel [gl]', 9:'energy [kWh]', 10:'noise [dB]']
 
     #Calculate the consumption metric - E100km - Rush hour
-    # print('RUSH HOUR\n')
     E100km_ICE = consumption_metric('ICE', mean_daily('ICE', rush_df_ICE, 35, 2), mean_daily('ICE', rush_df_ICE, 35, 8))
     E100km_EV = consumption_metric('EV', mean_daily('EV', rush_df_EV, 35, 2), mean_daily('EV', rush_df_EV, 35, 9))
-    # print('E100km_ICE [kWh/100km] = ', E100km_ICE, '\nE100km_EV [kWh/100km] = ', E100km_EV)
+    print('E100km_ICE [kWh/100km] = ', E100km_ICE, ' - E100km_EV [kWh/100km] = ', E100km_EV)
 
-    # autonomy_ICE = autonomy_metric('ICE', E100km_ICE, 9.35) #View KIA grand EKO Taxi datasheet (tank capacity)
-    # autonomy_EV = autonomy_metric('EV', E100km_EV, 53.5) #View BYD D1 datasheet (battery capacity)
-    # print('Autonomy ICE [km]= ', autonomy_ICE, '\nAutonomy EV [km]= ', autonomy_EV)
+    autonomy_ICE = autonomy_metric('ICE', E100km_ICE, 9.35) #View KIA grand EKO Taxi datasheet (tank capacity)
+    autonomy_EV = autonomy_metric('EV', E100km_EV, 53.5) #View BYD D1 datasheet (battery capacity)
+    print('Autonomy ICE [km]= ', autonomy_ICE, ' - Autonomy EV [km]= ', autonomy_EV)
 
-    # icr_ICE = ICR_metric(combustion[1] , mean_daily('ICE', rush_df_ICE, 35, 8) , mean_daily('ICE', rush_df_ICE, 35, 2))
-    # icr_EV = ICR_metric(electric[1] , mean_daily('EV', rush_df_EV, 35, 9) , mean_daily('EV', rush_df_EV, 35, 2))
-    # print('ICR ICE = ', icr_ICE, '\nICR EV = ', icr_EV)
+    icr_ICE = ICR_metric(combustion[1]/3.785 , mean_daily('ICE', rush_df_ICE, 35, 8) , mean_daily('ICE', rush_df_ICE, 35, 2))
+    icr_EV = ICR_metric(electric[1] , mean_daily('EV', rush_df_EV, 35, 9) , mean_daily('EV', rush_df_EV, 35, 2))
+    print('ICR ICE = ', icr_ICE, '- ICR EV = ', icr_EV)
 
-    # accumulatedCost_ICE = accumulatedCost(configuration, combustion, electric, 'ICE', E100km_ICE)
-    # accumulatedCost_EV = accumulatedCost(configuration, combustion, electric, 'EV', E100km_EV)
-    # print('Cost ICE = ', accumulatedCost_ICE, '\nCost EV = ', accumulatedCost_EV)
+    accumulatedCost_ICE = accumulatedCost(configuration, combustion, electric, 'ICE', E100km_ICE)
+    accumulatedCost_EV = accumulatedCost(configuration, combustion, electric, 'EV', E100km_EV)
+    print('Cost ICE = ', accumulatedCost_ICE, '\nCost EV = ', accumulatedCost_EV)
 
-    # emission_ICE = emission_metric(mean_daily('ICE', rush_df_ICE, 35, 3), mean_daily('ICE', rush_df_ICE, 35, 8), mean_daily('ICE', rush_df_ICE, 35, 2), 'ICE')
-    # emission_EV = emission_metric(mean_daily('EV', rush_df_EV, 35, 3), mean_daily('EV', rush_df_EV, 35, 9), mean_daily('EV', rush_df_EV, 35, 2), 'EV')
-    # print('CO2/km ICE = ', emission_ICE, '\nCO2/km EV = ', emission_EV)
+    emission_ICE = emission_metric(mean_daily('ICE', rush_df_ICE, 35, 3), mean_daily('ICE', rush_df_ICE, 35, 8), mean_daily('ICE', rush_df_ICE, 35, 2), 'ICE')
+    emission_EV = emission_metric(mean_daily('EV', rush_df_EV, 35, 3), mean_daily('EV', rush_df_EV, 35, 9), mean_daily('EV', rush_df_EV, 35, 2), 'EV')
+    print('CO2/km ICE = ', emission_ICE, ' - CO2/km EV = ', emission_EV)
 
-    # socialCost_ICE = socialCost_metric(mean_daily('ICE', rush_df_ICE, 35, 3))
-    # socialCost_EV = socialCost_metric(mean_daily('EV', rush_df_EV, 35, 3))
-    # print('Social Cost Emission ICE = ', socialCost_ICE, '\nSocial Cost Emission EV = ', socialCost_EV)
+    socialCost_ICE = socialCost_metric(mean_daily('ICE', rush_df_ICE, 35, 3))
+    socialCost_EV = socialCost_metric(mean_daily('EV', rush_df_EV, 35, 3))
+    print('Social Cost Emission ICE = ', socialCost_ICE, ' - Social Cost Emission EV = ', socialCost_EV)
 
     availabilityFactor_ICE = chargingTime_metric(9.25, 951.02, mean_daily('ICE', rush_df_ICE, 35, 2), 9.25, E100km_ICE)
-    print('Availability factor ICE = ', availabilityFactor_ICE)
+    availabilityFactor_EV1 = chargingTime_metric(53.5, 1, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV)
+    availabilityFactor_EV2 = chargingTime_metric(53.5, 6, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV)
+    availabilityFactor_EV3 = chargingTime_metric(53.5, 50, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV)
+    print('Availability factor ICE = ', availabilityFactor_ICE, ' - Availability factor EV1 = ', availabilityFactor_EV1, ' - Availability factor EV2 = ', 
+          availabilityFactor_EV2, ' - Availability factor EV3 = ', availabilityFactor_EV3)
 
-    availabilityFactor_EV = chargingTime_metric(53.5, 1, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV)
-    print('Availability factor EV = ', availabilityFactor_EV)
+    annualDistance = mean_daily('ICE', rush_df_ICE, 35, 2) * 365
 
-    availabilityFactor_EV = chargingTime_metric(53.5, 6, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV)
-    print('Availability factor EV = ', availabilityFactor_EV)
+    utilization_ICE = utilization_emission(emission_ICE, annualDistance)
+    utilization_EV = utilization_emission(emission_EV, annualDistance)
 
-    availabilityFactor_EV = chargingTime_metric(53.5, 50, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV)
-    print('Availability factor EV = ', availabilityFactor_EV)
+    lifecycleEmissions_ICE = lifecycle_emissions('ICE', 894, 0, emission_ICE, annualDistance)
+    lifecycleEmissions_EV = lifecycle_emissions('EV', 1640, 53.5, emission_EV, annualDistance)
+    print('LC Emissions ICE = ', lifecycleEmissions_ICE, ' - LC Emissions EV = ', lifecycleEmissions_EV)
