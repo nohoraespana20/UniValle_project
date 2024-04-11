@@ -1,8 +1,6 @@
-# Importing necessary packages
-import pandas as pd
+# https://www.analyticsvidhya.com/blog/2023/05/multi-criteria-decision-making-using-ahp-in-python/
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
+import pandas as pd
 
 def ahp_attributes(ahp_df):
     # Creating an array of sum of values in each column
@@ -38,13 +36,41 @@ def consistency_ratio(priority_index,ahp_df):
     else:
         print('The model is not consistent')
 
+def supplier_priority_index(suppl_attr_df,num_attr,attr_name):
+    data_dict = {}
+    # To find supplier priority indices
+    # Supplier priority for attr 1
+    
+    data_dict[f"ahp_df_suppl_{attr_name}"] = suppl_attr_df.loc[attr_name]
+    # Creating an array of sum of values in each column
+    data_dict[f"sum_array_suppl_{attr_name}"] = np.array(data_dict[
+        f"ahp_df_suppl_{attr_name}"].sum(numeric_only=True))
+    # Normalised pairwise comparison matrix
+    # Dividing each column cell value with the sum of the respective column.
+    data_dict[f"norm_mat_suppl_{attr_name}"] = data_dict[
+        f"ahp_df_suppl_{attr_name}"].div(data_dict[f"sum_array_suppl_{attr_name}"],axis=1)
+    priority_df = pd.DataFrame(data_dict[
+        f"norm_mat_suppl_{attr_name}"].mean(axis=1),
+                               index=suppl_attr_df.loc[attr_name].index,columns=[attr_name])
+    return priority_df
+
 # Reading the file
 ahp_df = pd.read_csv('pair_wise_comparison.csv')
 ahp_df.set_index('Unnamed: 0', inplace=True)
-print(ahp_df)
 
 priority_index_attr = ahp_attributes(ahp_df)
 print(priority_index_attr)
-
 consistency_ratio(priority_index_attr,ahp_df)
-print(consistency_ratio)
+
+ahp_df_1 = pd.read_csv('alternative_attribute.csv',header=[0], index_col=[0,1]) 
+
+suppl_AF_df = supplier_priority_index(ahp_df_1,3,'Availability Factor')
+suppl_DR_df = supplier_priority_index(ahp_df_1,3,'Driving Range')
+suppl_AC_df = supplier_priority_index(ahp_df_1,3,'Accumulated Cost')
+suppl_I_df = supplier_priority_index(ahp_df_1,5,'Incentives')
+suppl_E_df = supplier_priority_index(ahp_df_1,5,'Emissions')
+
+suppl_df = pd.concat([suppl_AF_df,suppl_DR_df,suppl_AC_df, suppl_I_df, suppl_E_df],axis=1)
+suppl_norm_df = suppl_df.multiply(np.array(priority_index_attr.loc['priority index']),axis=1)
+suppl_norm_df['Sum'] = suppl_norm_df.sum(axis=1)
+print(round(suppl_norm_df,2))
