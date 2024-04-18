@@ -129,8 +129,8 @@ def autonomy_metric(vehType, E_100km, capacity):
     capacity: tank (gallons) or battery (kWh) capacity depends from vehType
     '''
     if vehType == "ICE":
-        consumption = (E_100km/(100*8.9))
-        autonomy = capacity / consumption
+        consumption = E_100km/(100*8.9)
+        autonomy = capacity * 3.785 / consumption
     elif vehType == "EV":
         autonomy = capacity * 0.85 / (E_100km/100)
     else:
@@ -163,7 +163,6 @@ def accumulatedCost(configuration, combustion, electric, vehType, E_100km, annua
         batteryReplacementYear = round(8 * 0.9 / (150000 / annualDistance))
     else:
         print('Level Charge is not defined')
-    print(levelCharge, batteryReplacementYear)
 
     if vehType == 'ICE':
         powerConsumption = (E_100km / (100 * 8.9)) * annualDistance
@@ -329,11 +328,11 @@ def consistency_ratio(priority_index,ahp_df):
     consistency_ratio = round(consistency_index/random_matrix[len(ahp_df.index)],3)
     # print(f'The Consistency Ratio is: {consistency_ratio}')
     if consistency_ratio<0.1:
-        print('The model is consistent')
+        print('The AHP model is consistent')
     else:
-        print('The model is not consistent')
+        print('The AHP model is not consistent')
 
-def supplier_priority_index(suppl_attr_df,num_attr,attr_name):
+def priority_index(suppl_attr_df,attr_name):
     data_dict = {}
     data_dict[f"ahp_df_suppl_{attr_name}"] = suppl_attr_df.loc[attr_name]
     data_dict[f"sum_array_suppl_{attr_name}"] = np.array(data_dict[
@@ -345,36 +344,86 @@ def supplier_priority_index(suppl_attr_df,num_attr,attr_name):
                                index=suppl_attr_df.loc[attr_name].index,columns=[attr_name])
     return priority_df
 
-def social_metric(availability, autonomy, cost, incentives, emissions):
-    ahp_df = pd.read_csv('pair_wise_comparison.csv')
-    ahp_df.set_index('Unnamed: 0', inplace=True)
+def generate_alternative_matrix(availability, autonomy, cost, incentives, emissions):
+    df = pd.DataFrame({
+    "Criteria":['Availability Factor', 'Availability Factor', 'Availability Factor', 'Availability Factor', 
+                'Driving Range', 'Driving Range', 'Driving Range', 'Driving Range', 
+                'Accumulated Cost', 'Accumulated Cost', 'Accumulated Cost', 'Accumulated Cost', 
+                'Incentives', 'Incentives', 'Incentives', 'Incentives', 
+                'Emissions', 'Emissions', 'Emissions', 'Emissions'],
+    "Alternative": ['ICE', 'EVL1', 'EVL2', 'EVL3', 'ICE', 'EVL1', 'EVL2', 'EVL3', 'ICE', 'EVL1', 'EVL2', 'EVL3', 'ICE', 'EVL1', 'EVL2', 'EVL3', 
+                    'ICE', 'EVL1', 'EVL2', 'EVL3']})
+    index = pd.MultiIndex.from_frame(df)  
+    data =  [[1.0, availability[1]/availability[0], availability[2]/availability[0], availability[3]/availability[0],
+              1.0, autonomy[1]/autonomy[0], autonomy[1]/autonomy[0], autonomy[1]/autonomy[0],
+              1.0, cost[0]/cost[1], cost[0]/cost[1], cost[0]/cost[2],
+              1.0,incentives[1],incentives[1],incentives[1],
+              1.0, emissions[0]/emissions[1], emissions[0]/emissions[1], emissions[0]/emissions[1]], 
+      [availability[0]/availability[1], 1.0, availability[2]/availability[1], availability[3]/availability[1],
+             autonomy[0]/autonomy[1], 1, autonomy[1]/autonomy[1], autonomy[1]/autonomy[1],
+             cost[1]/cost[0], 1.0, 1.0, cost[2]/cost[1],
+             1/incentives[1],1,1,1,
+             emissions[1]/emissions[0], 1.0, 1.0, emissions[1]/emissions[1]],
+    [availability[0]/availability[2],availability[1]/availability[2],1,availability[3]/availability[2],
+             autonomy[0]/autonomy[1], autonomy[1]/autonomy[1], 1, autonomy[1]/autonomy[1],
+             cost[1]/cost[0], 1.0, 1.0, cost[2]/cost[1], 
+             1/incentives[1],1,1,1,
+             emissions[1]/emissions[0], 1.0, 1.0, emissions[1]/emissions[1]],
+    [availability[0]/availability[3],availability[1]/availability[3],availability[2]/availability[3],1,
+             autonomy[0]/autonomy[1], autonomy[1]/autonomy[1], autonomy[1]/autonomy[1], 1, 
+             cost[2]/cost[0], cost[1]/cost[2], cost[1]/cost[2], 1.0, 
+             1/incentives[1],1,1,1,
+             emissions[1]/emissions[0], emissions[1]/emissions[1], emissions[1]/emissions[1], 1.0]]
+    data = np.array(data).T.tolist()
+    ahp_df = pd.DataFrame(data, index=index, columns=['ICE','EVL1', 'EVL2', 'EVL3'])
+  
+    return ahp_df
 
+def social_metric(altenativeMatrix):
     comparisonMatrix = {}
-    comparisonMatrix['Availability Factor'] = [1, 4, 5, 6, 7]
-    comparisonMatrix['Driving Range'] = [1, 4, 5, 6, 7]
+    comparisonMatrix['Availability Factor'] =   [1, 1/4, 1/5, 1/6, 1/7]
+    comparisonMatrix['Driving Range'] =         [4, 1,   1/2, 1/3, 1/4]
+    comparisonMatrix['Accumulated Cost'] =      [5, 2,   1,   1/2, 1/3]
+    comparisonMatrix['Incentives'] =            [6, 3,   2,   1,   1/2]
+    comparisonMatrix['Emissions'] =             [7, 4,   3,   2,   1]
 
+    ahp_df = pd.DataFrame(comparisonMatrix, index=['Availability Factor', 'Driving Range', 'Accumulated Cost', 'Incentives', 'Emissions'])
     priority_index_attr = ahp_attributes(ahp_df)
     consistency_ratio(priority_index_attr,ahp_df)
 
-    ahp_df_1 = pd.read_csv('alternative_attribute.csv',header=[0], index_col=[0,1]) 
+    ahp_df_1 = altenativeMatrix
+    
+    AF_df = priority_index(ahp_df_1,'Availability Factor')
+    DR_df = priority_index(ahp_df_1,'Driving Range')
+    AC_df = priority_index(ahp_df_1,'Accumulated Cost')
+    I_df = priority_index(ahp_df_1,'Incentives')
+    E_df = priority_index(ahp_df_1,'Emissions')
 
-    # alternativesMatrix = [[],
-    #                       [],
-    #                       [],
-    #                       [],
-    #                       []]
+    alternative_df = pd.concat([AF_df,DR_df,AC_df, I_df, E_df],axis=1)
+    norm_df = alternative_df.multiply(np.array(priority_index_attr.loc['priority index']),axis=1) 
+    norm_df['Sum'] = norm_df.sum(axis=1)
+    print(round(norm_df,2))
+    print('Max Score = ', round(norm_df['Sum'].max(),2), 'Best alternative = ', norm_df['Sum'].idxmax())
 
-    suppl_AF_df = supplier_priority_index(ahp_df_1,3,'Availability Factor')
-    suppl_DR_df = supplier_priority_index(ahp_df_1,3,'Driving Range')
-    suppl_AC_df = supplier_priority_index(ahp_df_1,3,'Accumulated Cost')
-    suppl_I_df = supplier_priority_index(ahp_df_1,5,'Incentives')
-    suppl_E_df = supplier_priority_index(ahp_df_1,5,'Emissions')
+def plot_cost():
+    #Plot Accumulated and Annual Cost
+    year = list(range(20))
+    plt.plot(year, accumulatedCost_ICE, "#A0A0A0", label="ICE")
+    plt.plot(year, accumulatedCost_EV1, "#33FF33", label="EV")
+    plt.xlabel("Year")
+    plt.ylabel("Accumulated Cost")
+    plt.title("Accumulated Cost ICE and EV")
+    plt.grid()
+    plt.legend()
+    plt.show()
 
-    suppl_df = pd.concat([suppl_AF_df,suppl_DR_df,suppl_AC_df, suppl_I_df, suppl_E_df],axis=1)
-    suppl_norm_df = suppl_df.multiply(np.array(priority_index_attr.loc['priority index']),axis=1)
-    suppl_norm_df['Sum'] = suppl_norm_df.sum(axis=1)
-    print(round(suppl_norm_df,2))
-
+    years = [*range(0, 20, 1)]
+    Y = [str(x) for x in years]
+    conventional = annualCost_ICE
+    electric = annualCost_EV1
+    df = pd.DataFrame({'ICE': conventional, 'EV': electric}, index=Y)
+    df.plot( kind = 'bar', rot=0, color=['#A0A0A0', '#33FF33'])
+    plt.show()
 
 
 if __name__ == '__main__':
@@ -403,75 +452,49 @@ if __name__ == '__main__':
     #Calculate the E100k metric - Rush hour
     E100km_ICE = consumption_metric('ICE', mean_daily('ICE', rush_df_ICE, 35, 2), mean_daily('ICE', rush_df_ICE, 35, 8))
     E100km_EV = consumption_metric('EV', mean_daily('EV', rush_df_EV, 35, 2), mean_daily('EV', rush_df_EV, 35, 9))
-    print('E100km_ICE [kWh/100km] = ', E100km_ICE, ' - E100km_EV [kWh/100km] = ', E100km_EV)
-
     #Calculate the Driving Range metric -Rush hour
     autonomy_ICE = autonomy_metric('ICE', E100km_ICE, 9.35) #View KIA grand EKO Taxi datasheet (tank capacity)
     autonomy_EV = autonomy_metric('EV', E100km_EV, 53.5) #View BYD D1 datasheet (battery capacity)
-    print('Autonomy ICE [km]= ', autonomy_ICE, ' - Autonomy EV [km]= ', autonomy_EV)
-
     #Calculate the ICR metric - Rush hour
     icr_ICE = ICR_metric(combustion[1]/3.785 , mean_daily('ICE', rush_df_ICE, 35, 8) , mean_daily('ICE', rush_df_ICE, 35, 2))
     icr_EV = ICR_metric(electric[1] , mean_daily('EV', rush_df_EV, 35, 9) , mean_daily('EV', rush_df_EV, 35, 2))
-    print('ICR ICE = ', icr_ICE, '- ICR EV = ', icr_EV)
-
     #Calculate the Accumulated cost and Annual cost metric - Rush hour
     accumulatedCost_ICE, annualCost_ICE= accumulatedCost(configuration, combustion, electric, 'ICE', E100km_ICE, annualDistance, 'Level1')
     accumulatedCost_EV1, annualCost_EV1 = accumulatedCost(configuration, combustion, electric, 'EV', E100km_EV, annualDistance, 'Level1')
     accumulatedCost_EV3, annualCost_EV3 = accumulatedCost(configuration, combustion, electric, 'EV', E100km_EV, annualDistance, 'Level3')
-    print('Accum ICE = ', accumulatedCost_ICE,'\nAnnua ICE = ', annualCost_ICE,
-          '\nAccum EV L1 = ', accumulatedCost_EV1,'\nAnnua EV1 = ', annualCost_EV1,
-          '\nAccum EV L3 = ', accumulatedCost_EV3,'\nAnnua EV3 = ', annualCost_EV3)
-
     #Calculate the emission per kilometer metric - Rush hour
     emission_ICE = emission_metric(mean_daily('ICE', rush_df_ICE, 35, 3), mean_daily('ICE', rush_df_ICE, 35, 8), mean_daily('ICE', rush_df_ICE, 35, 2), 'ICE')
     emission_EV = emission_metric(mean_daily('EV', rush_df_EV, 35, 3), mean_daily('EV', rush_df_EV, 35, 9), mean_daily('EV', rush_df_EV, 35, 2), 'EV')
-    print('CO2/km ICE = ', emission_ICE, ' - CO2/km EV = ', emission_EV)
-
     #Calculate the Social cost metric - Rush hour
     socialCost_ICE = socialCost_metric(mean_daily('ICE', rush_df_ICE, 35, 3))
     socialCost_EV = socialCost_metric(mean_daily('EV', rush_df_EV, 35, 3))
-    print('Social Cost Emission ICE = ', socialCost_ICE, ' - Social Cost Emission EV = ', socialCost_EV)
-
     #Calculate the availability factor metric - Rush hour
     availabilityFactor_ICE = chargingTime_metric(9.25, 951.02, mean_daily('ICE', rush_df_ICE, 35, 2), 9.25, E100km_ICE)
     availabilityFactor_EV1 = chargingTime_metric(53.5, 1, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV)
     availabilityFactor_EV2 = chargingTime_metric(53.5, 6, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV)
     availabilityFactor_EV3 = chargingTime_metric(53.5, 50, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV)
-    print('Availability factor ICE = ', availabilityFactor_ICE, ' - Availability factor EV1 = ', availabilityFactor_EV1, ' - Availability factor EV2 = ', 
-          availabilityFactor_EV2, ' - Availability factor EV3 = ', availabilityFactor_EV3)
-
     #Calculate the LifeCycle Emission metric - Rush hour
     utilization_ICE = utilization_emission(emission_ICE, annualDistance)
     utilization_EV = utilization_emission(emission_EV, annualDistance)
-
     lifecycleEmissions_ICE = lifecycle_emissions('ICE', 894, 0, emission_ICE, annualDistance)
     lifecycleEmissions_EV = lifecycle_emissions('EV', 1640, 53.5, emission_EV, annualDistance)
-    print('LC Emissions ICE = ', lifecycleEmissions_ICE, ' - LC Emissions EV = ', lifecycleEmissions_EV)
-
     #Calculate the Social metric - Rush hour
     availability = [availabilityFactor_ICE, availabilityFactor_EV1, availabilityFactor_EV2, availabilityFactor_EV3]
     autonomy = [autonomy_ICE, autonomy_EV]
-    cost = [accumulatedCost_ICE, accumulatedCost_EV1, accumulatedCost_EV3]
+    cost = [accumulatedCost_ICE[-1], accumulatedCost_EV1[-1], accumulatedCost_EV3[-1]]
     incentives = [0 , 9]
     emissions = [lifecycleEmissions_ICE, lifecycleEmissions_EV]
-    social_metric(availability, autonomy, cost, incentives, emissions)
-
-    #Plot Accumulated and Annual Cost
-    year = list(range(20))
-    plt.plot(year, accumulatedCost_ICE, "#A0A0A0", label="ICE")
-    plt.plot(year, accumulatedCost_EV1, "#33FF33", label="EV")
-    plt.xlabel("Year")
-    plt.ylabel("Accumulated Cost")
-    plt.title("Accumulated Cost ICE and EV")
-    plt.grid()
-    plt.legend()
-    plt.show()
-
-    years = [*range(0, 20, 1)]
-    Y = [str(x) for x in years]
-    conventional = annualCost_ICE
-    electric = annualCost_EV1
-    df = pd.DataFrame({'ICE': conventional, 'EV': electric}, index=Y)
-    df.plot( kind = 'bar', rot=0, color=['#A0A0A0', '#33FF33'])
-    plt.show()
+    
+    plot_cost()
+    print('E100km_ICE [kWh/100km] = ', E100km_ICE, ' - E100km_EV [kWh/100km] = ', E100km_EV)
+    print('Autonomy ICE [km]= ', autonomy_ICE, ' - Autonomy EV [km]= ', autonomy_EV)
+    print('ICR ICE = ', icr_ICE, '- ICR EV = ', icr_EV)
+    print('Accum ICE = ', accumulatedCost_ICE,'\nAnnua ICE = ', annualCost_ICE,
+          '\nAccum EV L1 = ', accumulatedCost_EV1,'\nAnnua EV1 = ', annualCost_EV1,
+          '\nAccum EV L3 = ', accumulatedCost_EV3,'\nAnnua EV3 = ', annualCost_EV3)
+    print('CO2/km ICE = ', emission_ICE, ' - CO2/km EV = ', emission_EV)
+    print('Social Cost Emission ICE = ', socialCost_ICE, ' - Social Cost Emission EV = ', socialCost_EV)
+    print('Availability factor ICE = ', availabilityFactor_ICE, ' - Availability factor EV1 = ', availabilityFactor_EV1, ' - Availability factor EV2 = ', 
+          availabilityFactor_EV2, ' - Availability factor EV3 = ', availabilityFactor_EV3)
+    print('LC Emissions ICE = ', lifecycleEmissions_ICE, ' - LC Emissions EV = ', lifecycleEmissions_EV)
+    social_metric(generate_alternative_matrix(availability, autonomy, cost, incentives, emissions))
