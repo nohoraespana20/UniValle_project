@@ -1,0 +1,10 @@
+Criteria,Metrics,ICE,EVL1,EVL2,EVL3
+Technical,E100km,69.46,10.9,10.9,10.9
+Technical,Driving Range,453.45,417.2,417.2,417.2
+Economic,Cost per trip,280.44,109.01,109.01,109.01
+Economic,Accumulated cost,2305.23,1108.27,1108.27,1136.1
+Environmental,Emissions per kilometer,0.18,0.02,0.02,0.02
+Environmental,Lifecycle emissions,14126.15,5958.71,5958.71,5958.71
+Social,Social cost,6.85,0.0,0.0,0.0
+Social,Willingness-to-pay,0.2614274090179132,0.1498778986952103,0.2824448424958629,0.30624984979101355
+Social,Availability factor,99.41,12.42,85.4,98.25

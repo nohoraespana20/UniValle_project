@@ -1,3 +1,4 @@
+import pandas as pd
 def readJson(file):
     with open(file) as file:
         data = json.load(file)
@@ -404,6 +405,7 @@ def social_metric(altenativeMatrix):
     norm_df['Sum'] = norm_df.sum(axis=1)
     print(round(norm_df,2))
     print('Max Score = ', round(norm_df['Sum'].max(),2), 'Best alternative = ', norm_df['Sum'].idxmax())
+    return norm_df
 
 def plot_cost():
     #Plot Accumulated and Annual Cost
@@ -424,6 +426,23 @@ def plot_cost():
     df = pd.DataFrame({'ICE': conventional, 'EV': electric}, index=Y)
     df.plot( kind = 'bar', rot=0, color=['#A0A0A0', '#33FF33'])
     plt.show()
+
+def save_metrics_data(consumption, autonomy, cpt, cost, eco, emissions, socialCost, social, availability):
+    socialSum = social['Sum']
+    df = pd.DataFrame({
+    "Criteria":['Technical', 'Technical', 'Economic', 'Economic', 'Environmental', 'Environmental', 'Social', 'Social', 'Social'],
+    "Metrics": ['E100km', 'Driving Range', 'Cost per trip', 'Accumulated cost', 
+                'Emissions per kilometer', 'Lifecycle emissions', 
+                'Social cost', 'Willingness-to-pay', 'Availability factor']})
+    index = pd.MultiIndex.from_frame(df)  
+    data =  [[consumption[0], autonomy[0], cpt[0], cost[0], eco[0], emissions[0], socialCost[0], socialSum[0], availability[0]], 
+             [consumption[1], autonomy[1], cpt[1], cost[1], eco[1], emissions[1], socialCost[1], socialSum[1], availability[1]],
+             [consumption[1], autonomy[1], cpt[1], cost[1], eco[1], emissions[1], socialCost[1], socialSum[2], availability[2]],
+             [consumption[1], autonomy[1], cpt[1], cost[2], eco[1], emissions[1], socialCost[1], socialSum[3], availability[3]]]
+    data = np.array(data).T.tolist()
+    metrics_df = pd.DataFrame(data, index=index, columns=['ICE','EVL1', 'EVL2', 'EVL3'])
+
+    metrics_df.to_csv('./results/metrics_data.csv')
 
 
 if __name__ == '__main__':
@@ -485,16 +504,12 @@ if __name__ == '__main__':
     incentives = [0 , 9]
     emissions = [lifecycleEmissions_ICE, lifecycleEmissions_EV]
     
-    plot_cost()
-    print('E100km_ICE [kWh/100km] = ', E100km_ICE, ' - E100km_EV [kWh/100km] = ', E100km_EV)
-    print('Autonomy ICE [km]= ', autonomy_ICE, ' - Autonomy EV [km]= ', autonomy_EV)
-    print('ICR ICE = ', icr_ICE, '- ICR EV = ', icr_EV)
-    print('Accum ICE = ', accumulatedCost_ICE,'\nAnnua ICE = ', annualCost_ICE,
-          '\nAccum EV L1 = ', accumulatedCost_EV1,'\nAnnua EV1 = ', annualCost_EV1,
-          '\nAccum EV L3 = ', accumulatedCost_EV3,'\nAnnua EV3 = ', annualCost_EV3)
-    print('CO2/km ICE = ', emission_ICE, ' - CO2/km EV = ', emission_EV)
-    print('Social Cost Emission ICE = ', socialCost_ICE, ' - Social Cost Emission EV = ', socialCost_EV)
-    print('Availability factor ICE = ', availabilityFactor_ICE, ' - Availability factor EV1 = ', availabilityFactor_EV1, ' - Availability factor EV2 = ', 
-          availabilityFactor_EV2, ' - Availability factor EV3 = ', availabilityFactor_EV3)
-    print('LC Emissions ICE = ', lifecycleEmissions_ICE, ' - LC Emissions EV = ', lifecycleEmissions_EV)
-    social_metric(generate_alternative_matrix(availability, autonomy, cost, incentives, emissions))
+    social = social_metric(generate_alternative_matrix(availability, autonomy, cost, incentives, emissions))
+
+    consumption = [E100km_ICE, E100km_EV]
+    cpt = [icr_ICE, icr_EV]
+    eco = [emission_ICE, emission_EV]
+    emissions = [lifecycleEmissions_ICE, lifecycleEmissions_EV]
+    socialCost = [socialCost_ICE, socialCost_EV]
+
+    save_metrics_data(consumption, autonomy, cpt, cost, eco, emissions, socialCost, social, availability)
