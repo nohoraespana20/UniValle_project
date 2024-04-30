@@ -1,4 +1,5 @@
 import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
 def readJson(file):
     with open(file) as file:
         data = json.load(file)
@@ -361,24 +362,27 @@ def generate_alternative_matrix(availability, autonomy, cost, incentives, emissi
               1.0,incentives[1],incentives[1],incentives[1],
               1.0, emissions[0]/emissions[1], emissions[0]/emissions[1], emissions[0]/emissions[1]], 
       [availability[0]/availability[1], 1.0, availability[2]/availability[1], availability[3]/availability[1],
-             autonomy[0]/autonomy[1], 1, autonomy[1]/autonomy[1], autonomy[1]/autonomy[1],
+             autonomy[0]/autonomy[1], 1.0, autonomy[1]/autonomy[1], autonomy[1]/autonomy[1],
              cost[1]/cost[0], 1.0, 1.0, cost[2]/cost[1],
-             1/incentives[1],1,1,1,
+             1/incentives[1],1.0,1.0,1.0,
              emissions[1]/emissions[0], 1.0, 1.0, emissions[1]/emissions[1]],
-    [availability[0]/availability[2],availability[1]/availability[2],1,availability[3]/availability[2],
-             autonomy[0]/autonomy[1], autonomy[1]/autonomy[1], 1, autonomy[1]/autonomy[1],
+    [availability[0]/availability[2],availability[1]/availability[2],1.0,availability[3]/availability[2],
+             autonomy[0]/autonomy[1], autonomy[1]/autonomy[1], 1.0, autonomy[1]/autonomy[1],
              cost[1]/cost[0], 1.0, 1.0, cost[2]/cost[1], 
-             1/incentives[1],1,1,1,
+             1/incentives[1],1.0,1.0,1.0,
              emissions[1]/emissions[0], 1.0, 1.0, emissions[1]/emissions[1]],
-    [availability[0]/availability[3],availability[1]/availability[3],availability[2]/availability[3],1,
-             autonomy[0]/autonomy[1], autonomy[1]/autonomy[1], autonomy[1]/autonomy[1], 1, 
+    [availability[0]/availability[3],availability[1]/availability[3],availability[2]/availability[3],1.0,
+             autonomy[0]/autonomy[1], autonomy[1]/autonomy[1], autonomy[1]/autonomy[1], 1.0, 
              cost[2]/cost[0], cost[1]/cost[2], cost[1]/cost[2], 1.0, 
-             1/incentives[1],1,1,1,
+             1/incentives[1],1.0,1.0,1.0,
              emissions[1]/emissions[0], emissions[1]/emissions[1], emissions[1]/emissions[1], 1.0]]
     data = np.array(data).T.tolist()
     ahp_df = pd.DataFrame(data, index=index, columns=['ICE','EVL1', 'EVL2', 'EVL3'])
-  
-    return ahp_df
+    print(ahp_df.round(2))
+    scaled_df = MinMaxScaler().fit_transform(ahp_df)
+    scaled_df = pd.DataFrame(scaled_df, index=index, columns=['ICE','EVL1', 'EVL2', 'EVL3'])
+    print(scaled_df.round(2))
+    return scaled_df
 
 def social_metric(altenativeMatrix):
     comparisonMatrix = {}
@@ -489,8 +493,8 @@ if __name__ == '__main__':
     socialCost_EV = socialCost_metric(mean_daily('EV', rush_df_EV, 35, 3))
     #Calculate the availability factor metric - Rush hour
     availabilityFactor_ICE = chargingTime_metric(9.25, 951.02, mean_daily('ICE', rush_df_ICE, 35, 2), 9.25, E100km_ICE)
-    availabilityFactor_EV1 = chargingTime_metric(53.5, 1, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV)
-    availabilityFactor_EV2 = chargingTime_metric(53.5, 6, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV)
+    availabilityFactor_EV1 = chargingTime_metric(53.5, 1.9, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV)
+    availabilityFactor_EV2 = chargingTime_metric(53.5, 7, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV)
     availabilityFactor_EV3 = chargingTime_metric(53.5, 50, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV)
     #Calculate the LifeCycle Emission metric - Rush hour
     utilization_ICE = utilization_emission(emission_ICE, annualDistance)
