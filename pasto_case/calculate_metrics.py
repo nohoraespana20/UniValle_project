@@ -1,5 +1,6 @@
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
+
 def readJson(file):
     with open(file) as file:
         data = json.load(file)
@@ -493,8 +494,8 @@ if __name__ == '__main__':
     socialCost_EV = socialCost_metric(mean_daily('EV', rush_df_EV, 35, 3))
     #Calculate the availability factor metric - Rush hour
     availabilityFactor_ICE = chargingTime_metric(9.25, 951.02, mean_daily('ICE', rush_df_ICE, 35, 2), 9.25, E100km_ICE)
-    availabilityFactor_EV1 = chargingTime_metric(53.5, 1.9, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV)
-    availabilityFactor_EV2 = chargingTime_metric(53.5, 7, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV)
+    availabilityFactor_EV1 = chargingTime_metric(53.5, 1.8, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV)
+    availabilityFactor_EV2 = chargingTime_metric(53.5, 22, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV)
     availabilityFactor_EV3 = chargingTime_metric(53.5, 50, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV)
     #Calculate the LifeCycle Emission metric - Rush hour
     utilization_ICE = utilization_emission(emission_ICE, annualDistance)
@@ -517,3 +518,10 @@ if __name__ == '__main__':
     socialCost = [socialCost_ICE, socialCost_EV]
 
     save_metrics_data(consumption, autonomy, cpt, cost, eco, emissions, socialCost, social, availability)
+
+    # print('L1 (1.2 kW) = ', chargingTime_metric(53.5, 1.2, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV))
+    # print('L1 (1.8 kW) = ', chargingTime_metric(53.5, 1.8, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV))
+    # print('L2 (3.6 kW) = ', chargingTime_metric(53.5, 3.6, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV))
+    # print('L2 (11 kW) = ', chargingTime_metric(53.5, 11.0, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV))
+    # print('L2 (22 kW) = ', chargingTime_metric(53.5, 22.0, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV))
+    # print('L3 (50 kW) = ', chargingTime_metric(53.5, 50.0, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV))
