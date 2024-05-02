@@ -1,5 +1,5 @@
-import random
 import numpy as np
+import matplotlib.pyplot as plt
 
 def ice_to_ev(taxisProjection, penetrationPercentage):
     evPenetration = []
@@ -10,7 +10,7 @@ def ice_to_ev(taxisProjection, penetrationPercentage):
 def annual_consumption_per_penetration(annualVehicles, annualConsumption):
     annualConsumptionperPenetration = []
     for i in range(len(penetrationPercentage)):
-        annualConsumptionperPenetration.append(annualVehicles[i] * annualConsumption)
+        annualConsumptionperPenetration.append(round(annualVehicles[i] * annualConsumption, 2))
     return annualConsumptionperPenetration
 
 def charging_time(chargeNeeded, chargingSpeed):
@@ -41,12 +41,12 @@ if __name__ == '__main__':
     dataframe = cm.generate_data_frame(emissionClasses,"./results/rush/data_emissions_EV.csv")
     annualConsumption = cm.mean_daily('EV', dataframe, 35, 9) * 365
     annualConsumptionTotal = annual_consumption_per_penetration(annualVehicles, annualConsumption)
-    # print('Annual demand kWh per penetration percentage = ', annualConsumptionTotal)
+    print('Annual demand kWh per penetration percentage = ', annualConsumptionTotal)
 
-    print('Hour charging per year L1 = ', charging_time(annualConsumptionTotal[2], 1.8))
-    print('Hour charging per year L2 - M1 = ', charging_time(annualConsumptionTotal[2], 11.0))
-    print('Hour charging per year L2 - M2&3 = ', charging_time(annualConsumptionTotal[2], 22.0))
-    print('Hour charging per year L3 = ', charging_time(annualConsumptionTotal[2], 50.0))
+    # print('Hour charging per year L1 = ', charging_time(annualConsumptionTotal[2], 1.8))
+    # print('Hour charging per year L2 - M1 = ', charging_time(annualConsumptionTotal[2], 11.0))
+    # print('Hour charging per year L2 - M2&3 = ', charging_time(annualConsumptionTotal[2], 22.0))
+    # print('Hour charging per year L3 = ', charging_time(annualConsumptionTotal[2], 50.0))
 
     C = 53.5 * cm.mean_daily('EV', dataframe, 35, 2) / 417.20
     P = [11, 22, 50]
@@ -73,3 +73,32 @@ if __name__ == '__main__':
     cs50kW = round(demandPerYear50kW[-1])
     print('# CS 11 kW = ', cs11kW, '# CS 22 kW = ', cs22kW, '# CS 50 kW = ', cs50kW)
 
+    csUtilizationRateL1 = []
+    csUtilizationRateL2M1 = []
+    csUtilizationRateL2M2_3 = []
+    csUtilizationRateL3M4 = []
+
+
+    for i in range(len(annualConsumptionTotal)):
+        csUtilizationRateL1.append(round( (charging_time(annualConsumptionTotal[i], 1.8) / 12) * 100 / (24 * 30 * 91),2))
+        csUtilizationRateL2M1.append(round((charging_time(annualConsumptionTotal[i], 11.0) / 12) * 100 / (24 * 30 * 46),2))
+        csUtilizationRateL2M2_3.append(round((charging_time(annualConsumptionTotal[i], 22.0) / 12) * 100 / (24 * 30 * 46),2))
+        csUtilizationRateL3M4.append(round((charging_time(annualConsumptionTotal[i], 50.0) / 12) * 100 / (24 * 30 * 20),2))
+
+    print('CS Utilization Rate')
+    print('CS 11 kW = ', csUtilizationRateL1)
+    print('CS 22 kW = ', csUtilizationRateL2M1)
+    print('CS 22 kW = ', csUtilizationRateL2M2_3)
+    print('CS 50 kW = ', csUtilizationRateL3M4)
+
+    year = [1, 2, 3, 4, 5, 10, 15, 20, 25, 30]
+    plt.plot(year, csUtilizationRateL1)
+    plt.plot(year, csUtilizationRateL2M1)
+    plt.plot(year, csUtilizationRateL2M2_3)
+    plt.plot(year, csUtilizationRateL3M4)
+    plt.legend(['L1 - 11 kW', 'L2 M1 - 22 kW', 'L2 M2&3 - 22kW', 'L3 M4 - 50 kW'])
+    plt.title('Charging Station Utilization Rate')
+    plt.xlabel('Year')
+    plt.ylabel('%')
+    plt.grid()
+    plt.show()
