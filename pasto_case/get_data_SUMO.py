@@ -29,7 +29,9 @@ def getDataEmissions(vehicle):
 def saveDataVehicle(file_config, route, hour):
     emission_classes = ['HBEFA4/PC_petrol_Euro-2', 'HBEFA4/PC_petrol_Euro-3', 
                         'HBEFA4/PC_petrol_Euro-4', 'HBEFA4/PC_petrol_Euro-5', 
-                        'HBEFA4/PC_petrol_Euro-6d','Energy/unknown']
+                        'HBEFA4/PC_petrol_Euro-6d','HBEFA4/PC_CNG_petrol_Euro-6_(CNG)',
+                        'HBEFA4/PC_BEV', 'HBEFA4/PC_PHEV_petrol_Euro-6d_(P)', 
+                        'HBEFA4/PC_PHEV_petrol_Euro-6d_(El)']
     
     for emission_class in emission_classes:
         step = 0;
@@ -48,7 +50,7 @@ def saveDataVehicle(file_config, route, hour):
                 if vehicles[0]!='1':
                     break
                 data = getDataEmissions(vehicles[0])
-                if emission_class == 'Energy/unknown':
+                if emission_class == 'HBEFA4/PC_BEV': #Electric vehicle
                     if hour == 'rush':
                         with open('results/rush/data_emissions_EV.csv', 'a', newline='') as file:
                             writer = csv.writer(file)
@@ -61,7 +63,33 @@ def saveDataVehicle(file_config, route, hour):
                             writer.writerow([route, emission_class, step, data[0], 
                                             data[1], data[2], data[3], data[4], 
                                             data[5], data[6], data[7], data[8], data[9]])
-                else: 
+                elif emission_class == 'HBEFA4/PC_PHEV_petrol_Euro-6d_(P)' or  emission_class == 'HBEFA4/PC_PHEV_petrol_Euro-6d_(El)': # hybrid electric vehicle
+                    if hour == 'rush':
+                        with open('results/rush/data_emissions_PHEV.csv', 'a', newline='') as file:
+                            writer = csv.writer(file)
+                            writer.writerow([route, emission_class, step, data[0], 
+                                            data[1], data[2], data[3], data[4], 
+                                            data[5], data[6], data[7], data[8], data[9]])
+                    else:
+                        with open('results/off_peak/data_emissions_PHEV.csv', 'a', newline='') as file:
+                            writer = csv.writer(file)
+                            writer.writerow([route, emission_class, step, data[0], 
+                                            data[1], data[2], data[3], data[4], 
+                                            data[5], data[6], data[7], data[8], data[9]])
+                elif emission_class == 'HBEFA4/PC_CNG_petrol_Euro-6_(CNG)': # LPG vehicle 
+                    if hour == 'rush':
+                        with open('results/rush/data_emissions_CNG.csv', 'a', newline='') as file:
+                            writer = csv.writer(file)
+                            writer.writerow([route, emission_class, step, data[0], 
+                                            data[1], data[2], data[3], data[4], 
+                                            data[5], data[6], data[7], data[8], data[9]])
+                    else:
+                        with open('results/off_peak/data_emissions_CNG.csv', 'a', newline='') as file:
+                            writer = csv.writer(file)
+                            writer.writerow([route, emission_class, step, data[0], 
+                                            data[1], data[2], data[3], data[4], 
+                                            data[5], data[6], data[7], data[8], data[9]])
+                else:  # ICE vehicle
                     if hour == 'rush':
                         with open('results/rush/data_emissions_ICE.csv', 'a', newline='') as file:
                             writer = csv.writer(file)
@@ -98,10 +126,22 @@ if __name__ == '__main__':
     with open('results/rush/data_emissions_EV.csv', 'a', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(field)
+    with open('results/rush/data_emissions_PHEV.csv', 'a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(field)
+    with open('results/rush/data_emissions_CNG.csv', 'a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(field)
     with open('results/rush/data_emissions_ICE.csv', 'a', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(field)
     with open('results/off_peak/data_emissions_EV.csv', 'a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(field)
+    with open('results/off_peak/data_emissions_PHEV.csv', 'a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(field)
+    with open('results/off_peak/data_emissions_CNG.csv', 'a', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(field)
     with open('results/off_peak/data_emissions_ICE.csv', 'a', newline='') as file:
