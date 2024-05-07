@@ -55,7 +55,7 @@ def total_per_trip(data, route, emission_class):
     total_HC = route_class["HCEmission"].sum()/1E6 #Emission in kg
     total_PMx = route_class["PMxEmission"].sum()/1E6 #Emission in kg
     total_NOx = route_class["NOxEmission"].sum()/1E6 #Emission in kg 
-    total_fuel = route_class["FuelConsumption"].sum()/(1000) #Fuel in liters
+    total_fuel = route_class["FuelConsumption"].sum()/1E3 #Fuel in liters
     total_energy = route_class["ElectricityConsumption"].sum()/1E3 #Energy in kWh
     total_noise = route_class["NoiseEmission"].sum()/step_route  # Mean noise in dB
     return [route, emission_class, distance_route, total_CO2, total_CO, total_HC, total_PMx, total_NOx, total_fuel, total_energy, total_noise]
@@ -116,8 +116,11 @@ def consumption_metric(vehType, distance, consumption):
     consumption: fuel or kwh consumed in paths
     '''
     if vehType == "ICE":
-        # E_100km = (consumption*3.785*8.9*100)/distance
-        E_100km = (consumption*8.9*100)/distance
+        E_100km = (consumption*9.67*100)/distance
+    elif vehType == 'CNG':
+        E_100km = (consumption*10.70*100)/distance
+    elif vehType == 'Diesel':
+        E_100km = (consumption*10.69*100)/distance
     elif vehType == "EV":
         E_100km = (consumption*100)/distance
     else:
@@ -132,7 +135,10 @@ def autonomy_metric(vehType, E_100km, capacity):
     capacity: tank (gallons) or battery (kWh) capacity depends from vehType
     '''
     if vehType == "ICE":
-        consumption = E_100km/(100*8.9)
+        consumption = E_100km/(100*9.67)
+        autonomy = capacity * 3.785 / consumption
+    elif vehType == 'CNG':
+        consumption = E_100km/(100*10.70)
         autonomy = capacity * 3.785 / consumption
     elif vehType == "EV":
         autonomy = capacity * 0.85 / (E_100km/100)
@@ -168,7 +174,19 @@ def accumulatedCost(configuration, combustion, electric, vehType, E_100km, annua
         print('Level Charge is not defined')
 
     if vehType == 'ICE':
-        powerConsumption = (E_100km / (100 * 8.9)) * annualDistance
+        powerConsumption = (E_100km / (100 * 9.67)) * annualDistance
+        combustion[1] = combustion[1] / 3.785
+        totalCost[0] = combustion[0] 
+        annualCost[0] = combustion[0] 
+        taxCost = combustion[0] * 0.01 # Based on "Ley 1964 de 2019, Congreso de Colombia"
+        annualPowerCost = powerConsumption * combustion[1] 
+        annualPowerCostRaise  = combustion[2] / 100
+        maintenanceCost = combustion[4]
+        soatCost = combustion[5]
+        otherInsurance = combustion[6] # Contractual insuarence and all damages insurance
+        checkCost = combustion[7]
+    elif vehType == 'CNG':
+        powerConsumption = (E_100km / (100 * 10.70)) * annualDistance
         combustion[1] = combustion[1] / 3.785
         totalCost[0] = combustion[0] 
         annualCost[0] = combustion[0] 
@@ -237,7 +255,7 @@ def emission_metric(co2Emission, consumption, distance, vehType):
     '''
     Expressed in kilograms of CO2 per kilometer for both ICEVs and EVs. 
     '''
-    if vehType == 'ICE':
+    if vehType == 'ICE' or vehType == 'CNG':
         emissionPerKilometer = (co2Emission * 1000) / distance
     elif vehType == 'EV':
         emissionPerKilometer = 164.38 * consumption / distance
@@ -265,9 +283,9 @@ def chargingTime_metric(chargeNeeded, chargingSpeed, distance, capacity, E100km)
 def production_emission(vehType, mass, capacity):
     e_body = 4.56
     e_bat = 83.5
-    if vehType == 'ICE':
+    if vehType == 'ICE' or vehType == 'CNG':
         productionEmission = mass * e_body
-    elif vehType == 'EV':
+    elif vehType == 'EV' or vehType == 'PHEV':
         productionEmission = (mass * e_body) + (capacity * e_bat)
     else:
         print('Vehicle type is not defined')
@@ -294,9 +312,9 @@ def utilization_emission(emission, annualDistance):
 def recycling_emission(vehType, mass, capacity):
     e_body = -2.93
     e_bat = -48.4
-    if vehType == 'ICE':
+    if vehType == 'ICE' or vehType == 'CNG':
         productionEmission = mass * e_body
-    elif vehType == 'EV':
+    elif vehType == 'EV' or vehType == 'PHEV':
         productionEmission = (mass * e_body) + (capacity * e_bat)
     else:
         print('Vehicle type is not defined')
@@ -348,6 +366,7 @@ def priority_index(suppl_attr_df,attr_name):
     return priority_df
 
 def generate_alternative_matrix(availability, autonomy, cost, incentives, emissions):
+    #TODO: include PHEV and CNG vehicles metrics to alternative matrix
     df = pd.DataFrame({
     "Criteria":['Availability Factor', 'Availability Factor', 'Availability Factor', 'Availability Factor', 
                 'Driving Range', 'Driving Range', 'Driving Range', 'Driving Range', 
@@ -413,6 +432,7 @@ def social_metric(altenativeMatrix):
     return norm_df
 
 def plot_cost():
+    #TODO: include Accumulated and Annual Cost for PHEV and CNG vehicles 
     #Plot Accumulated and Annual Cost
     year = list(range(20))
     plt.plot(year, accumulatedCost_ICE, "#A0A0A0", label="ICE")
