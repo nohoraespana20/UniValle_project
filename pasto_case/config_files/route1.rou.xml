@@ -2,7 +2,10 @@
 
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
 	
-    <vType id="TAXI_1" guiShape="passenger/sedan" 	  maxSpeed="16.67" accel="1.9" decel="3" length="4.370" width="1.700" color="255,255,0"/>
+    <vType id="TAXI_1" guiShape="passenger/sedan" maxSpeed="16.67" accel="1.9" decel="3" 
+	length="4.370" width="1.700" color="255,255,0">
+	<param key="maximumBatteryCapacity" value="7600"/>
+	</vType>
 	
 	<route id="route1_1" 
 	edges="-91859786#0	48205266#1 

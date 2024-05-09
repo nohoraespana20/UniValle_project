@@ -3,9 +3,10 @@
 
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
 	
-    <vType id="TAXI_1" guiShape="passenger/sedan" 	  maxSpeed="16.67" accel="1.9" decel="3" length="4.370" width="1.700" color="255,255,0"/>
-	
-	
+    <vType id="TAXI_1" guiShape="passenger/sedan" maxSpeed="16.67" accel="1.9" decel="3" 
+	length="4.370" width="1.700" color="255,255,0">
+	<param key="maximumBatteryCapacity" value="7600"/>
+	</vType>
 	
 	<route id="route3_1" edges="430660462#4 567228565 268533820#6	-48268645
 								268533822#1	268533822#2	142724401#0	142724401#1

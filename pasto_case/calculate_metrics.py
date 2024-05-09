@@ -480,15 +480,15 @@ if __name__ == '__main__':
     # Load configuration data 
     configuration, combustion, electric = importData()
     #Generate data frame for EV
-    emission_classes_EV = ['Energy/unknown']
+    emission_classes_EV = ['HBEFA4/PC_BEV']#, 'HBEFA4/PC_PHEV_petrol_Euro-6d_(P)', 'HBEFA4/PC_PHEV_petrol_Euro-6d_(El)']
     rush_df_EV = generate_data_frame(emission_classes_EV,"./results/rush/data_emissions_EV.csv")
-    offPeak_df_EV = generate_data_frame(emission_classes_EV,"./results/off_peak/data_emissions_EV.csv")
+    # offPeak_df_EV = generate_data_frame(emission_classes_EV,"./results/off_peak/data_emissions_EV.csv")
     #Generate data frame for ICE
     emission_classes_ICE = ['HBEFA4/PC_petrol_Euro-2', 'HBEFA4/PC_petrol_Euro-3', 
                         'HBEFA4/PC_petrol_Euro-4', 'HBEFA4/PC_petrol_Euro-5', 
                         'HBEFA4/PC_petrol_Euro-6d']
     rush_df_ICE = generate_data_frame(emission_classes_ICE,"./results/rush/data_emissions_ICE.csv")
-    offPeak_df_ICE = generate_data_frame(emission_classes_ICE,"./results/off_peak/data_emissions_ICE.csv")
+    # offPeak_df_ICE = generate_data_frame(emission_classes_ICE,"./results/off_peak/data_emissions_ICE.csv")
 
     #category=[0:'route', 1:'emission_class', 2:'distance [km]', 3:'CO2 [kg]', 4:'CO [kg]', 5:'HC [kg]', 6:'PMx [kg]', 7:'NOx [kg]', 8:'fuel [gl]', 9:'energy [kWh]', 10:'noise [dB]']
     annualDistance = mean_daily('ICE', rush_df_ICE, 35, 2) * 365
