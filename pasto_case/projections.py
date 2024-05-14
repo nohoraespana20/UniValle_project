@@ -17,30 +17,22 @@ def charging_time(chargeNeeded, chargingSpeed):
     hourChargingTime = chargeNeeded / chargingSpeed
     return round(hourChargingTime, 2)
 
-def demand(C , T, N):
-    tu_11 = []
-    tu_22 = []
-    tu_50 = []
-    Pref = []
+def demandPowerCharge(C , T, N):
+    powerNeeded_1 = []
+    powerNeeded_11 = []
+    powerNeeded_22 = []
+    powerNeeded_50 = []
     np.random.seed(0)
     b = np.random.random((1,N))
-
     for i in range(N):
         Pref_r = np.random.random((1,3))
         suma = sum(Pref_r[0])
         Pref_norm = [Pref_r[0][0]/ suma, Pref_r[0][1]/ suma, Pref_r[0][2]/ suma]
-        Pref.append(Pref_norm)
-
-    for i in range(N):
-        tu_11.append(C * b[0][i] * Pref[i][0])
-        tu_22.append(C * b[0][i] * Pref[i][1])
-        tu_50.append(C * b[0][i] * Pref[i][2])
-
-    totalDemand11 = sum(tu_11)/ (11 * T)
-    totalDemand22 = sum(tu_22)/ (22 * T)
-    totalDemand50 = sum(tu_50)/ (50 * T)
-    
-    return round(sum(tu_11), 2), round(sum(tu_22), 2), round(sum(tu_50), 2), round(totalDemand11, 2), round(totalDemand22, 2), round(totalDemand50, 2)
+        powerNeeded_1.append(C * (1 - b[0][i]))
+        powerNeeded_11.append(C * b[0][i] * Pref_norm[0])
+        powerNeeded_22.append(C * b[0][i] * Pref_norm[1])
+        powerNeeded_50.append(C * b[0][i] * Pref_norm[2])
+    return sum(powerNeeded_1), sum(powerNeeded_11), sum(powerNeeded_22), sum(powerNeeded_50), np.mean(b[0])
 
 if __name__ == '__main__':
     import calculate_metrics as cm
@@ -50,76 +42,92 @@ if __name__ == '__main__':
     penetrationPercentage = [0.03, 0.5, 1.0, 2.0, 3.0, 10.0, 25.0, 50.0, 80.0, 100.0] 
     
     annualVehicles = ice_to_ev(taxisProjection, penetrationPercentage)
-    print('Annual EV = ', annualVehicles)
+    print('Annual vehicles = ', annualVehicles)
 
     emissionClasses = ['HBEFA4/PC_BEV']
     dataframe = cm.generate_data_frame(emissionClasses,"./results/rush/data_emissions_EV.csv")
     annualConsumption = cm.mean_daily('EV', dataframe, 35, 9) * 365
     annualConsumptionTotal = annual_consumption_per_penetration(annualVehicles, annualConsumption)
-    print('Annual demand kWh per penetration percentage = ', annualConsumptionTotal)
 
-    # print('Hour charging per year L1 = ', charging_time(annualConsumptionTotal[2], 1.8))
-    # print('Hour charging per year L2 - M1 = ', charging_time(annualConsumptionTotal[2], 11.0))
-    # print('Hour charging per year L2 - M2&3 = ', charging_time(annualConsumptionTotal[2], 22.0))
-    # print('Hour charging per year L3 = ', charging_time(annualConsumptionTotal[2], 50.0))
-
-    C = 53.5 * cm.mean_daily('EV', dataframe, 35, 2) / 417.20
-    # print('C = ', C, 'distance = ', cm.mean_daily('EV', dataframe, 35, 2))
-    P = [11, 22, 50]
+    dailyDistance = cm.mean_daily('EV', dataframe, 35, 2)
+    C = 53.5 * dailyDistance / 417.20
+    P = [1.8 ,11, 22, 50]
     T = 24
 
+    tu_1kW = []
+    tu_11kW = []
+    tu_22kW = []
+    tu_50kW = []
+    numberChargers1kW = []
     numberChargers11kW = []
     numberChargers22kW = []
     numberChargers50kW = []
-    
-    for i in range(len(annualVehicles)):
-        numberChargers11kW.append(demand(C, T, annualVehicles[i])[3])
-        numberChargers22kW.append(demand(C, T, annualVehicles[i])[4])
-        numberChargers50kW.append(demand(C, T, annualVehicles[i])[5])
-    print('Number of chargers - 11 kW =', numberChargers11kW)
-    print('Number of chargers - 22 kW =', numberChargers22kW)
-    print('Number of chargers - 50 kW =', numberChargers50kW)
-
-    # print('11 kW ', round(annualVehicles[-1]/numberChargers11kW[-1]))
-    # print('22 kW ', round(annualVehicles[-1]/numberChargers22kW[-1]))
-    # print('50 kW ', round(annualVehicles[-1]/numberChargers50kW[-1]))
-
-    print('Number of chargers')
-    cs11kW = round(numberChargers11kW[-1])
-    cs22kW = round(numberChargers22kW[-1])
-    cs50kW = round(numberChargers50kW[-1])
-    print('Number CS 11 kW = ', cs11kW, 'Number CS 22 kW = ', cs22kW, 'Number CS 50 kW = ', cs50kW)
-
     csUtilizationRateL1 = []
     csUtilizationRateL2M1 = []
     csUtilizationRateL2M2_3 = []
     csUtilizationRateL3M4 = []
+    b_index = []
 
 
-    TU = demand(C, T, annualVehicles[-1])[0]
-    TA = 24 * cs11kW
-    print('TU = ', TU)
-    csUtilizationRateL2M1 = TU * 100 / TA
-    # for i in range(len(annualConsumptionTotal)):
-    #     TU = charging_time(annualConsumptionTotal[i] / 365, 11.0)
-    #     TA = 24 * cs11kW
-        # print('TU = ', TU, 'TA = ', TA)
-        # csUtilizationRateL2M1.append(round((TU) * 100 / (TA),2))
-        # csUtilizationRateL2M2_3.append(round((charging_time(annualConsumptionTotal[i], 22.0) / 12) * 100 / (24 * 30 * 22),2))
-        # csUtilizationRateL3M4.append(round((charging_time(annualConsumptionTotal[i], 50.0) / 12) * 100 / (24 * 30 * 14),2))
+    for i in range(len(annualVehicles)):
+        nCS = demandPowerCharge(C, T, annualVehicles[i])
+        tu_1kW.append(nCS[0] / P[0])
+        tu_11kW.append(nCS[1] / P[1])
+        tu_22kW.append(nCS[2] / P[2])
+        tu_50kW.append(nCS[3] / P[3])
+        numberChargers1kW.append(round(nCS[0] / (P[0] * T), 2))
+        numberChargers11kW.append(round(nCS[1] / (P[1] * T), 2))
+        numberChargers22kW.append(round(nCS[2] / (P[2] * T), 2))
+        numberChargers50kW.append(round(nCS[3] / (P[3] * T), 2))
+        b_index.append(round(nCS[4], 2))
+    print('Preference private station = ', b_index, 'Mean preference = ', round(np.mean(b_index), 2))
+    print('Number of chargers - 1.8 kW =', numberChargers1kW)
+    print('Number of chargers - 11 kW =', numberChargers11kW)
+    print('Number of chargers - 22 kW =', numberChargers22kW)
+    print('Number of chargers - 50 kW =', numberChargers50kW)
 
-    print('CS Utilization Rate')
-    print('CS 11 kW = ', csUtilizationRateL2M1)
-    # print('CS 22 kW = ', csUtilizationRateL2M2_3)
-    # print('CS 50 kW = ', csUtilizationRateL3M4)
+    print('11 kW ', round(annualVehicles[-1]/numberChargers11kW[-1]))
+    print('22 kW ', round(annualVehicles[-1]/numberChargers22kW[-1]))
+    print('50 kW ', round(annualVehicles[-1]/numberChargers50kW[-1]))
 
-    # year = [1, 2, 3, 4, 5, 10, 15, 20, 25, 30]
-    # plt.plot(year, csUtilizationRateL2M1)
-    # plt.plot(year, csUtilizationRateL2M2_3)
-    # plt.plot(year, csUtilizationRateL3M4)
-    # plt.legend([ 'L2 M1 - 11 kW', 'L2 M2&3 - 22kW', 'L3 M4 - 50 kW'])
-    # plt.title('Charging Station Utilization Rate')
-    # plt.xlabel('Year')
-    # plt.ylabel('%')
-    # plt.grid()
-    # plt.show()
+
+    print('Number CS 1 kW = ', round(numberChargers1kW[-1]), 
+          'Number CS 11 kW = ', round(numberChargers11kW[-1]), 
+          'Number CS 22 kW = ', round(numberChargers22kW[-1]), 
+          'Number CS 50 kW = ', round(numberChargers50kW[-1]))
+    
+    ta_1kw = numberChargers1kW[-1] * T
+    ta_11kw = numberChargers11kW[-1] * T
+    ta_22kw = numberChargers22kW[-1] * T
+    ta_50kw = numberChargers50kW[-1] * T
+
+    for i in range(len(annualVehicles)):
+        csUtilizationRateL1.append(round(tu_1kW[i] * 100 / ta_1kw , 2))
+        csUtilizationRateL2M1.append(round(tu_11kW[i] * 100 / ta_11kw , 2))
+        csUtilizationRateL2M2_3.append(round(tu_22kW[i] * 100 / ta_22kw , 2))
+        csUtilizationRateL3M4.append(round(tu_50kW[i] * 100 / ta_50kw , 2))
+
+
+    year = [1, 2, 3, 4, 5, 10, 15, 20, 25, 30]
+    plt.plot(year, csUtilizationRateL1)
+    plt.plot(year, csUtilizationRateL2M1)
+    plt.plot(year, csUtilizationRateL2M2_3)
+    plt.plot(year, csUtilizationRateL3M4)
+    plt.legend(['L1 - 1.8 kW', 'L2 M1 - 11 kW', 'L2 M2&3 - 22kW', 'L3 M4 - 50 kW'])
+    plt.title('Charging Station Utilization Rate')
+    plt.xlabel('Year')
+    plt.ylabel('%')
+    plt.grid()
+    plt.show()
+
+    year = [1, 2, 3, 4, 5, 10, 15, 20, 25, 30]
+    plt.plot(year, numberChargers1kW)
+    plt.plot(year, numberChargers11kW)
+    plt.plot(year, numberChargers22kW)
+    plt.plot(year, numberChargers50kW)
+    plt.legend([ '#CS - 1.8 kW', '#CS - 11 kW', '#CS - 22kW', '#CS - 50 kW'])
+    plt.title('Number of Charging Station')
+    plt.xlabel('Year')
+    plt.ylabel('%')
+    plt.grid()
+    plt.show()
