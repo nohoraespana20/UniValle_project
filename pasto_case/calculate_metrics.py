@@ -513,7 +513,7 @@ if __name__ == '__main__':
     socialCost_ICE = socialCost_metric(mean_daily('ICE', rush_df_ICE, 35, 3))
     socialCost_EV = socialCost_metric(mean_daily('EV', rush_df_EV, 35, 3))
     #Calculate the availability factor metric - Rush hour
-    availabilityFactor_ICE = chargingTime_metric(9.25, 951.02, mean_daily('ICE', rush_df_ICE, 35, 2), 9.25, E100km_ICE)
+    availabilityFactor_ICE = chargingTime_metric(9.35, 951.02, mean_daily('ICE', rush_df_ICE, 35, 2), 9.25, E100km_ICE)
     availabilityFactor_EV1 = chargingTime_metric(53.5, 1.8, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV)
     availabilityFactor_EV2 = chargingTime_metric(53.5, 22, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV)
     availabilityFactor_EV3 = chargingTime_metric(53.5, 50, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV)

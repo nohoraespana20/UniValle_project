@@ -17,4 +17,8 @@
     <no-warnings value="true"/>
 </report>
 
+<output>
+    <device.battery.probability value="1"/>
+</output>
+
 </configuration>

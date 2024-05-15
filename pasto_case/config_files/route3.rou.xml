@@ -5,7 +5,7 @@
 	
     <vType id="TAXI_1" guiShape="passenger/sedan" maxSpeed="16.67" accel="1.9" decel="3" 
 	length="4.370" width="1.700" color="255,255,0">
-	<param key="maximumBatteryCapacity" value="7600"/>
+	<param key="maximumBatteryCapacity" value="200"/>
 	</vType>
 	
 	<route id="route3_1" edges="430660462#4 567228565 268533820#6	-48268645
