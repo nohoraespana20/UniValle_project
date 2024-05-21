@@ -8,7 +8,6 @@ def initialize(file_config):
     traci.start(sumoCmd)
     print("Starting SUMO")
 
-#TODO: Include EV data - kWh
 def getDataEmissions(vehicle):
     speed = traci.vehicle.getSpeed(vehicle)
     CO2Emission = traci.vehicle.getCO2Emission(vehicle)
