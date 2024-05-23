@@ -2,5 +2,7 @@
     "Vehicle cost": 100000000.0,
     "Galon cost": 13600.0,
     "Fuel raise": 16.0,
-    "Daily consumption": 3.5
+    "kWh cost": 1000.0,
+    "kWh raise": 16.0,
+    "Batery capacity [kWh]": 8
 }
