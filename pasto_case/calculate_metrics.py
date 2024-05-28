@@ -483,7 +483,7 @@ def plot_cost():
     plt.plot(year, accumulatedCost_PHEV3, "#ddcd82", label="EV_L3")
     plt.plot(year, accumulatedCost_CNG, "#89cff0", label="CNG")
     plt.xlabel("Year")
-    plt.ylabel("Accumulated Cost")
+    plt.ylabel("Accumulated Cost [million COP]")
     plt.title("Accumulated Cost ICE, EV, PHEV and CNG")
     plt.grid()
     plt.legend()
@@ -499,6 +499,11 @@ def plot_cost():
     phev3 = annualCost_PHEV3
     df = pd.DataFrame({'ICE': conventional, 'EV-L2': electric1, 'EV-L3': electric3, 'PHEV-L2': phev1, 'PHEV-L3': phev3,'CNG': gas}, index=Y)
     df.plot( kind = 'bar', rot=0, color=['#444444', '#adff2f', "#38761d", "#512647", "#ddcd82", "#89cff0"])
+    plt.xlabel("Year")
+    plt.ylabel("Annual Cost [million COP]")
+    plt.title("Annual Cost ICE, EV, PHEV and CNG")
+    plt.grid()
+    plt.legend()
     plt.show()
 
 def save_metrics_data(consumption, autonomy, cpt, cost, eco, emissions, socialCost, social, availability):
@@ -514,9 +519,9 @@ def save_metrics_data(consumption, autonomy, cpt, cost, eco, emissions, socialCo
              [consumption[1], autonomy[2], cpt[1], cost[2], eco[1], emissions[1], socialCost[1], socialSum[2], availability[2]],
              [consumption[1], autonomy[3], cpt[1], cost[3], eco[1], emissions[1], socialCost[1], socialSum[3], availability[3]],
              [consumption[2], autonomy[4], cpt[2], cost[4], eco[2], emissions[2], socialCost[2], socialSum[4], availability[4]],
-             [consumption[3], autonomy[5], cpt[1], cost[5], eco[3], emissions[3], socialCost[3], socialSum[5], availability[5]],
-             [consumption[3], autonomy[6], cpt[1], cost[6], eco[3], emissions[3], socialCost[3], socialSum[6], availability[6]],
-             [consumption[3], autonomy[7], cpt[2], cost[7], eco[3], emissions[3], socialCost[3], socialSum[7], availability[7]]]
+             [consumption[3], autonomy[5], cpt[3], cost[5], eco[3], emissions[3], socialCost[3], socialSum[5], availability[5]],
+             [consumption[3], autonomy[6], cpt[3], cost[6], eco[3], emissions[3], socialCost[3], socialSum[6], availability[6]],
+             [consumption[3], autonomy[7], cpt[3], cost[7], eco[3], emissions[3], socialCost[3], socialSum[7], availability[7]]]
     data = np.array(data).T.tolist()
     metrics_df = pd.DataFrame(data, index=index, columns=['ICE','EVL1', 'EVL2', 'EVL3', 'CNG', 'PHEVL1', 'PHEVL2', 'PHEVL3'])
 
@@ -570,7 +575,7 @@ if __name__ == '__main__':
     #Calculate the ICR metric - Rush hour
     icr_ICE = ICR_metric(combustion[1]/3.785 , mean_daily('ICE', rush_df_ICE, trips, 8) , dailyDistance)
     icr_EV = ICR_metric(electric[1] , mean_daily('EV', rush_df_EV, trips, 9) , dailyDistance)
-    icr_CNG = ICR_metric(gas[1] , mean_daily('CNG', rush_df_CNG, trips, 9) , dailyDistance)
+    icr_CNG = ICR_metric(gas[1] , mean_daily('CNG', rush_df_CNG, trips, 8) , dailyDistance)
     icr_PHEV = (icr_ICE * 0.7) + (icr_EV * 0.3)
     
     #Calculate the Accumulated cost and Annual cost metric - Rush hour
@@ -599,10 +604,10 @@ if __name__ == '__main__':
     availabilityFactor_EV2 = chargingTime_metric(53.5, 22.0, annualDistance / 365, 53.5, E100km_EV)
     availabilityFactor_EV3 = chargingTime_metric(53.5, 50.0, annualDistance / 365, 53.5, E100km_EV)
     availabilityFactor_CNG = chargingTime_metric(5.28, 55.0, annualDistance / 365, 5.28, E100km_CNG)
-    availabilityFactor_PHEV1 = (chargingTime_metric(9.25, 951.02, dailyDistance * 0.7 , 9.25, E100km_ICE)) + chargingTime_metric(53.5, 1.8, dailyDistance * 0.3, 8.0, E100km_EV)
-    availabilityFactor_PHEV2 = (chargingTime_metric(9.25, 951.02, dailyDistance * 0.7 , 9.25, E100km_ICE)) + chargingTime_metric(53.5, 22.0, dailyDistance * 0.3, 8.0, E100km_EV)
-    availabilityFactor_PHEV3 = (chargingTime_metric(9.25, 951.02, dailyDistance * 0.7 , 9.25, E100km_ICE)) + chargingTime_metric(53.5, 50.0, dailyDistance * 0.3, 8.0, E100km_EV)
-    
+    availabilityFactor_PHEV1 = np.mean([chargingTime_metric(9.25, 951.02, dailyDistance * 0.7 , 9.25, E100km_ICE) , chargingTime_metric(8.0, 1.8, dailyDistance * 0.3, 8.0, E100km_EV)])
+    availabilityFactor_PHEV2 = np.mean([chargingTime_metric(9.25, 951.02, dailyDistance * 0.7 , 9.25, E100km_ICE) , chargingTime_metric(8.0, 22.0, dailyDistance * 0.3, 8.0, E100km_EV)])
+    availabilityFactor_PHEV3 = np.mean([chargingTime_metric(9.25, 951.02, dailyDistance * 0.7 , 9.25, E100km_ICE) , chargingTime_metric(8.0, 50.0, dailyDistance * 0.3, 8.0, E100km_EV)])
+
     #Calculate the LifeCycle Emission metric - Rush hour
     lifecycleEmissions_ICE = lifecycle_emissions('ICE', 894, 0, emission_ICE, annualDistance)
     lifecycleEmissions_EV = lifecycle_emissions('EV', 1640, 53.5, emission_EV, annualDistance)

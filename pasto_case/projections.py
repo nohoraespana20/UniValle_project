@@ -44,7 +44,7 @@ if __name__ == '__main__':
     annualVehicles = ice_to_ev(taxisProjection, penetrationPercentage)
     print('Annual vehicles = ', annualVehicles)
 
-    emissionClasses = ['HBEFA4/PC_BEV']
+    emissionClasses = ['Energy/unknown']
     dataframe = cm.generate_data_frame(emissionClasses,"./results/rush/data_emissions_EV.csv")
     annualConsumption = cm.mean_daily('EV', dataframe, 35, 9) * 365
     annualConsumptionTotal = annual_consumption_per_penetration(annualVehicles, annualConsumption)
@@ -80,7 +80,7 @@ if __name__ == '__main__':
         numberChargers22kW.append(round(nCS[2] / (P[2] * T), 2))
         numberChargers50kW.append(round(nCS[3] / (P[3] * T), 2))
         b_index.append(round(nCS[4], 2))
-    print('Preference private station = ', b_index, 'Mean preference = ', round(np.mean(b_index), 2))
+    print('Preference public station = ', b_index, 'Mean preference = ', round(np.mean(b_index), 2))
     print('Number of chargers - 1.8 kW =', numberChargers1kW)
     print('Number of chargers - 11 kW =', numberChargers11kW)
     print('Number of chargers - 22 kW =', numberChargers22kW)
@@ -116,7 +116,7 @@ if __name__ == '__main__':
     plt.legend(['L1 - 1.8 kW', 'L2 M1 - 11 kW', 'L2 M2&3 - 22kW', 'L3 M4 - 50 kW'])
     plt.title('Charging Station Utilization Rate')
     plt.xlabel('Year')
-    plt.ylabel('%')
+    plt.ylabel('% Utilization')
     plt.grid()
     plt.show()
 
@@ -128,6 +128,6 @@ if __name__ == '__main__':
     plt.legend([ '#CS - 1.8 kW', '#CS - 11 kW', '#CS - 22kW', '#CS - 50 kW'])
     plt.title('Number of Charging Station')
     plt.xlabel('Year')
-    plt.ylabel('%')
+    plt.ylabel('CS number')
     plt.grid()
     plt.show()
