@@ -1,5 +1,10 @@
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
+import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+import pandas as pd
+import numpy as np
+import json
 
 def readJson(file):
     with open(file) as file:
@@ -119,10 +124,10 @@ def mean_daily(vehType, dataFrame, numberPaths, category):
         route1 = dataFrame.iloc[0, category]
         route2 = dataFrame.iloc[2, category]
         route3 = dataFrame.iloc[5, category]
-        if vehType == 'CNG':
-            print('CNG ', route1, category)
-        else:
-            print('EV ', route1, category)
+        # if vehType == 'CNG':
+        #     print('CNG ', route1, category)
+        # else:
+        #     print('EV ', route1, category)
     else:
         print('Vehicle type is not defined')
     mean = route1*np_np + route2*np_p + route3*p_p
@@ -242,7 +247,7 @@ def accumulatedCost(configuration, combustion, electric, gas, hybrid, vehType, E
         soatCost = combustion[5] *0.9
         otherInsurance = combustion[6] *0.9 # Contractual insuarence and all damages insurance
         checkCost = combustion[7] *0.7
-        batteryCost = hybrid[6] * 156 * 4000  # Batery cost in COP
+        batteryCost = hybrid[6] * 156 * 5000  # Batery cost in COP
         batteryYearlyRaise = -0.0967 # According to technology reduction cost trend
     elif vehType == 'EV':
         powerConsumption = (E_100km/100) * annualDistance
@@ -476,15 +481,15 @@ def social_metric(altenativeMatrix):
 def plot_cost():
     #Plot Accumulated and Annual Cost
     year = list(range(20))
-    plt.plot(year, accumulatedCost_ICE, "#444444", label="ICE")
-    plt.plot(year, accumulatedCost_EV1, "#adff2f", label="EV-L1&2")
-    plt.plot(year, accumulatedCost_EV3, "#38761d", label="EV_L3")
-    plt.plot(year, accumulatedCost_PHEV1, "#512647", label="EV-L1&2")
-    plt.plot(year, accumulatedCost_PHEV3, "#ddcd82", label="EV_L3")
-    plt.plot(year, accumulatedCost_CNG, "#89cff0", label="CNG")
-    plt.xlabel("Year")
-    plt.ylabel("Accumulated Cost [million COP]")
-    plt.title("Accumulated Cost ICE, EV, PHEV and CNG")
+    plt.plot(year, accumulatedCost_ICE, "#444444", label="Gasolina")
+    plt.plot(year, accumulatedCost_EV1, "#adff2f", label="Eléctrico - L1&2")
+    plt.plot(year, accumulatedCost_EV3, "#38761d", label="Eléctrico - L3")
+    plt.plot(year, accumulatedCost_PHEV1, "#512647", label="Híbrido - L1&2")
+    plt.plot(year, accumulatedCost_PHEV3, "#ddcd82", label="Híbrido - L3")
+    plt.plot(year, accumulatedCost_CNG, "#89cff0", label="Gas")
+    plt.xlabel("Año")
+    plt.ylabel("Millones COP")
+    plt.title("Costo acumulado Gasolina, Eléctrico, Hídbrido, Gas")
     plt.grid()
     plt.legend()
     plt.show()
@@ -497,11 +502,11 @@ def plot_cost():
     gas = annualCost_CNG
     phev1 = annualCost_PHEV1
     phev3 = annualCost_PHEV3
-    df = pd.DataFrame({'ICE': conventional, 'EV-L2': electric1, 'EV-L3': electric3, 'PHEV-L2': phev1, 'PHEV-L3': phev3,'CNG': gas}, index=Y)
+    df = pd.DataFrame({'Gasolina': conventional, 'Eléctrico - L2': electric1, 'Eléctrico - L3': electric3, 'Híbrido - L2': phev1, 'Híbrido - L3': phev3,'Gas': gas}, index=Y)
     df.plot( kind = 'bar', rot=0, color=['#444444', '#adff2f', "#38761d", "#512647", "#ddcd82", "#89cff0"])
-    plt.xlabel("Year")
-    plt.ylabel("Annual Cost [million COP]")
-    plt.title("Annual Cost ICE, EV, PHEV and CNG")
+    plt.xlabel("Año")
+    plt.ylabel("Millones COP]")
+    plt.title("Costo anual Gasolina, Eléctrico, Hídbrido, Gas")
     plt.grid()
     plt.legend()
     plt.show()
@@ -529,11 +534,7 @@ def save_metrics_data(consumption, autonomy, cpt, cost, eco, emissions, socialCo
 
 
 if __name__ == '__main__':
-    import matplotlib.pyplot as plt
-    from matplotlib.figure import Figure
-    import pandas as pd
-    import numpy as np
-    import json
+    
 
     # Load configuration data 
     configuration, combustion, gas, electric, hybrid = importData()
@@ -634,10 +635,3 @@ if __name__ == '__main__':
     socialCost = [socialCost_ICE, socialCost_EV, socialCost_CNG, socialCost_PHEV]
 
     save_metrics_data(consumption, autonomy, cpt, cost, eco, emissions, socialCost, social, availability)
-
-    # # print('L1 (1.2 kW) = ', chargingTime_metric(53.5, 1.2, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV))
-    # # print('L1 (1.8 kW) = ', chargingTime_metric(53.5, 1.8, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV))
-    # # print('L2 (3.6 kW) = ', chargingTime_metric(53.5, 3.6, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV))
-    # # print('L2 (11 kW) = ', chargingTime_metric(53.5, 11.0, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV))
-    # # print('L2 (22 kW) = ', chargingTime_metric(53.5, 22.0, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV))
-    # # print('L3 (50 kW) = ', chargingTime_metric(53.5, 50.0, mean_daily('EV', rush_df_EV, 35, 2), 53.5, E100km_EV))
