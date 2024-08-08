@@ -4,19 +4,23 @@ __pycache__
 report.log
 *.png
 *.bak
+*.json
+LICENSE
+README.md
 
 tmp
 
 # Python compiled files #
 #########################
 *.pyc
-build/*
-dist/*
+build
+dist
 *egg*/*
-
-# JSON files #
-##############
-*.json
+DOPER.egg-info
+bin
+include
+lib
+share
 
 # ipynb checkpoints #
 #####################
@@ -26,8 +30,7 @@ dist/*
 
 # solvers #
 ###########
-doper/solvers/Linux64/*
-doper/solvers/Windows64/*
+*.exe
 
 # test result files #
 #####################
