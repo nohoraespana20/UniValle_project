@@ -206,6 +206,10 @@ if __name__ == '__main__':
     utilizationRateYear, numberChargersYear, emissionChargersYear, EVperCPYear, landAreaYear, demandChargersYear = charging_stations_metrics_per_year(annualVehicles, demandPerVehicle, timeAvailability, chargerTypes, parkingArea)
     numberChargingStationsPerType = number_charging_station(numberChargersYear, chargerTypes)  
     demandDailyPowerCS = demand_daily_power_charging_station(numberChargingStationsPerType, numberChargersYear, demandChargersYear)
+    print('demand Yearly PowerCS Level1', demandDailyPowerCS[0])
+    print('demand Yearly PowerCS Level2M1', demandDailyPowerCS[1])
+    print('demand Yearly PowerCS Level2M23', demandDailyPowerCS[2])
+    print('demand Yearly PowerCS Level3', demandDailyPowerCS[3])
     jobsGenerateCS = job_charging_station(portsPerCS, annualVehicles, numberChargersYear)
 
     kWhCostResidential = [round(681.3 / 5000, 2)]

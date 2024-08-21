@@ -201,50 +201,64 @@ def parameter_add_evfleet(parameter=None):
     parameter['system']['battery'] = True
 
     # Add genset options
-    parameter['batteries'] = [
+    parameter['batteries'].append(
         {
          'name': 'EV1',
-        'capacity': 24,
-         'efficiency_charging': 0.96,
-         'efficiency_discharging': 0.96,
+        'capacity': 53.5,
+         'efficiency_charging': 1,
+         'efficiency_discharging': 1,
          'power_charge': 15,
-         'power_discharge': 15,
+         'power_discharge': 0,
          'maxS': 15,
-         'self_discharging': 0.003,
+         'self_discharging': 0.03,
          # 'soc_final': 0.5,
-         'soc_initial': 0.75,
-         'soc_max': 1,
+         'soc_initial': .2,
+         'soc_max': .8,
          'soc_min': 0
         },
         {
         'name': 'EV2',
-        'capacity': 24,
-         'efficiency_charging': 0.96,
-         'efficiency_discharging': 0.96,
+        'capacity': 53.5,
+         'efficiency_charging': 1,
+         'efficiency_discharging': 1,
          'power_charge': 15,
-         'power_discharge': 15,
+         'power_discharge': 0,
          'maxS': 15,
-         'self_discharging': 0.003,
+         'self_discharging': 0.03,
          # 'soc_final': 0.5,
-         'soc_initial': 0.80,
-         'soc_max': 1,
+         'soc_initial': .5,
+         'soc_max': .85,
          'soc_min': 0
         },
         {
         'name': 'EV3',
-        'capacity': 54,
-         'efficiency_charging': 0.96,
-         'efficiency_discharging': 0.96,
-         'power_charge': 30,
-         'power_discharge': 30,
-         'maxS': 30,
-         'self_discharging': 0.003,
+        'capacity': 53.5,
+         'efficiency_charging': 1,
+         'efficiency_discharging': 1,
+         'power_charge': 15,
+         'power_discharge': 0,
+         'maxS': 15,
+         'self_discharging': 0.03,
          # 'soc_final': 0.5,
-         'soc_initial': 0.75,
-         'soc_max': 1,
+         'soc_initial': .7,
+         'soc_max': .8,
+         'soc_min': 0
+        },
+        {
+        'name': 'EV4',
+        'capacity': 53.5,
+         'efficiency_charging': 1,
+         'efficiency_discharging': 1,
+         'power_charge': 15,
+         'power_discharge': 0,
+         'maxS': 15,
+         'self_discharging': 0.03,
+         # 'soc_final': 0.5,
+         'soc_initial': .2,
+         'soc_max': .8,
          'soc_min': 0
         }
-    ]
+    )
     return parameter
 
 # Example data for running MULTI-NODE models (development)
