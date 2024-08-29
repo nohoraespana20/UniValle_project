@@ -72,10 +72,10 @@ def vehicle_projection(years, initialYear, vehicleSeed):
             penetrationPercentageSub.append(penetrationPercentage[year])
             annualVehiclesSub.append(annualVehicles[year])
             yearCalendarSub.append(yearCalendar[year])
-    print('Taxis projection = ', taxisProjection)
-    print('Penetration percetage = ', penetrationPercentageSub)
-    print('EV projection = ', annualVehicles)
-    print('Year = ', yearCalendarSub)
+    # print('Taxis projection = ', taxisProjection)
+    # print('Penetration percetage = ', penetrationPercentageSub)
+    # print('EV projection = ', annualVehicles)
+    # print('Year = ', yearCalendarSub)
     return taxisProjection, penetrationPercentage, annualVehicles, yearCalendar
 
 def charging_stations_metrics(annualVehicles, demandPerVehicle, timeAvailability, chargerType, b, P):
@@ -99,14 +99,14 @@ def charging_stations_metrics(annualVehicles, demandPerVehicle, timeAvailability
         numberChargers = math.ceil((totalDemand / (powerCharging * timeAvailability)) )
     utilizationRate = math.ceil(totalDemand / (powerCharging * numberChargers) * 100 / timeAvailability)
     emissions = math.ceil((totalDemand * gwp))
-    print(f'Utilization rate - {chargerType} =', utilizationRate, ' %') 
-    print(f'Number of chargers - {chargerType} =', numberChargers) 
-    print(f'Emissions - {chargerType} =', emissions, ' g CO2e/kWh') 
+    # print(f'Utilization rate - {chargerType} =', utilizationRate, ' %') 
+    # print(f'Number of chargers - {chargerType} =', numberChargers) 
+    # print(f'Emissions - {chargerType} =', emissions, ' g CO2e/kWh') 
     return utilizationRate, numberChargers, emissions, totalDemand
 
 def ev_per_charging_point(annualVehicles, numberChargers, chargerType):
     EVperCP = math.ceil(annualVehicles / numberChargers)
-    print(f'1 charger point {chargerType} per ', EVperCP, ' EV')
+    # print(f'1 charger point {chargerType} per ', EVperCP, ' EV')
     return EVperCP
 
 def land_area_metric(EVperCP, parkingArea, chargerType):
@@ -119,17 +119,17 @@ def land_area_metric(EVperCP, parkingArea, chargerType):
     else:
         print("Type charger is not defined")
     landArea = EVperCP * (gamma + parkingArea) #14m2 every EV
-    print(f"Land area for {chargerType} charger = ", landArea, " m^2")
+    # print(f"Land area for {chargerType} charger = ", landArea, " m^2")
     return landArea
 
 def charging_stations_metrics_per_year(annualVehicles, demandPerVehicle, timeAvailability, chargerTypes, parkingArea):
     b, P, = percentage_preference_type_charger(annualVehicles[-1])
-    print('Preference porcentage\nb = ', b[-1], '\nP = ', P[-1])
+    # print('Preference porcentage\nb = ', b[-1], '\nP = ', P[-1])
     utilizationRateYear, numberChargersYear, emissionChargersYear, EVperCPYear, landAreaYear, demandChargersYear = [], [], [], [], [], []
     for j in range(len(annualVehicles)):
         utilizationRate, numberChargers, emissionChargers, EVperCP, landArea, demandChargers = [], [], [], [], [], []
         for i in range(len(chargerTypes)):
-            print(f'\nMetrics for charger type {chargerTypes[i]} {j}')
+            # print(f'\nMetrics for charger type {chargerTypes[i]} {j}')
             uR, nC, eC, dC = charging_stations_metrics(annualVehicles[j], demandPerVehicle, timeAvailability[i], chargerTypes[i], b[j], P[j])
             ev = ev_per_charging_point(annualVehicles[j], nC, chargerTypes[i])
             lArea= land_area_metric(ev, parkingArea[i], chargerTypes[i])
@@ -154,7 +154,7 @@ def job_charging_station(portsPerCH, annualVehicles, numberChargersYear):
     for i in range(len(annualVehicles)):
         totalChargerPoints.append((numberChargersYear[i][1]) + round(numberChargersYear[i][2]) + round(numberChargersYear[i][3]))
         jobs_CS.append(math.ceil((totalChargerPoints[i] * jobsPerCS / portsPerCH)))
-    print('\nJobs generated per Year = ', jobs_CS, '\nTotal jobs generated = ', sum(jobs_CS))
+    # print('\nJobs generated per Year = ', jobs_CS, '\nTotal jobs generated = ', sum(jobs_CS))
     return jobs_CS
 
 def number_charging_station(numberChargersYear, chargerTypes):
@@ -170,7 +170,7 @@ def number_charging_station(numberChargersYear, chargerTypes):
                     if numberChargingStations[i] < numberChargingStations[i-1]:
                         numberChargingStations[i] = numberChargingStations[i-1]
             numberChargingStationsPerType.append(numberChargingStations)
-        print('\nnumberChargingStationsPerType ', numberChargingStationsPerType)
+        # print('\nnumberChargingStationsPerType ', numberChargingStationsPerType)
         return numberChargingStationsPerType
 
 def demand_daily_power_charging_station(numberChargingStationsPerType, numberChargersYear, demandChargersYear):
@@ -206,10 +206,7 @@ if __name__ == '__main__':
     utilizationRateYear, numberChargersYear, emissionChargersYear, EVperCPYear, landAreaYear, demandChargersYear = charging_stations_metrics_per_year(annualVehicles, demandPerVehicle, timeAvailability, chargerTypes, parkingArea)
     numberChargingStationsPerType = number_charging_station(numberChargersYear, chargerTypes)  
     demandDailyPowerCS = demand_daily_power_charging_station(numberChargingStationsPerType, numberChargersYear, demandChargersYear)
-    print('demand Yearly PowerCS Level1', demandDailyPowerCS[0])
-    print('demand Yearly PowerCS Level2M1', demandDailyPowerCS[1])
-    print('demand Yearly PowerCS Level2M23', demandDailyPowerCS[2])
-    print('demand Yearly PowerCS Level3', demandDailyPowerCS[3])
+
     jobsGenerateCS = job_charging_station(portsPerCS, annualVehicles, numberChargersYear)
 
     kWhCostResidential = [round(681.3 / 5000, 2)]
@@ -335,14 +332,53 @@ if __name__ == '__main__':
         lcocResidentialperType.append(round(math.ceil(sum(npcResidentialyearly)) * 1000 / sum(lcocResidentialyearly), 2))
         lcocCommercialperType.append(round(math.ceil(sum(npcCommercialyearly)) * 1000 / sum(lcocCommercialyearly), 2))
 
-    print('\nnpcResidential = ', npcResidentialperType)
-    print('\nnpcCommercial = ', npcCommercialperType)
-    print('\nlcocResidential = ', lcocResidentialperType)
-    print('\nlcoCommercial = ', lcocCommercialperType)
+    d = {'Year':yearCalendar, 'Taxis projection': taxisProjection, 'Annual EV': annualVehicles, 
+         '# CS L1': numberChargingStationsPerType[0], 'kWh L1 /year': demandDailyPowerCS[0], 
+         '# CS L2-M1': numberChargingStationsPerType[1], 'kWh L2-M1 /year': demandDailyPowerCS[1], 
+         'C# S L2-M2&3': numberChargingStationsPerType[2], 'kWh L2 M2&3 /year': demandDailyPowerCS[2], 
+         '# CS L3': numberChargingStationsPerType[3], 'kWh L3 /year': demandDailyPowerCS[3],
+         'Jobs': jobsGenerateCS}
+    dfAnnualDemand = pd.DataFrame(data=d )
+    dfAnnualDemand.to_excel('./results/evProjections.xlsx', index=False)
+
+    # print('\nnpcResidential = ', npcResidentialperType)
+    # print('\nnpcCommercial = ', npcCommercialperType)
+    # print('\nlcocResidential = ', lcocResidentialperType)
+    # print('\nlcoCommercial = ', lcocCommercialperType)
     
 
-    years_p = [*range(0, years, 1)]
+    years_p = [*range(2026, 2026+years, 1)]
     Y = [str(x) for x in years_p]
+    plt.rcParams['figure.figsize'] = [8, 6] 
+
+    chargingStationL1 = numberChargingStationsPerType[0]
+    chargingStationL2M1 = [numberChargingStationsPerType[1][i] * portsPerCS for i in range(len(numberChargingStationsPerType[1]))]
+    chargingStationL2M23 = [numberChargingStationsPerType[2][i] * portsPerCS for i in range(len(numberChargingStationsPerType[2]))]
+    chargingStationL3 = [numberChargingStationsPerType[3][i] * portsPerCS for i in range(len(numberChargingStationsPerType[3]))]
+    
+    df = pd.DataFrame({'Ports Level 1': chargingStationL1, 'Ports L2 M1': chargingStationL2M1, 'Ports L2 M2&3': chargingStationL2M23, 'Ports L3':chargingStationL3}, index=Y)
+    df.plot( kind = 'bar', rot=90, color=['#444444', '#adff2f', "#38761d", "#512647"])
+    plt.xlabel("Year")
+    plt.ylabel("Charger ports")
+    plt.title("Annual charger ports per type")
+    plt.grid(axis = 'y')
+    plt.legend()
+    plt.savefig('./results/CSportsType.jpg')
+
+    chargingStationL1 = numberChargingStationsPerType[0]
+    chargingStationL2M1 = numberChargingStationsPerType[1]
+    chargingStationL2M23 = numberChargingStationsPerType[2]
+    chargingStationL3 = numberChargingStationsPerType[3]
+    
+    df = pd.DataFrame({'L2 M1': chargingStationL2M1, 'L2 M2&3': chargingStationL2M23, 'L3':chargingStationL3}, index=Y)
+    df.plot( kind = 'bar', rot=90, color=['#adff2f', "#38761d", "#512647"])
+    plt.xlabel("Year")
+    plt.ylabel("Charging station number")
+    plt.title("Annual charging station per type")
+    plt.grid(axis = 'y')
+    plt.legend()
+    plt.savefig('./results/CSType.jpg')
+
     slow1 = annualCostResidentialperType[0]
     slow2 = annualCostResidentialperType[1]
     slow3 = annualCostResidentialperType[2]
@@ -350,12 +386,14 @@ if __name__ == '__main__':
     semifast2 = annualCostCommercialperType[1]
     fast = annualCostCommercialperType[2]
     df = pd.DataFrame({'Slow charging with access': slow1, 'Slow charging without access': slow2, 'Slow charging commercial': slow3, 'Semifast residential':semifast1, 'Semifast commercial':semifast2, 'Fast':fast}, index=Y)
-    df.plot( kind = 'bar', rot=0, color=['#444444', '#adff2f', "#38761d", "#512647", "#ddcd82", "#89cff0"])
+    df.plot( kind = 'bar', rot=90, color=['#444444', '#adff2f', "#38761d", "#512647", "#ddcd82", "#89cff0"])
     plt.xlabel("Year")
     plt.ylabel("Thousands of USD")
     plt.title("Annual cost - EV charging infrastructure")
-    plt.grid()
+    plt.grid(axis = 'y')
     plt.legend()
+    
+    plt.savefig('./results/CSannualCost.jpg')
     plt.show()
 
     year = list(range(years))
@@ -368,6 +406,15 @@ if __name__ == '__main__':
     plt.xlabel("Year")
     plt.ylabel("Thousands of USD")
     plt.title("Accumulated cost - EV charging infrastructure")
-    plt.grid()
+    plt.grid(axis = 'y')
     plt.legend()
-    plt.show()
+    plt.savefig('./results/CSaccumulatedCost.jpg')
+
+    df = pd.DataFrame({'L2 M1': chargingStationL2M1, 'L2 M2&3': chargingStationL2M23, 'L3':chargingStationL3, 'Jobs': jobsGenerateCS}, index=Y)
+    df.plot( kind = 'bar', rot=90, color=['#adff2f', "#38761d", "#512647", "#89cff0"])
+    plt.xlabel("Year")
+    plt.ylabel("Units")
+    plt.title("Annual charging station per type and jobs generated")
+    plt.grid(axis = 'y')
+    plt.legend()
+    plt.savefig('./results/JobsCSType.jpg')
