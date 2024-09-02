@@ -13,10 +13,11 @@ def control_model(inputs, parameter):
     
     def objective_function(model):
         return model.sum_energy_cost * parameter['objective']['weight_energy'] \
-               + model.sum_demand_cost * parameter['objective']['weight_demand'] \
-               + model.sum_export_revenue * parameter['objective']['weight_export'] \
-               + model.fuel_cost_total * parameter['objective']['weight_energy'] \
-               + model.load_shed_cost_total
+               + model.sum_demand_cost * parameter['objective']['weight_demand'] 
+            #    \
+            #    + model.sum_export_revenue * parameter['objective']['weight_export'] \
+            #    + model.fuel_cost_total * parameter['objective']['weight_energy'] \
+            #    + model.load_shed_cost_total
     model.objective = Objective(rule=objective_function, sense=minimize, doc='objective function')
     return model
 
@@ -57,5 +58,8 @@ if __name__ == '__main__':
     duration, objective, df, model, result, termination, parameter = res
     
     print(standard_report(res))
-    # df.to_excel('./results/doperRes.xlsx', index=False) 
-    plotData = plot_dynamic(df, parameter, plotFile = None, plot_reg=False)
+
+    plt.plot(df[['Import Power [kW]','PV Power [kW]', 'Load Power [kW]']])
+    plt.title('Power flow at PCC')
+    plt.legend('Import Power [kW]','PV Power [kW]', 'Load Power [kW]')
+    plt.show()

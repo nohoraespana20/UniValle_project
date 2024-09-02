@@ -16,6 +16,7 @@ import math
 import numpy as np
 import pandas as pd
 from pprint import pprint
+import projections as pr
 # Example data for running SINGLE-NODE models (development)
 def default_parameter():
     """default_parameter"""
@@ -77,8 +78,8 @@ def default_parameter():
     parameter['site']['export_max'] = 100000 # kW
     parameter['site']['demand_periods_prev'] = {0:0,1:0,2:0} # kW peak previously set for periods 0-offpeak, 1-midpeak, 2-onpeak
     parameter['site']['demand_coincident_prev'] = 0 # kW peak previously set for coincident
-    parameter['site']['input_timezone'] = -8 # Timezone of inputs (in hourly offset from UTC)
-    parameter['site']['local_timezone'] = 'America/Los_Angeles' # Local timezone of tariff (as Python timezone string)
+    parameter['site']['input_timezone'] = -5 # Timezone of inputs (in hourly offset from UTC)
+    parameter['site']['local_timezone'] = 'Colombia/Bogota' # Local timezone of tariff (as Python timezone string)
     parameter['controller'] = {}
     parameter['controller']['timestep'] = 60*60 # Controller timestep in seconds
     parameter['controller']['horizon'] = 24*60*60 # Controller horizon in seconds
@@ -293,10 +294,13 @@ def ts_inputs(parameter={}, load='Flexlab', scale_load=4, scale_pv=4):
         data = data.iloc[0:24]
         data['load_demand'] = data['load_demand']/data['load_demand'].max()
     elif load =='B90':
-        data = pd.DataFrame(index=pd.date_range(start='2019-01-01 00:00', end='2019-01-01 23:00', freq='h'))
-        data['load_demand'] = [2.8,  2.8,  2.9,  2.9,  3. ,  3.3,  4. ,  4.8,  4.9,  5.1,  5.3,
-                               5.4,  5.4,  5.4,  5.3,  5.3,  5.2,  4.8,  3.9,  3.1,  2.9,  2.8,
-                               2.8,  2.8]
+        data = pd.DataFrame(index=pd.date_range(start='2019-01-01 00:00', end='2019-01-01 23:50', freq='h'))
+        # data['load_demand'] = [2.8,  2.8,  2.9,  2.9,  3. ,  3.3,  4. ,  4.8,  4.9,  5.1,  5.3,
+        #                        5.4,  5.4,  5.4,  5.3,  5.3,  5.2,  4.8,  3.9,  3.1,  2.9,  2.8,
+        #                        2.8,  2.8]
+        data['load_demand'] = [1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,
+                               1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,
+                               1.0,  1.0]
         data['load_demand'] = data['load_demand']/data['load_demand'].max()
     # Scale Load data
     data['load_demand'] = data['load_demand'] * scale_load
@@ -308,12 +312,7 @@ def ts_inputs(parameter={}, load='Flexlab', scale_load=4, scale_pv=4):
     data['tariff_energy_map'] = data['tariff_energy_map'].mask((data.index.hour>=12) & (data.index.hour<18), 2)
     data['tariff_power_map'] = data['tariff_energy_map'] # Apply same periods to demand charge
     data['tariff_energy_export_map'] = 0
-    data['generation_pv'] = 0
     
-    data['generation_pv'] = data['generation_pv'].astype(float)
-    data.loc[data.index[8:19], 'generation_pv'] = [float(np.sin(i/(10/(np.pi)))) for i in range(11)]
-    # data.loc[data.index[8:19], 'generation_pv'] = pd.read_csv('pv_norm_pasto.csv')
-    data['generation_pv'] = data['generation_pv'] * scale_pv
     data['tariff_regup'] = data['tariff_power_map'] * 0.05 + 0.01
     data['tariff_regdn'] = data['tariff_power_map'] * 0.01 + 0.01
     data['battery_reg'] = 0
@@ -322,14 +321,19 @@ def ts_inputs(parameter={}, load='Flexlab', scale_load=4, scale_pv=4):
     if True:
         data = data.resample('5min').asfreq()
         for c in data.columns:
-            if c in ['load_demand','generation_pv','oat']:
+            if c in ['load_demand','oat']:
                 data[c] = data[c].interpolate()
             else:
                 data[c] = data[c].ffill()
         data = data.loc['2019-01-01 00:00:00':'2019-01-02 00:00:00']
     else:
         data = data.loc['2019-01-01 00:00:00':'2019-01-02 00:00:00']
-
+    
+    var = pd.read_csv('pv_norm_pasto.csv') * scale_pv
+    var_single_column = var.iloc[5:282, 0]
+    
+    data['generation_pv'] = var_single_column.values
+    
     # input timeseries indicating grid availability
     data['grid_available'] = 1
     data['fuel_available'] = 1
