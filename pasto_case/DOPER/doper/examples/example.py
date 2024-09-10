@@ -214,7 +214,7 @@ def parameter_add_evfleet(parameter=None):
          # 'soc_final': 0.5,
          'soc_initial': 0.75,
          'soc_max': 1,
-         'soc_min': 0
+         'soc_min': 0.8
         },
         {
         'name': 'EV2',
@@ -228,7 +228,7 @@ def parameter_add_evfleet(parameter=None):
          # 'soc_final': 0.5,
          'soc_initial': 0.80,
          'soc_max': 1,
-         'soc_min': 0
+         'soc_min': 0.5
         },
         {
         'name': 'EV3',
@@ -242,7 +242,7 @@ def parameter_add_evfleet(parameter=None):
          # 'soc_final': 0.5,
          'soc_initial': 0.75,
          'soc_max': 1,
-         'soc_min': 0
+         'soc_min': 0.2
         }
     ]
     return parameter

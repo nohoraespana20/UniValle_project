@@ -58,7 +58,7 @@ def default_parameter():
         parameter['tariff']['demand_coincident'] = 0.5 # $/kW for coincident
         parameter['tariff']['export'] = {0:0} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
     else:
-        parameter['tariff']['energy'] = {0:0.08671, 1:0.11613, 2:0.16055} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
+        parameter['tariff']['energy'] = {0:0.17072, 1:0.18, 2:0.117} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
         parameter['tariff']['demand'] = {0:0, 1:5.40, 2:19.65} # $/kW for periods 0-offpeak, 1-midpeak, 2-onpeak
         parameter['tariff']['demand_coincident'] = 17.74 # $/kW for coincident
         parameter['tariff']['export'] = {0:0.01} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
@@ -298,8 +298,8 @@ def ts_inputs(parameter={}, load='Flexlab', scale_load=4, scale_pv=4):
         # data['load_demand'] = [2.8,  2.8,  2.9,  2.9,  3. ,  3.3,  4. ,  4.8,  4.9,  5.1,  5.3,
         #                        5.4,  5.4,  5.4,  5.3,  5.3,  5.2,  4.8,  3.9,  3.1,  2.9,  2.8,
         #                        2.8,  2.8]
-        data['load_demand'] = [1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,
-                               1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,
+        data['load_demand'] = [1.0,  1.0,  1.1,  1.1,  1.2,  1.5,  2.1,  2.9,  3.0,  3.2,  3.4,
+                               3.5,  3.5,  3.5,  3.4,  3.4,  3.3,  2.9,  2.0,  1.2,  1.0,  1.0,
                                1.0,  1.0]
         data['load_demand'] = data['load_demand']/data['load_demand'].max()
     # Scale Load data
@@ -336,10 +336,75 @@ def ts_inputs(parameter={}, load='Flexlab', scale_load=4, scale_pv=4):
     
     # input timeseries indicating grid availability
     data['grid_available'] = 1
-    data['fuel_available'] = 1
+    data['fuel_available'] = 0
 
     # input timeseries indicating grid availability
-    data['grid_co2_intensity'] = 0.202 #kg/kWh
+    # data['grid_co2_intensity'] = 0.202 #kg/kWh
+    data['grid_co2_intensity'] = 0.16438 #kg/kWh
+    return data
+
+def parameter_add_loadcontrol(parameter=None):
+    """parameter_add_loadcontrol"""
+    if parameter is None:
+        # if no parameter given, load default
+        parameter = default_parameter()
+
+    # enable gensets
+    parameter['system']['load_control'] = True
+
+    # Add genset options
+    parameter['load_control'] = [
+        {
+            'name': 'a',
+            'cost': 0.05, # $/kWh not served
+            'outageOnly': False
+        },
+        {
+            'name': 'b',
+            'cost': 0.3, # $/kWh not served
+            'outageOnly': False
+        }
+    ]
+    return parameter
+
+def parameter_add_loadcontrol_multinode(parameter=None):
+    """parameter_add_loadcontrol_multinode"""
+    if parameter is None:
+        # if no parameter given, load default
+        parameter = default_parameter()
+
+    # enable gensets
+    parameter['system']['load_control'] = True
+
+    # Add genset options
+    parameter['load_control'] = [
+        {
+            'name': 'testLc1A',
+            'cost': 0.25, # $/kWh not served
+            'outageOnly': False
+        },
+        {
+            'name': 'testLc1B',
+            'cost': 0.05, # $/kWh not served
+            'outageOnly': False
+        },
+        {
+            'name': 'testLc4',
+            'cost': 0.1, # $/kWh not served
+            'outageOnly': False
+        }
+    ]
+    return parameter
+
+def ts_inputs_load_shed(parameter, data=None):
+    """ts_inputs_load_shed"""
+    if data is None:
+        # load default data
+        data = ts_inputs(parameter, load='B90', scale_load=150, scale_pv=100)
+
+    # overwrite grid availability to disable grid connection
+    data['load_shed_potential_a'] = 0.3 * data['load_demand']
+    data['load_shed_potential_b'] = 0.15 * data['load_demand']
     return data
 
 def ts_inputs_multinode_pf(parameter, data=None):
@@ -370,3 +435,37 @@ def ts_inputs_multinode_pf(parameter, data=None):
     data['pf_pv_node4'] = data4['generation_pv']
     data['pf_pv_node5'] = data5['generation_pv']
     return data
+
+def parameter_add_battery(parameter=None):
+    """parameter_add_battery"""
+    if parameter is None:
+        # if no parameter given, load default
+        parameter = default_parameter()
+
+    # enable gensets
+    parameter['system']['battery'] = True
+
+    # Add genset options
+    parameter['batteries'] = [
+        {
+         'name':'libat01',
+        'capacity': 200,
+         'degradation_endoflife': 80,
+         'degradation_replacementcost': 6000.0,
+         'efficiency_charging': 0.96,
+         'efficiency_discharging': 0.96,
+         'nominal_V':  400,
+         'power_charge': 50,
+         'power_discharge': 50,
+         'maxS': 50,
+         'self_discharging': 0.0,
+          'soc_final': None,
+         'soc_initial': 0.65,
+         'soc_max': 1,
+         'soc_min': 0.2,
+         # 'temperature_initial': 22.0,
+         'thermal_C': 100000.0,
+         'thermal_R': 0.01
+        }
+    ]
+    return parameter

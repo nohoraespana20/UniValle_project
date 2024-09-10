@@ -2,36 +2,42 @@ from pyomo.environ import Objective, minimize
 from doper import DOPER, standard_report
 from doper.models.basemodel import base_model, default_output_list
 from doper.models.network import add_network
-from test_parameter import default_parameter, ts_inputs, parameter_add_network, ts_inputs_multinode_pf
+from doper.models.battery import add_battery
+from doper.models.loadControl import add_loadControl
+from test_parameter import default_parameter, ts_inputs, parameter_add_battery
 from doper.plotting import plot_dynamic
 import pandas as pd
 import matplotlib.pyplot as plt
 
 def control_model(inputs, parameter):
     model = base_model(inputs, parameter)
-    model = add_network(model, inputs, parameter)
+    model = add_battery(model, inputs, parameter)
+    # model = add_network(model, inputs, parameter)
+    # model = add_loadControl(model, inputs, parameter)
     
     def objective_function(model):
         return model.sum_energy_cost * parameter['objective']['weight_energy'] \
-               + model.sum_demand_cost * parameter['objective']['weight_demand'] 
-            #    \
-            #    + model.sum_export_revenue * parameter['objective']['weight_export'] \
-            #    + model.fuel_cost_total * parameter['objective']['weight_energy'] \
-            #    + model.load_shed_cost_total
+               + model.sum_demand_cost * parameter['objective']['weight_demand'] \
+               + model.sum_export_revenue * parameter['objective']['weight_export'] \
+               + model.fuel_cost_total * parameter['objective']['weight_energy'] \
+               + model.load_shed_cost_total
     model.objective = Objective(rule=objective_function, sense=minimize, doc='objective function')
     return model
 
 if __name__ == '__main__':  
     parameter = default_parameter()
-    parameter = parameter_add_network(parameter)
-
-    data2 = ts_inputs(parameter, load='B90', scale_load=4073, scale_pv=4686)
-    data3 = ts_inputs(parameter, load='B90', scale_load=985, scale_pv=2162)
-    data4 = ts_inputs(parameter, load='B90', scale_load=2869, scale_pv=1708)
-    data5 = ts_inputs(parameter, load='B90', scale_load=1700, scale_pv=1147)
-
+    parameter = parameter_add_battery(parameter)
+    # parameter = parameter_add_network(parameter)
+    # parameter = parameter_add_loadcontrol(parameter)
+    
+    data2 = ts_inputs(parameter, load='B90', scale_load=1500, scale_pv=4686)
+    data3 = ts_inputs(parameter, load='B90', scale_load=800, scale_pv=2162)
+    data4 = ts_inputs(parameter, load='B90', scale_load=1500, scale_pv=1708)
+    data5 = ts_inputs(parameter, load='B90', scale_load=1500, scale_pv=1147)
+    print(data2['load_demand'])
     # use data1 as starting point for multinode df
     data = data2.copy()
+    # data = ts_inputs_load_shed(parameter)
 
     # drop load and pv from multinode
     data = data.drop(labels='load_demand', axis=1)
@@ -47,7 +53,12 @@ if __name__ == '__main__':
     data['pf_pv_node3'] = data3['generation_pv']
     data['pf_pv_node4'] = data4['generation_pv']
     data['pf_pv_node5'] = data5['generation_pv'] 
+
     
+
+    demand = data2['load_demand'] + data3['load_demand'] + data4['load_demand'] + data5['load_demand']
+
+    # data.to_excel('./results/demand_generation.xlsx', index=False)
     # output_list = default_output_list(parameter)
 
     solver_path = "C:\\Nohora\\UniValle_project\\pasto_case\\DOPER\\doper\\solvers\\Windows64\\cbc.exe"
@@ -56,10 +67,16 @@ if __name__ == '__main__':
                      solver_path=solver_path)
     res = smartDER.do_optimization(data)
     duration, objective, df, model, result, termination, parameter = res
-    
+    # df.to_excel('./results/doperRes.xlsx', index=False)
     print(standard_report(res))
 
-    plt.plot(df[['Import Power [kW]','PV Power [kW]', 'Load Power [kW]']])
-    plt.title('Power flow at PCC')
-    plt.legend('Import Power [kW]','PV Power [kW]', 'Load Power [kW]')
-    plt.show()
+
+
+plt.plot(df[['Import Power [kW]','PV Power [kW]', 'Load Power [kW]']])
+plt.plot(df['Import Power [kW]'] + df['PV Power [kW]'])
+plt.plot(demand)
+plt.title('Power flow at PCC')
+plt.legend(['Import Power [kW]','PV Power [kW]', 'Load Power [kW]', 'Total [kW]', 'Demand [kW]'])
+plt.show()
+
+plotData = plot_dynamic(df, parameter, plotFile = None, plot_reg=False)
