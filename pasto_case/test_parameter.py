@@ -50,7 +50,6 @@ def default_parameter():
             'reserves': 100 # gal  
         }
     ]
-
     parameter['tariff'] = {}
     if False:
         parameter['tariff']['energy'] = {0:0.2,1:0.3,2:0.5} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
@@ -58,7 +57,7 @@ def default_parameter():
         parameter['tariff']['demand_coincident'] = 0.5 # $/kW for coincident
         parameter['tariff']['export'] = {0:0} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
     else:
-        parameter['tariff']['energy'] = {0:0.17072, 1:0.18, 2:0.117} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
+        parameter['tariff']['energy'] = {0:0.08671, 1:0.11613, 2:0.16055} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
         parameter['tariff']['demand'] = {0:0, 1:5.40, 2:19.65} # $/kW for periods 0-offpeak, 1-midpeak, 2-onpeak
         parameter['tariff']['demand_coincident'] = 17.74 # $/kW for coincident
         parameter['tariff']['export'] = {0:0.01} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
@@ -74,12 +73,12 @@ def default_parameter():
     parameter['site']['regulation_reserved'] = False # Flag to reserve site capacity for regulation
     parameter['site']['regulation_reserved_battery'] = False # Flag to reserve battery capacity for regulation
     parameter['site']['regulation_reserved_variable_battery'] = False # Flag to reserve battery capacity for regulation (variable ts)
-    parameter['site']['import_max'] = 100000 # kW
-    parameter['site']['export_max'] = 100000 # kW
+    parameter['site']['import_max'] = 10000 # kW
+    parameter['site']['export_max'] = 10000 # kW
     parameter['site']['demand_periods_prev'] = {0:0,1:0,2:0} # kW peak previously set for periods 0-offpeak, 1-midpeak, 2-onpeak
     parameter['site']['demand_coincident_prev'] = 0 # kW peak previously set for coincident
-    parameter['site']['input_timezone'] = -5 # Timezone of inputs (in hourly offset from UTC)
-    parameter['site']['local_timezone'] = 'Colombia/Bogota' # Local timezone of tariff (as Python timezone string)
+    parameter['site']['input_timezone'] = -8 # Timezone of inputs (in hourly offset from UTC)
+    parameter['site']['local_timezone'] = 'America/Los_Angeles' # Local timezone of tariff (as Python timezone string)
     parameter['controller'] = {}
     parameter['controller']['timestep'] = 60*60 # Controller timestep in seconds
     parameter['controller']['horizon'] = 24*60*60 # Controller horizon in seconds
@@ -95,6 +94,263 @@ def default_parameter():
 
     parameter['objective']['weight_co2'] = 0 # Weight of co2 emissions (kg) cost in objective
     parameter['objective']['weight_load_shed'] = 1 # Weight of shed load costs ($/kWh)  in objective
+
+    parameter['network'] = {}
+    # Add network settings to define power-flow constaints
+    parameter['network']['settings'] = {
+        # turn off simepl power exchange to utilize full power-flow equations
+        'simplePowerExchange': False,
+        'simpleNetworkLosses': 0.05,
+        # powerflow parameters
+        'slackBusVoltage': 1,
+        'sBase': 1,
+        'vBase': 1,
+        'cableDerating': 1,
+        'txDerating': 1,
+        # power factors
+        'powerFactors': {
+            'pv': 1,  
+            'genset': 1,
+            'batteryDisc': 1,
+            'batteryChar': 1,
+            'load': 1
+        },
+        # powerflow model settings
+        'enableLosses': True,
+        'thetaMin': -0.18,
+        'thetaMax': 0.09,
+        'voltMin': 0.8,
+        'voltMax': 1.1,
+        'useConsVoltMin': False,
+        'enableConstantPf': 1,
+        'enableVoltageAngleConstraint': 1,
+        'enableGenPqLimits': False, # not implemented yet
+    }
+
+    parameter['network']['nodes'] = [ # list of dict to define inputs for each node in network
+        { # node 1
+            'node_id': 'N1', # unique str to id node
+            'pcc': True, # bool to define if node is pcc
+            'slack': True, 
+            'load_id': None, # str, list of str, or None to find load profile in ts data (if node is load bus) by column label
+            'ders': { # dict of der assets at node, if None or not included, no ders present
+                'pv_id': None, # str, list, or None to find pv profile in ts data (if pv at node) by column label
+                'pv_maxS': 0,
+                'battery': None, # list of str corresponding to battery assets (defined in parameter['system']['battery'])
+                'genset': None, # list of str correponsing to genset assets (defined in parameter['system']['genset'])
+                'load_control': None # str, list or None correponsing to genset assets (defined in parameter['system']['load_control'])
+            },
+            'connections': [ # list of connected nodes, and line connecting them
+                {
+                    'node': 'N2', # str containing unique node_id of connected node
+                    'line': 'L1' # str containing unique line_id of line connection nodes, (defined in parameter['network']['lines'])
+                },
+                {
+                    'node': 'N4',
+                    'line': 'L2'
+                }
+            ]
+        },
+        { # node 2
+            'node_id': 'N2',
+            'pcc': True,
+            'slack': False, 
+            'load_id': 'pf_demand_node2',
+            'ders': { 
+                'pv_id': 'pf_pv_node2',
+                'pv_maxS': 300,
+                'battery': 'pf_bat_node2', # node can contain multiple battery assets, so should be list
+                'genset': None,
+                'load_control': None # node likely to only contain single load_control asset, so should be str
+            },
+            'connections': [
+                {
+                    'node': 'N1',
+                    'line': 'L1'
+                },
+                {
+                    'node': 'N3',
+                    'line': 'L1'
+                }
+            ]
+        },
+        { # node 3
+            'node_id': 'N3',
+            'pcc': True,
+            'slack': False, 
+            'load_id': 'pf_pv_node3',
+            'ders': { 
+                'pv_id': None,
+                'pv_maxS': 1200,
+                'battery': 'pf_bat_node3', 
+                'genset': 'pf_gen_node3',
+                'load_control': None
+            },
+            'connections': [
+                {
+                    'node': 'N2',
+                    'line': 'L1'
+                }
+            ]
+        },
+        { # node 4
+            'node_id': 'N4',
+            'pcc': True,
+            'slack': False, 
+            'load_id': 'pf_demand_node4',
+            'ders': { 
+                'pv_id': 'pf_pv_node4',
+                'pv_maxS': 1000,
+                'battery': 'pf_bat_node4', 
+                'genset': 'pf_gen_node4',
+                'load_control': 'testLc4'
+            },
+            'connections': [
+                {
+                    'node': 'N1',
+                    'line': 'L2'
+                },
+                {
+                    'node': 'N5',
+                    'line': 'L3'
+                }
+            ]
+        },
+        { # node 5
+            'node_id': 'N5',
+            'pcc': True,
+            'slack': False, 
+            'load_id': 'pf_demand_node5',
+            'ders': { 
+                'pv_id': 'pf_pv_node5',
+                'pv_maxS': 1500,
+                'battery': 'pf_bat_node5', 
+                'genset': 'pf_gen_node5',
+                'load_control': None
+            },
+            'connections': [
+                {
+                    'node': 'N4',
+                    'line': 'L3'
+                }
+            ]
+        }
+    ]
+
+    parameter['network']['lines'] = [ # list of dicts define each cable/line properties
+        {
+            'line_id': 'L1',
+            'power_capacity': 3500, # line power capacity only used for simple power=exchange
+            
+            'length': 1200, # line length in meters
+            'resistance': 4.64e-6, # line properties are all in pu, based on SBase/VBase defined above
+            'inductance': 8.33e-7,
+            'ampacity': 3500,
+        },
+        {
+            'line_id': 'L2',
+            'power_capacity': 3500,
+            
+            'length': 1800,
+            'resistance': 4.64e-6,
+            'inductance': 8.33e-7,
+            'ampacity': 3500,
+        },
+        {
+            'line_id': 'L3',
+            'power_capacity': 3500,
+            
+            'length': 900,
+            'resistance': 4.64e-6,
+            'inductance': 8.33e-7,
+            'ampacity': 3500,
+        }
+    ]
+    parameter['system']['battery'] = True
+
+    # Add batteries options
+    parameter['batteries'] = [
+        {
+          'name':'pf_bat_node2',
+          'capacity': 2500,
+          'degradation_endoflife': 80,
+          'degradation_replacementcost': 6000.0,
+          'efficiency_charging': 0.96,
+          'efficiency_discharging': 0.96,
+          'nominal_V':  400,
+          'power_charge': 150,
+          'maxS': 150,
+          'power_discharge': 150,
+          'self_discharging': 0.001,
+           'soc_final': 0.5,
+          'soc_initial': 0.5,
+          'soc_max': 1,
+          'soc_min': 0.2,
+          # 'temperature_initial': 22.0,
+          'thermal_C': 100000.0,
+          'thermal_R': 0.01
+        },
+        {
+          'name':'pf_bat_node3',
+          'capacity': 2000,
+          'degradation_endoflife': 80,
+          'degradation_replacementcost': 6000.0,
+          'efficiency_charging': 0.96,
+          'efficiency_discharging': 0.96,
+          'nominal_V':  400,
+          'power_charge': 350,
+          'maxS': 350,
+          'power_discharge': 350,
+          'self_discharging': 0.001,
+           'soc_final': 0.5,
+          'soc_initial': 0.5,
+          'soc_max': 1,
+          'soc_min': 0.2,
+          # 'temperature_initial': 22.0,
+          'thermal_C': 100000.0,
+          'thermal_R': 0.01
+        },
+        {
+          'name':'pf_bat_node4',
+          'capacity': 3500,
+          'degradation_endoflife': 80,
+          'degradation_replacementcost': 6000.0,
+          'efficiency_charging': 0.96,
+          'efficiency_discharging': 0.96,
+          'nominal_V':  400,
+          'power_charge': 350,
+          'maxS': 350,
+          'power_discharge': 350,
+          'self_discharging': 0.001,
+           'soc_final': 0.5,
+          'soc_initial': 0.5,
+          'soc_max': 1,
+          'soc_min': 0.2,
+          # 'temperature_initial': 22.0,
+          'thermal_C': 100000.0,
+          'thermal_R': 0.01
+        },
+        {
+          'name':'pf_bat_node5',
+          'capacity': 4000,
+          'degradation_endoflife': 80,
+          'degradation_replacementcost': 6000.0,
+          'efficiency_charging': 0.96,
+          'efficiency_discharging': 0.96,
+          'nominal_V':  400,
+          'power_charge': 350,
+          'maxS': 350,
+          'power_discharge': 350,
+          'self_discharging': 0.001,
+           'soc_final': 0.5,
+          'soc_initial': 0.5,
+          'soc_max': 1,
+          'soc_min': 0.2,
+          # 'temperature_initial': 22.0,
+          'thermal_C': 100000.0,
+          'thermal_R': 0.01
+        },
+    ]
     return parameter
 
 # Timeseries Input Example Creation Funcs
@@ -117,9 +373,8 @@ def ts_inputs(parameter={}, load='Flexlab', scale_load=4, scale_pv=4):
         # data['load_demand'] = [2.8,  2.8,  2.9,  2.9,  3. ,  3.3,  4. ,  4.8,  4.9,  5.1,  5.3,
         #                        5.4,  5.4,  5.4,  5.3,  5.3,  5.2,  4.8,  3.9,  3.1,  2.9,  2.8,
         #                        2.8,  2.8]
-        data['load_demand'] = [1.0,  1.0,  1.1,  1.1,  1.2,  1.5,  2.1,  2.9,  3.0,  3.2,  3.4,
-                               3.5,  3.5,  3.5,  3.4,  3.4,  3.3,  2.9,  2.0,  1.2,  1.0,  1.0,
-                               1.0,  1.0]
+        data['load_demand'] = [0.0, 0.0, 0.03, 0.03, 0.06, 0.14, 0.31, 0.54, 0.60, 0.69, 0.74,
+                                0.80, 0.80, 0.80, 0.74, 0.74, 0.69, 0.54, 0.31, 0.06, 0.0, 0.0, 0.0, 0.0]
         data['load_demand'] = data['load_demand']/data['load_demand'].max()
     # Scale Load data
     data['load_demand'] = data['load_demand'] * scale_load
@@ -163,197 +418,10 @@ def ts_inputs(parameter={}, load='Flexlab', scale_load=4, scale_pv=4):
     return data
 
 def parameter_add_battery(parameter=None):
-    """parameter_add_battery"""
+    """parameter_add_battery_multinode_test"""
     if parameter is None:
         # if no parameter given, load default
-        parameter = default_parameter()
-
-    # enable gensets
-    parameter['system']['battery'] = True
-
-    # Add genset options
-    parameter['batteries'] = [
-        {
-         'name':'libat01',
-        'capacity': 200,
-         'degradation_endoflife': 80,
-         'degradation_replacementcost': 6000.0,
-         'efficiency_charging': 0.96,
-         'efficiency_discharging': 0.96,
-         'nominal_V':  400,
-         'power_charge': 50,
-         'power_discharge': 50,
-         'maxS': 50,
-         'self_discharging': 0.0,
-          'soc_final': None,
-         'soc_initial': 0.65,
-         'soc_max': 1,
-         'soc_min': 0.2,
-         # 'temperature_initial': 22.0,
-         'thermal_C': 100000.0,
-         'thermal_R': 0.01
-        }
-    ]
-    return parameter
-
-def parameter_add_network_test(parameter=None):
-    """parameter_add_network"""
-    if parameter is None:
-        # if no parameter given, load default
-        parameter = default_parameter()
-    # Add nodes and line options
-    parameter['network'] = {}
-    parameter['network']['settings'] = {
-        # turn off simepl power exchange to utilize full power-flow equations
-        'simplePowerExchange': True,
-        'simpleNetworkLosses': 0.05,
-    }
-
-    parameter['network']['nodes'] = [ # list of dict to define inputs for each node in network
-        { # node 1
-            'node_id': 'N1', # unique str to id node
-            'pcc': True, # bool to define if node is pcc
-            'slack': True, 
-            'load_id': None, # str, list of str, or None to find load profile in ts data (if node is load bus) by column label
-            'ders': { # dict of der assets at node, if None or not included, no ders present
-                'pv_id': None, # str, list, or None to find pv profile in ts data (if pv at node) by column label
-                'pv_maxS': 0,
-                'battery': None, # list of str corresponding to battery assets (defined in parameter['system']['battery'])
-                'genset': None, # list of str correponsing to genset assets (defined in parameter['system']['genset'])
-                'load_control': None # str, list or None correponsing to genset assets (defined in parameter['system']['load_control'])
-            },
-            'connections': [ # list of connected nodes, and line connecting them
-                {
-                    'node': 'N2', # str containing unique node_id of connected node
-                    'line': 'L1' # str containing unique line_id of line connection nodes, (defined in parameter['network']['lines'])
-                },
-                {
-                    'node': 'N4',
-                    'line': 'L2'
-                }
-            ]
-        },
-        { # node 2
-            'node_id': 'N2',
-            'pcc': True,
-            'slack': False, 
-            'load_id': 'pf_demand_node2',
-            'ders': { 
-                'pv_id': 'pf_pv_node2',
-                'pv_maxS': 4686,
-                'battery': 'pf_bat_node2', # node can contain multiple battery assets, so should be list
-                'genset': None,
-                'load_control': None # node likely to only contain single load_control asset, so should be str
-            },
-            'connections': [
-                {
-                    'node': 'N1',
-                    'line': 'L1'
-                },
-                {
-                    'node': 'N3',
-                    'line': 'L1'
-                }
-            ]
-        },
-        { # node 3
-            'node_id': 'N3',
-            'pcc': True,
-            'slack': False, 
-            'load_id': 'pf_pv_node3',
-            'ders': { 
-                'pv_id': None,
-                'pv_maxS': 2162,
-                'battery': 'pf_bat_node3', 
-                'genset': 'pf_gen_node3',
-                'load_control': None
-            },
-            'connections': [
-                {
-                    'node': 'N2',
-                    'line': 'L1'
-                }
-            ]
-        },
-        { # node 4
-            'node_id': 'N4',
-            'pcc': True,
-            'slack': False, 
-            'load_id': 'pf_demand_node4',
-            'ders': { 
-                'pv_id': 'pf_pv_node4',
-                'pv_maxS': 1708,
-                'battery': 'pf_bat_node4', 
-                'genset': 'pf_gen_node4',
-                'load_control': 'testLc4'
-            },
-            'connections': [
-                {
-                    'node': 'N1',
-                    'line': 'L2'
-                },
-                {
-                    'node': 'N5',
-                    'line': 'L3'
-                }
-            ]
-        },
-        { # node 5
-            'node_id': 'N5',
-            'pcc': True,
-            'slack': False, 
-            'load_id': 'pf_demand_node5',
-            'ders': { 
-                'pv_id': 'pf_pv_node5',
-                'pv_maxS': 1147,
-                'battery': 'pf_bat_node5', 
-                'genset': 'pf_gen_node5',
-                'load_control': None
-            },
-            'connections': [
-                {
-                    'node': 'N4',
-                    'line': 'L3'
-                }
-            ]
-        }
-    ]
-    parameter['network']['lines'] = [ # list of dicts define each cable/line properties
-        {
-            'line_id': 'L1',
-            'power_capacity': 3500, # line power capacity only used for simple power=exchange
-            
-            'length': 1200, # line length in meters
-            'resistance': 4.64e-6, # line properties are all in pu, based on SBase/VBase defined above
-            'inductance': 8.33e-7,
-            'ampacity': 3500,
-        },
-        {
-            'line_id': 'L2',
-            'power_capacity': 3500,
-            
-            'length': 1800,
-            'resistance': 4.64e-6,
-            'inductance': 8.33e-7,
-            'ampacity': 3500,
-        },
-        {
-            'line_id': 'L3',
-            'power_capacity': 3500,
-            
-            'length': 900,
-            'resistance': 4.64e-6,
-            'inductance': 8.33e-7,
-            'ampacity': 3500,
-        }
-    ]
-    return parameter 
-
-def parameter_add_battery_multinode(parameter=None):
-    """parameter_add_battery_multinode"""
-    if parameter is None:
-        # if no parameter given, load default
-        parameter = parameter_add_network_test()
+        parameter = parameter_add_network()
 
     # enable gensets
     parameter['system']['battery'] = True
@@ -362,7 +430,7 @@ def parameter_add_battery_multinode(parameter=None):
     parameter['batteries'] = [
         {
           'name':'pf_bat_node2',
-          'capacity': 500,
+          'capacity': 1500,
           'degradation_endoflife': 80,
           'degradation_replacementcost': 6000.0,
           'efficiency_charging': 0.96,
@@ -402,7 +470,7 @@ def parameter_add_battery_multinode(parameter=None):
         },
         {
           'name':'pf_bat_node4',
-          'capacity': 1000,
+          'capacity': 2500,
           'degradation_endoflife': 80,
           'degradation_replacementcost': 6000.0,
           'efficiency_charging': 0.96,
@@ -422,7 +490,7 @@ def parameter_add_battery_multinode(parameter=None):
         },
         {
           'name':'pf_bat_node5',
-          'capacity': 1000,
+          'capacity': 2000,
           'degradation_endoflife': 80,
           'degradation_replacementcost': 6000.0,
           'efficiency_charging': 0.96,
@@ -440,5 +508,191 @@ def parameter_add_battery_multinode(parameter=None):
           'thermal_C': 100000.0,
           'thermal_R': 0.01
         },
+    ]
+    return parameter
+
+def parameter_add_network(parameter=None):
+    """parameter_add_network"""
+    if parameter is None:
+        # if no parameter given, load default
+        parameter = default_parameter()
+
+    # Add nodes and line options
+    parameter['network'] = {}
+
+
+# Add network settings to define power-flow constaints
+    parameter['network']['settings'] = {
+    
+        # turn off simepl power exchange to utilize full power-flow equations
+        'simplePowerExchange': True,
+        'simpleNetworkLosses': 0.05,
+
+        # # powerflow parameters
+        # 'slackBusVoltage': 1,
+        # 'sBase': 1,
+        # 'vBase': 1,
+        # 'cableDerating': 1,
+        # 'txDerating': 1,
+
+        # # power factors
+        # 'powerFactors': {
+        #     'pv': 1,  
+        #     'genset': 1,
+        #     'batteryDisc': 1,
+        #     'batteryChar': 1,
+        #     'load': 1
+        # },
+
+        # # powerflow model settings
+        # 'enableLosses': True,
+        # 'thetaMin': -0.18,
+        # 'thetaMax': 0.09,
+        # 'voltMin': 0.8,
+        # 'voltMax': 1.1,
+        # 'useConsVoltMin': False,
+        # 'enableConstantPf': 1,
+        # 'enableVoltageAngleConstraint': 1,
+        # 'enableGenPqLimits': False, # not implemented yet
+    }
+
+    parameter['network']['nodes'] = [ # list of dict to define inputs for each node in network
+        { # node 1
+            'node_id': 'N1', # unique str to id node
+            'pcc': True, # bool to define if node is pcc
+            'slack': True, 
+            'load_id': None, # str, list of str, or None to find load profile in ts data (if node is load bus) by column label
+            'ders': { # dict of der assets at node, if None or not included, no ders present
+                'pv_id': None, # str, list, or None to find pv profile in ts data (if pv at node) by column label
+                'pv_maxS': 0,
+                'battery': None, # list of str corresponding to battery assets (defined in parameter['system']['battery'])
+                'genset': None, # list of str correponsing to genset assets (defined in parameter['system']['genset'])
+                'load_control': None # str, list or None correponsing to genset assets (defined in parameter['system']['load_control'])
+            },
+            'connections': [ # list of connected nodes, and line connecting them
+                {
+                    'node': 'N2', # str containing unique node_id of connected node
+                    'line': 'L1' # str containing unique line_id of line connection nodes, (defined in parameter['network']['lines'])
+                },
+                {
+                    'node': 'N4',
+                    'line': 'L2'
+                }
+            ]
+        },
+        { # node 2
+            'node_id': 'N2',
+            'pcc': True,
+            'slack': False, 
+            'load_id': 'pf_demand_node2',
+            'ders': { 
+                'pv_id': 'pf_pv_node2',
+                'pv_maxS': 300,
+                'battery': 'pf_bat_node2', # node can contain multiple battery assets, so should be list
+                'genset': None,
+                'load_control': None # node likely to only contain single load_control asset, so should be str
+            },
+            'connections': [
+                {
+                    'node': 'N1',
+                    'line': 'L1'
+                },
+                {
+                    'node': 'N3',
+                    'line': 'L1'
+                }
+            ]
+        },
+        { # node 3
+            'node_id': 'N3',
+            'pcc': True,
+            'slack': False, 
+            'load_id': 'pf_pv_node3',
+            'ders': { 
+                'pv_id': None,
+                'pv_maxS': 1200,
+                'battery': 'pf_bat_node3', 
+                'genset': 'pf_gen_node3',
+                'load_control': None
+            },
+            'connections': [
+                {
+                    'node': 'N2',
+                    'line': 'L1'
+                }
+            ]
+        },
+        { # node 4
+            'node_id': 'N4',
+            'pcc': True,
+            'slack': False, 
+            'load_id': 'pf_demand_node4',
+            'ders': { 
+                'pv_id': 'pf_pv_node4',
+                'pv_maxS': 1000,
+                'battery': 'pf_bat_node4', 
+                'genset': 'pf_gen_node4',
+                'load_control': 'testLc4'
+            },
+            'connections': [
+                {
+                    'node': 'N1',
+                    'line': 'L2'
+                },
+                {
+                    'node': 'N5',
+                    'line': 'L3'
+                }
+            ]
+        },
+        { # node 5
+            'node_id': 'N5',
+            'pcc': True,
+            'slack': False, 
+            'load_id': 'pf_demand_node5',
+            'ders': { 
+                'pv_id': 'pf_pv_node5',
+                'pv_maxS': 1500,
+                'battery': 'pf_bat_node5', 
+                'genset': 'pf_gen_node5',
+                'load_control': None
+            },
+            'connections': [
+                {
+                    'node': 'N4',
+                    'line': 'L3'
+                }
+            ]
+        }
+    ]
+
+    parameter['network']['lines'] = [ # list of dicts define each cable/line properties
+        {
+            'line_id': 'L1',
+            'power_capacity': 3500, # line power capacity only used for simple power=exchange
+            
+            'length': 1200, # line length in meters
+            'resistance': 4.64e-6, # line properties are all in pu, based on SBase/VBase defined above
+            'inductance': 8.33e-7,
+            'ampacity': 3500,
+        },
+        {
+            'line_id': 'L2',
+            'power_capacity': 3500,
+            
+            'length': 1800,
+            'resistance': 4.64e-6,
+            'inductance': 8.33e-7,
+            'ampacity': 3500,
+        },
+        {
+            'line_id': 'L3',
+            'power_capacity': 3500,
+            
+            'length': 900,
+            'resistance': 4.64e-6,
+            'inductance': 8.33e-7,
+            'ampacity': 3500,
+        }
     ]
     return parameter
