@@ -3,7 +3,8 @@ from doper import DOPER, standard_report
 from doper.models.basemodel import base_model, default_output_list
 from doper.models.battery import add_battery
 from doper.models.network import add_network
-from test_parameter import default_parameter, ts_inputs, parameter_add_battery, parameter_add_network
+from multi_parameter import multinode_parameter, ts_inputs
+from single_parameter import singlenode_parameter, ts_inputs
 from doper.plotting import plot_dynamic
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -17,25 +18,25 @@ def control_model(inputs, parameter):
         return model.sum_energy_cost * parameter['objective']['weight_energy'] \
                + model.sum_demand_cost * parameter['objective']['weight_demand'] \
                + model.sum_export_revenue * parameter['objective']['weight_export'] \
-               + model.fuel_cost_total * parameter['objective']['weight_energy'] \
-               + model.load_shed_cost_total
+               + model.fuel_cost_total * parameter['objective']['weight_energy'] 
     model.objective = Objective(rule=objective_function, sense=minimize, doc='objective function')
     return model
 
 if __name__ == '__main__':  
-    parameter = default_parameter()
-    # parameter = parameter_add_network(parameter)
-    # parameter = parameter_add_battery()
+    parameter = multinode_parameter()
+    # parameter = singlenode_parameter()
     
     data2 = ts_inputs(parameter, load='B90', scale_load=3000, scale_pv=4686)
     data3 = ts_inputs(parameter, load='B90', scale_load=1500, scale_pv=2162)
     data4 = ts_inputs(parameter, load='B90', scale_load=1000, scale_pv=1708)
     data5 = ts_inputs(parameter, load='B90', scale_load=700, scale_pv=1147)
+
     # use data1 as starting point for multinode df
     data = data2.copy()
     # drop load and pv from multinode df
-    data = data.drop(labels='load_demand', axis=1)
-    data = data.drop(labels='generation_pv', axis=1)
+    # data = data.drop(labels='load_demand', axis=1)
+    # data = data.drop(labels='generation_pv', axis=1)
+
     # add node specifc load and pv (where applicable)
     data['pf_demand_node2'] = data2['load_demand']
     data['pf_demand_node3'] = data3['load_demand']
