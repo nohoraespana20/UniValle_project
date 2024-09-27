@@ -274,7 +274,7 @@ def parameters():
             },
             'connections': [
                 {
-                    'node': 'N1',
+                    'node': 'N2',
                     'line': 'L7'
                 }
             ]
@@ -563,7 +563,7 @@ def parameters():
             },
             'connections': [
                 {
-                    'node': 'N3',
+                    'node': 'N4',
                     'line': 'L17'
                 }
             ]
@@ -582,7 +582,7 @@ def parameters():
             },
             'connections': [
                 {
-                    'node': 'N3',
+                    'node': 'N4',
                     'line': 'L18'
                 }
             ]
@@ -601,7 +601,7 @@ def parameters():
             },
             'connections': [
                 {
-                    'node': 'N3',
+                    'node': 'N4',
                     'line': 'L19'
                 }
             ]
@@ -620,7 +620,7 @@ def parameters():
             },
             'connections': [
                 {
-                    'node': 'N3',
+                    'node': 'N4',
                     'line': 'L20'
                 }
             ]
@@ -639,7 +639,7 @@ def parameters():
             },
             'connections': [
                 {
-                    'node': 'N3',
+                    'node': 'N4',
                     'line': 'L21'
                 }
             ]
@@ -658,7 +658,7 @@ def parameters():
             },
             'connections': [
                 {
-                    'node': 'N3',
+                    'node': 'N4',
                     'line': 'L22'
                 }
             ]
@@ -677,7 +677,7 @@ def parameters():
             },
             'connections': [
                 {
-                    'node': 'N3',
+                    'node': 'N4',
                     'line': 'L23'
                 }
             ]
@@ -696,7 +696,7 @@ def parameters():
             },
             'connections': [
                 {
-                    'node': 'N3',
+                    'node': 'N4',
                     'line': 'L24'
                 }
             ]
@@ -715,7 +715,7 @@ def parameters():
             },
             'connections': [
                 {
-                    'node': 'N3',
+                    'node': 'N4',
                     'line': 'L25'
                 }
             ]
