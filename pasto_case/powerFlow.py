@@ -26,29 +26,42 @@ def data_multinode(parameter):
              4629.7, 19548.7, 25972.5, 35441.8, 41558.6, 536.5, 2301.6, 139.3,
              86847.3, 123598.7, 155795.6, 109602.5, 108342.6, 99047.5, 67926.1,
              14709.8, 236133.7, 19783.1, 226017.5, 20115.6, 35732.1]
+    pv_per_node = [345, 125, 199, 2772, 594, 506, 866, 856, 1202, 137, 440, 688, 560,
+                 170, 480, 260, 215, 144, 249, 149, 185, 319]
 
-    data5  = ts_inputs(parameter, load='B90', scale_load=L2_demand[-1]*0.03, scale_pv=345)
-    data6  = ts_inputs(parameter, load='B90', scale_load=L2_demand[-1]*0.01, scale_pv=125)
-    data7  = ts_inputs(parameter, load='B90', scale_load=L2_demand[-1]*0.02, scale_pv=199)
-    data8  = ts_inputs(parameter, load='B90', scale_load=L2_demand[-1]*0.24, scale_pv=2772)
-    data9  = ts_inputs(parameter, load='B90', scale_load=L2_demand[-1]*0.05, scale_pv=594)
-    data10 = ts_inputs(parameter, load='B90', scale_load=L2_demand[-1]*0.04, scale_pv=506)
-    data11 = ts_inputs(parameter, load='B90', scale_load=L2_demand[-1]*0.08, scale_pv=866)
-    data12 = ts_inputs(parameter, load='B90', scale_load=L2_demand[-1]*0.07, scale_pv=856)
-    data13 = ts_inputs(parameter, load='B90', scale_load=L2_demand[-1]*0.10, scale_pv=1202)
-    data14 = ts_inputs(parameter, load='B90', scale_load=L2_demand[-1]*0.01, scale_pv=137)
-    data15 = ts_inputs(parameter, load='B90', scale_load=L2_demand[-1]*0.04, scale_pv=440)
-    data16 = ts_inputs(parameter, load='B90', scale_load=L2_demand[-1]*0.06, scale_pv=688)
-    data17 = ts_inputs(parameter, load='B90', scale_load=L2_demand[-1]*0.05, scale_pv=560)
-    data18 = ts_inputs(parameter, load='B90', scale_load=L2_demand[-1]*0.01, scale_pv=170)
-    data19 = ts_inputs(parameter, load='B90', scale_load=L2_demand[-1]*0.04, scale_pv=480)
-    data20 = ts_inputs(parameter, load='B90', scale_load=L2_demand[-1]*0.02, scale_pv=260)
-    data21 = ts_inputs(parameter, load='B90', scale_load=L2_demand[-1]*0.02, scale_pv=215)
-    data22 = ts_inputs(parameter, load='B90', scale_load=L2_demand[-1]*0.01, scale_pv=144)
-    data23 = ts_inputs(parameter, load='B90', scale_load=L2_demand[-1]*0.02, scale_pv=249)
-    data24 = ts_inputs(parameter, load='B90', scale_load=L2_demand[-1]*0.01, scale_pv=149)
-    data25 = ts_inputs(parameter, load='B90', scale_load=L2_demand[-1]*0.02, scale_pv=185)
-    data26 = ts_inputs(parameter, load='B90', scale_load=L2_demand[-1]*0.03, scale_pv=319)
+    data4  = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.04, scale_pv=861)
+    data5  = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.06, scale_pv=1202)
+    data6  = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.01, scale_pv=137)
+    data7  = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.02, scale_pv=440)
+    data8  = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.03, scale_pv=560)
+    data9  = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.01, scale_pv=170)
+    data10 = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.02, scale_pv=480)
+    data11 = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.01, scale_pv=260)
+    data12 = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.01, scale_pv=215)
+    data13 = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.01, scale_pv=146)
+    data14 = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.01, scale_pv=249)
+    data15 = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.01, scale_pv=151)
+    data16 = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.02, scale_pv=319)
+    data17 = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.05, scale_pv=934)
+    data18 = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.03, scale_pv=594)
+    data19 = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.03, scale_pv=688)
+    data20 = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.01, scale_pv=185)
+    data21 = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.01, scale_pv=147)
+    data22 = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.10, scale_pv=1953)
+    data23 = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.02, scale_pv=369)
+    data24 = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.01, scale_pv=185)
+    data25 = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.01, scale_pv=123)
+    data26 = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.01, scale_pv=211)
+    data27 = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.02, scale_pv=345)
+    data28 = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.01, scale_pv=125)
+    data29 = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.01, scale_pv=199)
+    data30 = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.14, scale_pv=2772)
+    data31 = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.02, scale_pv=506)
+    data32 = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.04, scale_pv=866)
+    data33 = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.06, scale_pv=1195)
+    data34 = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.09, scale_pv=1831)
+    data35 = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.02, scale_pv=449)
+    data36 = ts_inputs(parameter, load='B90', scale_load=L2_demand[6]*0.08, scale_pv=1594)
 
     # use data1 as starting point for multinode df
     data = data5.copy()
@@ -57,6 +70,7 @@ def data_multinode(parameter):
     data = data.drop(labels='generation_pv', axis=1)
 
     # add node specifc load and pv (where applicable)
+    data['pf_demand_node4']  =  data5['load_demand']
     data['pf_demand_node5']  =  data5['load_demand']
     data['pf_demand_node6']  =  data6['load_demand']
     data['pf_demand_node7']  =  data7['load_demand']
@@ -79,7 +93,19 @@ def data_multinode(parameter):
     data['pf_demand_node24'] = data24['load_demand']
     data['pf_demand_node25'] = data25['load_demand']
     data['pf_demand_node26'] = data26['load_demand']
+    data['pf_demand_node27'] = data27['load_demand']
+    data['pf_demand_node28'] = data28['load_demand']
+    data['pf_demand_node29'] = data29['load_demand']
+    data['pf_demand_node30'] = data30['load_demand']
+    data['pf_demand_node31'] = data31['load_demand']
+    data['pf_demand_node32'] = data32['load_demand']
+    data['pf_demand_node33'] = data33['load_demand']
+    data['pf_demand_node34'] = data34['load_demand']
+    data['pf_demand_node35'] = data35['load_demand']
+    data['pf_demand_node36'] = data36['load_demand']
 
+
+    data['pf_pv_node4']  =  data4['generation_pv']
     data['pf_pv_node5']  =  data5['generation_pv']
     data['pf_pv_node6']  =  data6['generation_pv']
     data['pf_pv_node7']  =  data7['generation_pv']
@@ -102,6 +128,17 @@ def data_multinode(parameter):
     data['pf_pv_node24'] = data24['generation_pv'] 
     data['pf_pv_node25'] = data25['generation_pv'] 
     data['pf_pv_node26'] = data26['generation_pv'] 
+    data['pf_pv_node27'] = data27['generation_pv'] 
+    data['pf_pv_node28'] = data28['generation_pv'] 
+    data['pf_pv_node29'] = data29['generation_pv'] 
+    data['pf_pv_node30'] = data30['generation_pv'] 
+    data['pf_pv_node31'] = data31['generation_pv'] 
+    data['pf_pv_node32'] = data32['generation_pv'] 
+    data['pf_pv_node33'] = data33['generation_pv'] 
+    data['pf_pv_node34'] = data34['generation_pv'] 
+    data['pf_pv_node35'] = data35['generation_pv']
+    data['pf_pv_node36'] = data36['generation_pv'] 
+
     return data
 
 if __name__ == '__main__':  

@@ -57,10 +57,12 @@ def parameters():
         parameter['tariff']['demand_coincident'] = 0.5 # $/kW for coincident
         parameter['tariff']['export'] = {0:0} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
     else:
-        parameter['tariff']['energy'] = {0:0.08671, 1:0.11613, 2:0.16055} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
-        parameter['tariff']['demand'] = {0:0, 1:5.40, 2:19.65} # $/kW for periods 0-offpeak, 1-midpeak, 2-onpeak
-        parameter['tariff']['demand_coincident'] = 17.74 # $/kW for coincident
-        parameter['tariff']['export'] = {0:0.01} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
+        parameter['tariff']['energy'] = {0:0.25, 1:0.25, 2:0.25} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
+        parameter['tariff']['demand'] = {0:0.25, 1:0.25, 2:0.25} # $/kW for periods 0-offpeak, 1-midpeak, 2-onpeak
+        # parameter['tariff']['demand'] = {0:67.9, 1:67.9, 2:67.9} # $/kW for periods 0-offpeak, 1-midpeak, 2-onpeak
+        parameter['tariff']['demand_coincident'] = 0.25 # $/kW for coincident
+        parameter['tariff']['export'] = {0:0.12} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
+        # parameter['tariff']['export'] = {0:0.14} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
 
     parameter['site'] = {}
     parameter['site']['customer'] = 'Commercial' # Type of customer [commercial or none]; decides if demand charge
@@ -77,7 +79,7 @@ def parameters():
     parameter['site']['export_max'] = 10000 # kW
     parameter['site']['demand_periods_prev'] = {0:0,1:0,2:0} # kW peak previously set for periods 0-offpeak, 1-midpeak, 2-onpeak
     parameter['site']['demand_coincident_prev'] = 0 # kW peak previously set for coincident
-    parameter['site']['input_timezone'] = -8 # Timezone of inputs (in hourly offset from UTC)
+    parameter['site']['input_timezone'] = -5 # Timezone of inputs (in hourly offset from UTC)
     parameter['site']['local_timezone'] = 'America/Los_Angeles' # Local timezone of tariff (as Python timezone string)
     parameter['controller'] = {}
     parameter['controller']['timestep'] = 60*60 # Controller timestep in seconds
@@ -99,7 +101,7 @@ def parameters():
     # Add network settings to define power-flow constaints
     parameter['network']['settings'] = {
         # turn off simepl power exchange to utilize full power-flow equations
-        'simplePowerExchange': False,
+        'simplePowerExchange': True,
         'simpleNetworkLosses': 0.05,
         # powerflow parameters
         'slackBusVoltage': 1,
@@ -128,7 +130,7 @@ def parameters():
     }
 
     parameter['network']['nodes'] = [ # list of dict to define inputs for each node in network
-        { # node 1 Nodo General
+        { # node 1 Nodo SE Pasto
             'node_id': 'N1', # unique str to id node
             'pcc': True, # bool to define if node is pcc
             'slack': True, 
@@ -142,23 +144,127 @@ def parameters():
             },
             'connections': [ # list of connected nodes, and line connecting them
                 {
-                    'node': 'N2', # str containing unique node_id of connected node
+                    'node': 'N3', # str containing unique node_id of connected node
                     'line': 'L1' # str containing unique line_id of line connection nodes, (defined in parameter['network']['lines'])
                 },
+                {
+                    'node': 'N4',
+                    'line': 'L4'
+                },
+                {
+                    'node': 'N5',
+                    'line': 'L5'
+                },
+                {
+                    'node': 'N6',
+                    'line': 'L6'
+                },
+                {
+                    'node': 'N7',
+                    'line': 'L7'
+                },
+                {
+                    'node': 'N8',
+                    'line': 'L8'
+                },
+                {
+                    'node': 'N9',
+                    'line': 'L9'
+                },
+                {
+                    'node': 'N10',
+                    'line': 'L10'
+                },
+                {
+                    'node': 'N11',
+                    'line': 'L11'
+                },
+                {
+                    'node': 'N12',
+                    'line': 'L12'
+                },
+                {
+                    'node': 'N13',
+                    'line': 'L13'
+                },
+                {
+                    'node': 'N14',
+                    'line': 'L14'
+                },
+                {
+                    'node': 'N15',
+                    'line': 'L15'
+                },
+                {
+                    'node': 'N16',
+                    'line': 'L16'
+                },
+                {
+                    'node': 'N17',
+                    'line': 'L17'
+                }
+            ]
+        },
+        { # node 2 SE Catambuco
+            'node_id': 'N2',
+            'pcc': True,
+            'slack': True, 
+            'load_id': None,
+            'ders': { 
+                'pv_id': None,
+                'pv_maxS': 0,
+                'battery': None, # node can contain multiple battery assets, so should be list
+                'genset': None,
+                'load_control': None # node likely to only contain single load_control asset, so should be str
+            },
+            'connections': [
                 {
                     'node': 'N3',
                     'line': 'L2'
                 },
                 {
-                    'node': 'N4',
-                    'line': 'L3'
+                    'node': 'N18',
+                    'line': 'L18'
+                },
+                {
+                    'node': 'N19',
+                    'line': 'L19'
+                },
+                {
+                    'node': 'N20',
+                    'line': 'L20'
+                },
+                {
+                    'node': 'N21',
+                    'line': 'L21'
+                },
+                {
+                    'node': 'N22',
+                    'line': 'L22'
+                }
+                ,
+                {
+                    'node': 'N23',
+                    'line': 'L23'
+                },
+                {
+                    'node': 'N24',
+                    'line': 'L24'
+                },
+                {
+                    'node': 'N25',
+                    'line': 'L25'
+                },
+                {
+                    'node': 'N26',
+                    'line': 'L26'
                 }
             ]
         },
-        { # node 2 suroriental
-            'node_id': 'N2',
+        { # node 3 SE Jamondino
+            'node_id': 'N3',
             'pcc': True,
-            'slack': False, 
+            'slack': True, 
             'load_id': None,
             'ders': { 
                 'pv_id': None,
@@ -173,579 +279,696 @@ def parameters():
                     'line': 'L1'
                 },
                 {
-                    'node': 'N5',
-                    'line': 'L4'
+                    'node': 'N2',
+                    'line': 'L2'
                 },
                 {
-                    'node': 'N6',
-                    'line': 'L5'
+                    'node': 'N27',
+                    'line': 'L27'
                 },
                 {
-                    'node': 'N7',
-                    'line': 'L6'
+                    'node': 'N28',
+                    'line': 'L28'
                 },
                 {
-                    'node': 'N8',
-                    'line': 'L7'
+                    'node': 'N29',
+                    'line': 'L29'
                 },
                 {
-                    'node': 'N9',
-                    'line': 'L8'
+                    'node': 'N30',
+                    'line': 'L30'
+                },
+                {
+                    'node': 'N31',
+                    'line': 'L31'
+                },
+                {
+                    'node': 'N32',
+                    'line': 'L32'
+                },
+                {
+                    'node': 'N33',
+                    'line': 'L33'
+                },
+                {
+                    'node': 'N34',
+                    'line': 'L34'
+                },
+                {
+                    'node': 'N35',
+                    'line': 'L35'
+                },
+                {
+                    'node': 'N36',
+                    'line': 'L36'
                 }
-                ,
+
+            ]
+        },
+        { # node 4 Udenar T
+            'node_id': 'N4',
+            'pcc': True,
+            'slack': True, 
+            'load_id': 'pf_demand_node4',
+            'ders': { 
+                'pv_id': 'pf_pv_node4',
+                'pv_maxS': 861,
+                'battery': 'pf_bat_node4', # node can contain multiple battery assets, so should be list
+                'genset': None,
+                'load_control': None # node likely to only contain single load_control asset, so should be str
+            },
+            'connections': [
                 {
-                    'node': 'N10',
-                    'line': 'L9'
-                },
-                {
-                    'node': 'N11',
-                    'line': 'L10'
+                    'node': 'N1',
+                    'line': 'L4'
                 }
             ]
         },
-        { # node 5 Sena
+        { # node 5 H San Pedro
             'node_id': 'N5',
             'pcc': True,
-            'slack': False, 
+            'slack': True, 
             'load_id': 'pf_demand_node5',
             'ders': { 
                 'pv_id': 'pf_pv_node5',
-                'pv_maxS': 345,
+                'pv_maxS': 1202,
                 'battery': 'pf_bat_node5', # node can contain multiple battery assets, so should be list
                 'genset': None,
                 'load_control': None # node likely to only contain single load_control asset, so should be str
             },
             'connections': [
                 {
-                    'node': 'N2',
-                    'line': 'L4'
+                    'node': 'N1',
+                    'line': 'L5'
                 }
             ]
         },
-        { # node 6 Ingeominas
+        { # node 6 Liceo Udenar
             'node_id': 'N6',
             'pcc': True,
-            'slack': False, 
+            'slack': True, 
             'load_id': 'pf_demand_node6',
             'ders': { 
                 'pv_id': 'pf_pv_node6',
-                'pv_maxS': 125,
+                'pv_maxS': 137,
                 'battery': 'pf_bat_node6', # node can contain multiple battery assets, so should be list
                 'genset': None,
                 'load_control': None # node likely to only contain single load_control asset, so should be str
             },
             'connections': [
                 {
-                    'node': 'N2',
-                    'line': 'L5'
-                }
-            ]
-        },
-        { # node 7 Corponariño
-            'node_id': 'N7',
-            'pcc': True,
-            'slack': False, 
-            'load_id': 'pf_demand_node7',
-            'ders': { 
-                'pv_id': 'pf_pv_node7',
-                'pv_maxS': 199,
-                'battery': 'pf_bat_node7', 
-                'genset': None,
-                'load_control': None
-            },
-            'connections': [
-                {
-                    'node': 'N2',
+                    'node': 'N1',
                     'line': 'L6'
                 }
             ]
         },
-        { # node 8 Unico
-            'node_id': 'N8',
+        { # node 7 Udenar Vipri
+            'node_id': 'N7',
             'pcc': True,
-            'slack': False, 
-            'load_id': 'pf_demand_node8',
+            'slack': True, 
+            'load_id': 'pf_demand_node7',
             'ders': { 
-                'pv_id': 'pf_pv_node8',
-                'pv_maxS': 2772,
-                'battery': 'pf_bat_node8', 
+                'pv_id': 'pf_pv_node7',
+                'pv_maxS': 440,
+                'battery': 'pf_bat_node7', # node can contain multiple battery assets, so should be list
                 'genset': None,
-                'load_control': None
+                'load_control': None # node likely to only contain single load_control asset, so should be str
             },
             'connections': [
                 {
-                    'node': 'N2',
+                    'node': 'N1',
                     'line': 'L7'
                 }
             ]
         },
-        { # node 9 Terminal
-            'node_id': 'N9',
+        { # node 8 Unimar Alvernia
+            'node_id': 'N8',
             'pcc': True,
-            'slack': False, 
-            'load_id': 'pf_demand_node9',
+            'slack': True, 
+            'load_id': 'pf_demand_node8',
             'ders': { 
-                'pv_id': 'pf_pv_node9',
-                'pv_maxS': 594,
-                'battery': 'pf_bat_node9', 
+                'pv_id': 'pf_pv_node8',
+                'pv_maxS': 560,
+                'battery': 'pf_bat_node8', # node can contain multiple battery assets, so should be list
                 'genset': None,
-                'load_control': None
+                'load_control': None # node likely to only contain single load_control asset, so should be str
             },
             'connections': [
                 {
-                    'node': 'N2',
+                    'node': 'N1',
                     'line': 'L8'
                 }
             ]
         },
-        { # node 10 Departamental
-            'node_id': 'N10',
+        { # node 9 Unimar
+            'node_id': 'N9',
             'pcc': True,
-            'slack': False, 
-            'load_id': 'pf_demand_node10',
+            'slack': True, 
+            'load_id': 'pf_demand_node9',
             'ders': { 
-                'pv_id': 'pf_pv_node10',
-                'pv_maxS': 506,
-                'battery': 'pf_bat_node10', 
+                'pv_id': 'pf_pv_node9',
+                'pv_maxS': 170,
+                'battery': 'pf_bat_node9', # node can contain multiple battery assets, so should be list
                 'genset': None,
-                'load_control': None
+                'load_control': None # node likely to only contain single load_control asset, so should be str
             },
             'connections': [
                 {
-                    'node': 'N2',
+                    'node': 'N1',
                     'line': 'L9'
                 }
             ]
         },
-        { # node 11 Alkosto B
-            'node_id': 'N11',
+        { # node 10 Alkosto C
+            'node_id': 'N10',
             'pcc': True,
-            'slack': False, 
-            'load_id': 'pf_demand_node11',
+            'slack': True, 
+            'load_id': 'pf_demand_node10',
             'ders': { 
-                'pv_id': 'pf_pv_node11',
-                'pv_maxS': 866,
-                'battery': 'pf_bat_node11', 
+                'pv_id': 'pf_pv_node10',
+                'pv_maxS': 480,
+                'battery': 'pf_bat_node10', # node can contain multiple battery assets, so should be list
                 'genset': None,
-                'load_control': None
+                'load_control': None # node likely to only contain single load_control asset, so should be str
             },
             'connections': [
                 {
-                    'node': 'N2',
+                    'node': 'N1',
                     'line': 'L10'
                 }
             ]
         },
-        { # node 3 Noroccidental
-            'node_id': 'N3',
+        { # node 11 Cra 27 Cll 19-20
+            'node_id': 'N11',
             'pcc': True,
-            'slack': False, 
-            'load_id': None,
+            'slack': True, 
+            'load_id': 'pf_demand_node11',
             'ders': { 
-                'pv_id': None,
-                'pv_maxS': 0,
-                'battery': None, # node can contain multiple battery assets, so should be list
+                'pv_id': 'pf_pv_node11',
+                'pv_maxS': 260,
+                'battery': 'pf_bat_node11', # node can contain multiple battery assets, so should be list
                 'genset': None,
                 'load_control': None # node likely to only contain single load_control asset, so should be str
             },
             'connections': [
                 {
                     'node': 'N1',
-                    'line': 'L2'
-                },
-                {
-                    'node': 'N12',
                     'line': 'L11'
-                },
-                {
-                    'node': 'N13',
-                    'line': 'L12'
-                },
-                {
-                    'node': 'N14',
-                    'line': 'L13'
-                },
-                {
-                    'node': 'N15',
-                    'line': 'L14'
-                },
-                {
-                    'node': 'N16',
-                    'line': 'L15'
-                }
-                ,
-                {
-                    'node': 'N17',
-                    'line': 'L16'
                 }
             ]
         },
-        { # node 12 Udenar T
+        { # node 12 Policia centro 
             'node_id': 'N12',
             'pcc': True,
-            'slack': False, 
+            'slack': True, 
             'load_id': 'pf_demand_node12',
             'ders': { 
                 'pv_id': 'pf_pv_node12',
-                'pv_maxS': 856,
-                'battery': 'pf_bat_node12', 
-                'genset': None,
-                'load_control': None
-            },
-            'connections': [
-                {
-                    'node': 'N3',
-                    'line': 'L11'
-                }
-            ]
-        },
-        { # node 13 San Pedro
-            'node_id': 'N13',
-            'pcc': True,
-            'slack': False, 
-            'load_id': 'pf_demand_node13',
-            'ders': { 
-                'pv_id': 'pf_pv_node13',
-                'pv_maxS': 1202,
-                'battery': 'pf_bat_node13', 
-                'genset': None,
-                'load_control': None
-            },
-            'connections': [
-                {
-                    'node': 'N3',
-                    'line': 'L12'
-                }
-            ]
-        },
-        { # node 14 Liceo Udenar
-            'node_id': 'N14',
-            'pcc': True,
-            'slack': False, 
-            'load_id': 'pf_demand_node14',
-            'ders': { 
-                'pv_id': 'pf_pv_node14',
-                'pv_maxS': 137,
-                'battery': 'pf_bat_node14', 
-                'genset': None,
-                'load_control': None
-            },
-            'connections': [
-                {
-                    'node': 'N3',
-                    'line': 'L13'
-                }
-            ]
-        },
-        { # node 15 Udenar Vipri
-            'node_id': 'N15',
-            'pcc': True,
-            'slack': False, 
-            'load_id': 'pf_demand_node15',
-            'ders': { 
-                'pv_id': 'pf_pv_node15',
-                'pv_maxS': 440,
-                'battery': 'pf_bat_node15', 
-                'genset': None,
-                'load_control': None
-            },
-            'connections': [
-                {
-                    'node': 'N3',
-                    'line': 'L14'
-                }
-            ]
-        },
-        { # node 16 Alcaldia A
-            'node_id': 'N16',
-            'pcc': True,
-            'slack': False, 
-            'load_id': 'pf_demand_node16',
-            'ders': { 
-                'pv_id': 'pf_pv_node16',
-                'pv_maxS': 688,
-                'battery': 'pf_bat_node16', 
-                'genset': None,
-                'load_control': None
-            },
-            'connections': [
-                {
-                    'node': 'N3',
-                    'line': 'L15'
-                }
-            ]
-        },
-        { # node 17 Unimar Alvernia
-            'node_id': 'N17',
-            'pcc': True,
-            'slack': False, 
-            'load_id': 'pf_demand_node17',
-            'ders': { 
-                'pv_id': 'pf_pv_node17',
-                'pv_maxS': 560,
-                'battery': 'pf_bat_node17', 
-                'genset': None,
-                'load_control': None
-            },
-            'connections': [
-                {
-                    'node': 'N3',
-                    'line': 'L16'
-                }
-            ]
-        },
-        { # node 4 Centro
-            'node_id': 'N4',
-            'pcc': True,
-            'slack': False, 
-            'load_id': None,
-            'ders': { 
-                'pv_id': None,
-                'pv_maxS': 0,
-                'battery': None, # node can contain multiple battery assets, so should be list
+                'pv_maxS': 215,
+                'battery': 'pf_bat_node12', # node can contain multiple battery assets, so should be list
                 'genset': None,
                 'load_control': None # node likely to only contain single load_control asset, so should be str
             },
             'connections': [
                 {
                     'node': 'N1',
-                    'line': 'L3'
-                },
-                {
-                    'node': 'N18',
-                    'line': 'L17'
-                },
-                {
-                    'node': 'N19',
-                    'line': 'L18'
-                },
-                {
-                    'node': 'N20',
-                    'line': 'L19'
-                },
-                {
-                    'node': 'N21',
-                    'line': 'L20'
-                },
-                {
-                    'node': 'N22',
-                    'line': 'L21'
-                },
-                {
-                    'node': 'N23',
-                    'line': 'L22'
-                },
-                {
-                    'node': 'N24',
-                    'line': 'L23'
-                },
-                {
-                    'node': 'N25',
-                    'line': 'L24'
-                },
-                {
-                    'node': 'N26',
-                    'line': 'L25'
+                    'line': 'L12'
                 }
             ]
         },
-        { # node 18 Unimar
+        { # node 13 Cra 27 Cll 17-18
+            'node_id': 'N13',
+            'pcc': True,
+            'slack': True, 
+            'load_id': 'pf_demand_node13',
+            'ders': { 
+                'pv_id': 'pf_pv_node13',
+                'pv_maxS': 146,
+                'battery': 'pf_bat_node13', # node can contain multiple battery assets, so should be list
+                'genset': None,
+                'load_control': None # node likely to only contain single load_control asset, so should be str
+            },
+            'connections': [
+                {
+                    'node': 'N1',
+                    'line': 'L13'
+                }
+            ]
+        },
+        { # node 14 CC Sebastian
+            'node_id': 'N14',
+            'pcc': True,
+            'slack': True, 
+            'load_id': 'pf_demand_node14',
+            'ders': { 
+                'pv_id': 'pf_pv_node14',
+                'pv_maxS': 249,
+                'battery': 'pf_bat_node14', # node can contain multiple battery assets, so should be list
+                'genset': None,
+                'load_control': None # node likely to only contain single load_control asset, so should be str
+            },
+            'connections': [
+                {
+                    'node': 'N1',
+                    'line': 'L14'
+                }
+            ]
+        },
+        { # node 15 Cll 17 Cra 25
+            'node_id': 'N15',
+            'pcc': True,
+            'slack': True, 
+            'load_id': 'pf_demand_node15',
+            'ders': { 
+                'pv_id': 'pf_pv_node15',
+                'pv_maxS': 151,
+                'battery': 'pf_bat_node15', # node can contain multiple battery assets, so should be list
+                'genset': None,
+                'load_control': None # node likely to only contain single load_control asset, so should be str
+            },
+            'connections': [
+                {
+                    'node': 'N1',
+                    'line': 'L15'
+                }
+            ]
+        },
+        { # node 16 Comfamiliar
+            'node_id': 'N16',
+            'pcc': True,
+            'slack': True, 
+            'load_id': 'pf_demand_node16',
+            'ders': { 
+                'pv_id': 'pf_pv_node16',
+                'pv_maxS': 319,
+                'battery': 'pf_bat_node16', # node can contain multiple battery assets, so should be list
+                'genset': None,
+                'load_control': None # node likely to only contain single load_control asset, so should be str
+            },
+            'connections': [
+                {
+                    'node': 'N1',
+                    'line': 'L16'
+                }
+            ]
+        },
+        { # node 17 Mariluz
+            'node_id': 'N17',
+            'pcc': True,
+            'slack': True, 
+            'load_id': 'pf_demand_node17',
+            'ders': { 
+                'pv_id': 'pf_pv_node17',
+                'pv_maxS': 934,
+                'battery': 'pf_bat_node17', # node can contain multiple battery assets, so should be list
+                'genset': None,
+                'load_control': None # node likely to only contain single load_control asset, so should be str
+            },
+            'connections': [
+                {
+                    'node': 'N1',
+                    'line': 'L17'
+                }
+            ]
+        },
+        { # node 18 Terminal 1
             'node_id': 'N18',
             'pcc': True,
-            'slack': False, 
+            'slack': True, 
             'load_id': 'pf_demand_node18',
             'ders': { 
                 'pv_id': 'pf_pv_node18',
-                'pv_maxS': 170,
-                'battery': 'pf_bat_node18', 
+                'pv_maxS': 594,
+                'battery': 'pf_bat_node18', # node can contain multiple battery assets, so should be list
                 'genset': None,
-                'load_control': None
+                'load_control': None # node likely to only contain single load_control asset, so should be str
             },
             'connections': [
                 {
-                    'node': 'N4',
-                    'line': 'L17'
-                }
-            ]
-        },
-        { # node 19 Alkosto C
-            'node_id': 'N19',
-            'pcc': True,
-            'slack': False, 
-            'load_id': 'pf_demand_node19',
-            'ders': { 
-                'pv_id': 'pf_pv_node19',
-                'pv_maxS': 480,
-                'battery': 'pf_bat_node19', 
-                'genset': None,
-                'load_control': None
-            },
-            'connections': [
-                {
-                    'node': 'N4',
+                    'node': 'N2',
                     'line': 'L18'
                 }
             ]
         },
-        { # node 20 Cra 27 Cll 19 - 20
-            'node_id': 'N20',
+        { # node 19 Alcaldia Anganoy
+            'node_id': 'N19',
             'pcc': True,
-            'slack': False, 
-            'load_id': 'pf_demand_node20',
+            'slack': True, 
+            'load_id': 'pf_demand_node19',
             'ders': { 
-                'pv_id': 'pf_pv_node20',
-                'pv_maxS': 260,
-                'battery': 'pf_bat_node20', 
+                'pv_id': 'pf_pv_node19',
+                'pv_maxS': 688,
+                'battery': 'pf_bat_node19', # node can contain multiple battery assets, so should be list
                 'genset': None,
-                'load_control': None
+                'load_control': None # node likely to only contain single load_control asset, so should be str
             },
             'connections': [
                 {
-                    'node': 'N4',
+                    'node': 'N2',
                     'line': 'L19'
                 }
             ]
         },
-        { # node 21 Policia
-            'node_id': 'N21',
+        { # node 20 Alcaldia Centro
+            'node_id': 'N20',
             'pcc': True,
-            'slack': False, 
-            'load_id': 'pf_demand_node21',
+            'slack': True, 
+            'load_id': 'pf_demand_node20',
             'ders': { 
-                'pv_id': 'pf_pv_node21',
-                'pv_maxS': 215,
-                'battery': 'pf_bat_node21', 
+                'pv_id': 'pf_pv_node20',
+                'pv_maxS': 185,
+                'battery': 'pf_bat_node20', # node can contain multiple battery assets, so should be list
                 'genset': None,
-                'load_control': None
+                'load_control': None # node likely to only contain single load_control asset, so should be str
             },
             'connections': [
                 {
-                    'node': 'N4',
+                    'node': 'N2',
                     'line': 'L20'
                 }
             ]
         },
-        { # node 22 Cra 27 Cll 17-18
-            'node_id': 'N22',
+        { # node 21 Terminal 2
+            'node_id': 'N21',
             'pcc': True,
-            'slack': False, 
-            'load_id': 'pf_demand_node22',
+            'slack': True, 
+            'load_id': 'pf_demand_node21',
             'ders': { 
-                'pv_id': 'pf_pv_node22',
-                'pv_maxS': 144,
-                'battery': 'pf_bat_node22', 
+                'pv_id': 'pf_pv_node21',
+                'pv_maxS': 147,
+                'battery': 'pf_bat_node21', # node can contain multiple battery assets, so should be list
                 'genset': None,
-                'load_control': None
+                'load_control': None # node likely to only contain single load_control asset, so should be str
             },
             'connections': [
                 {
-                    'node': 'N4',
+                    'node': 'N2',
                     'line': 'L21'
                 }
             ]
         },
-        { # node 23 Sebastian
-            'node_id': 'N23',
+        { # node 22 Terminal
+            'node_id': 'N22',
             'pcc': True,
-            'slack': False, 
-            'load_id': 'pf_demand_node23',
+            'slack': True, 
+            'load_id': 'pf_demand_node22',
             'ders': { 
-                'pv_id': 'pf_pv_node23',
-                'pv_maxS': 249,
-                'battery': 'pf_bat_node23', 
+                'pv_id': 'pf_pv_node22',
+                'pv_maxS': 1953,
+                'battery': 'pf_bat_node22', # node can contain multiple battery assets, so should be list
                 'genset': None,
-                'load_control': None
+                'load_control': None # node likely to only contain single load_control asset, so should be str
             },
             'connections': [
                 {
-                    'node': 'N4',
+                    'node': 'N2',
                     'line': 'L22'
                 }
             ]
         },
-        { # node 24 Cll 17 Cra 25
-            'node_id': 'N24',
+        { # node 23 Cesmag
+            'node_id': 'N23',
             'pcc': True,
-            'slack': False, 
-            'load_id': 'pf_demand_node24',
+            'slack': True, 
+            'load_id': 'pf_demand_node23',
             'ders': { 
-                'pv_id': 'pf_pv_node24',
-                'pv_maxS': 149,
-                'battery': 'pf_bat_node24', 
+                'pv_id': 'pf_pv_node23',
+                'pv_maxS': 369,
+                'battery': 'pf_bat_node23', # node can contain multiple battery assets, so should be list
                 'genset': None,
-                'load_control': None
+                'load_control': None # node likely to only contain single load_control asset, so should be str
             },
             'connections': [
                 {
-                    'node': 'N4',
+                    'node': 'N2',
                     'line': 'L23'
                 }
             ]
         },
-        { # node 25 Alcaldia C
-            'node_id': 'N25',
+        { # node 24 Cesmag 1
+            'node_id': 'N24',
             'pcc': True,
-            'slack': False, 
-            'load_id': 'pf_demand_node25',
+            'slack': True, 
+            'load_id': 'pf_demand_node24',
             'ders': { 
-                'pv_id': 'pf_pv_node25',
+                'pv_id': 'pf_pv_node24',
                 'pv_maxS': 185,
-                'battery': 'pf_bat_node25', 
+                'battery': 'pf_bat_node24', # node can contain multiple battery assets, so should be list
                 'genset': None,
-                'load_control': None
+                'load_control': None # node likely to only contain single load_control asset, so should be str
             },
             'connections': [
                 {
-                    'node': 'N4',
+                    'node': 'N2',
                     'line': 'L24'
                 }
             ]
         },
-        { # node 26 Comfamiliar
-            'node_id': 'N26',
+        { # node 25 Cesmag 2
+            'node_id': 'N25',
             'pcc': True,
-            'slack': False, 
-            'load_id': 'pf_demand_node26',
+            'slack': True, 
+            'load_id': 'pf_demand_node25',
             'ders': { 
-                'pv_id': 'pf_pv_node26',
-                'pv_maxS': 319,
-                'battery': 'pf_bat_node26', 
+                'pv_id': 'pf_pv_node25',
+                'pv_maxS': 123,
+                'battery': 'pf_bat_node25', # node can contain multiple battery assets, so should be list
                 'genset': None,
-                'load_control': None
+                'load_control': None # node likely to only contain single load_control asset, so should be str
             },
             'connections': [
                 {
-                    'node': 'N4',
+                    'node': 'N2',
                     'line': 'L25'
                 }
             ]
-        }      
+        },
+        { # node 26 Cesmag 3
+            'node_id': 'N26',
+            'pcc': True,
+            'slack': True, 
+            'load_id': 'pf_demand_node26',
+            'ders': { 
+                'pv_id': 'pf_pv_node26',
+                'pv_maxS': 211,
+                'battery': 'pf_bat_node26', # node can contain multiple battery assets, so should be list
+                'genset': None,
+                'load_control': None # node likely to only contain single load_control asset, so should be str
+            },
+            'connections': [
+                {
+                    'node': 'N2',
+                    'line': 'L26'
+                }
+            ]
+        },
+        { # node 27 Sena 
+            'node_id': 'N27',
+            'pcc': True,
+            'slack': True, 
+            'load_id': 'pf_demand_node27',
+            'ders': { 
+                'pv_id': 'pf_pv_node27',
+                'pv_maxS': 345,
+                'battery': 'pf_bat_node27', # node can contain multiple battery assets, so should be list
+                'genset': None,
+                'load_control': None # node likely to only contain single load_control asset, so should be str
+            },
+            'connections': [
+                {
+                    'node': 'N3',
+                    'line': 'L27'
+                }
+            ]
+        },
+        { # node 28 Ingenominas
+            'node_id': 'N28',
+            'pcc': True,
+            'slack': True, 
+            'load_id': 'pf_demand_node28',
+            'ders': { 
+                'pv_id': 'pf_pv_node28',
+                'pv_maxS': 125,
+                'battery': 'pf_bat_node28', # node can contain multiple battery assets, so should be list
+                'genset': None,
+                'load_control': None # node likely to only contain single load_control asset, so should be str
+            },
+            'connections': [
+                {
+                    'node': 'N3',
+                    'line': 'L28'
+                }
+            ]
+        },
+        { # node 29 Corponariño
+            'node_id': 'N28',
+            'pcc': True,
+            'slack': True, 
+            'load_id': 'pf_demand_node28',
+            'ders': { 
+                'pv_id': 'pf_pv_node28',
+                'pv_maxS': 199,
+                'battery': 'pf_bat_node28', # node can contain multiple battery assets, so should be list
+                'genset': None,
+                'load_control': None # node likely to only contain single load_control asset, so should be str
+            },
+            'connections': [
+                {
+                    'node': 'N3',
+                    'line': 'L28'
+                }
+            ]
+        },
+        { # node 30 CC Unico
+            'node_id': 'N30',
+            'pcc': True,
+            'slack': True, 
+            'load_id': 'pf_demand_node30',
+            'ders': { 
+                'pv_id': 'pf_pv_node30',
+                'pv_maxS': 2772,
+                'battery': 'pf_bat_node30', # node can contain multiple battery assets, so should be list
+                'genset': None,
+                'load_control': None # node likely to only contain single load_control asset, so should be str
+            },
+            'connections': [
+                {
+                    'node': 'N3',
+                    'line': 'L30'
+                }
+            ]
+        },
+        { # node 31 H Departamental
+            'node_id': 'N31',
+            'pcc': True,
+            'slack': True, 
+            'load_id': 'pf_demand_node31',
+            'ders': { 
+                'pv_id': 'pf_pv_node31',
+                'pv_maxS': 506,
+                'battery': 'pf_bat_node31', # node can contain multiple battery assets, so should be list
+                'genset': None,
+                'load_control': None # node likely to only contain single load_control asset, so should be str
+            },
+            'connections': [
+                {
+                    'node': 'N3',
+                    'line': 'L31'
+                }
+            ]
+        },
+        { # node 32 Alkosto PBolivar
+            'node_id': 'N32',
+            'pcc': True,
+            'slack': True, 
+            'load_id': 'pf_demand_node32',
+            'ders': { 
+                'pv_id': 'pf_pv_node32',
+                'pv_maxS': 866,
+                'battery': 'pf_bat_node32', # node can contain multiple battery assets, so should be list
+                'genset': None,
+                'load_control': None # node likely to only contain single load_control asset, so should be str
+            },
+            'connections': [
+                {
+                    'node': 'N3',
+                    'line': 'L32'
+                }
+            ]
+        },
+        { # node 33 Edupar
+            'node_id': 'N33',
+            'pcc': True,
+            'slack': True, 
+            'load_id': 'pf_demand_node33',
+            'ders': { 
+                'pv_id': 'pf_pv_node33',
+                'pv_maxS': 1195,
+                'battery': 'pf_bat_node33', # node can contain multiple battery assets, so should be list
+                'genset': None,
+                'load_control': None # node likely to only contain single load_control asset, so should be str
+            },
+            'connections': [
+                {
+                    'node': 'N3',
+                    'line': 'L33'
+                }
+            ]
+        },
+        { # node 34 Buses Los Pinos
+            'node_id': 'N34',
+            'pcc': True,
+            'slack': True, 
+            'load_id': 'pf_demand_node34',
+            'ders': { 
+                'pv_id': 'pf_pv_node34',
+                'pv_maxS': 1831,
+                'battery': 'pf_bat_node34', # node can contain multiple battery assets, so should be list
+                'genset': None,
+                'load_control': None # node likely to only contain single load_control asset, so should be str
+            },
+            'connections': [
+                {
+                    'node': 'N3',
+                    'line': 'L34'
+                }
+            ]
+        },
+        { # node 35 Los Pinos
+            'node_id': 'N35',
+            'pcc': True,
+            'slack': True, 
+            'load_id': 'pf_demand_node35',
+            'ders': { 
+                'pv_id': 'pf_pv_node35',
+                'pv_maxS': 449,
+                'battery': 'pf_bat_node35', # node can contain multiple battery assets, so should be list
+                'genset': None,
+                'load_control': None # node likely to only contain single load_control asset, so should be str
+            },
+            'connections': [
+                {
+                    'node': 'N3',
+                    'line': 'L35'
+                }
+            ]
+        },
+        { # node 36 Balcones La Carolina
+            'node_id': 'N36',
+            'pcc': True,
+            'slack': True, 
+            'load_id': 'pf_demand_node36',
+            'ders': { 
+                'pv_id': 'pf_pv_node36',
+                'pv_maxS': 1594,
+                'battery': 'pf_bat_node36', # node can contain multiple battery assets, so should be list
+                'genset': None,
+                'load_control': None # node likely to only contain single load_control asset, so should be str
+            },
+            'connections': [
+                {
+                    'node': 'N3',
+                    'line': 'L36'
+                }
+            ]
+        }
+
+
     ]
 
     parameter['network']['lines'] = [ # list of dicts define each cable/line properties
         {
             'line_id': 'L1',
             'power_capacity': 6000, # line power capacity only used for simple power=exchange
-            
-            'length': 1900, # line length in meters
+            'length': 3362, # line length in meters
             'resistance': 4.64e-6, # line properties are all in pu, based on SBase/VBase defined above
             'inductance': 8.33e-7,
             'ampacity': 3500,
         },
         {
             'line_id': 'L2',
-            'power_capacity': 6100,
-            
-            'length': 2000,
-            'resistance': 4.64e-6,
-            'inductance': 8.33e-7,
-            'ampacity': 3500,
-        },
-        {
-            'line_id': 'L3',
             'power_capacity': 6000,
-            
-            'length': 900,
+            'length': 4259,
             'resistance': 4.64e-6,
             'inductance': 8.33e-7,
             'ampacity': 3500,
@@ -753,8 +976,7 @@ def parameters():
         {
             'line_id': 'L4',
             'power_capacity': 6000,
-            
-            'length': 1300,
+            'length': 1317,
             'resistance': 4.64e-6,
             'inductance': 8.33e-7,
             'ampacity': 3500,
@@ -762,8 +984,7 @@ def parameters():
         {
             'line_id': 'L5',
             'power_capacity': 6000,
-            
-            'length': 1000,
+            'length': 1259,
             'resistance': 4.64e-6,
             'inductance': 8.33e-7,
             'ampacity': 3500,
@@ -771,8 +992,7 @@ def parameters():
         {
             'line_id': 'L6',
             'power_capacity': 6000,
-            
-            'length': 1000,
+            'length': 1887,
             'resistance': 4.64e-6,
             'inductance': 8.33e-7,
             'ampacity': 3500,
@@ -780,8 +1000,7 @@ def parameters():
         {
             'line_id': 'L7',
             'power_capacity': 6000,
-            
-            'length': 600,
+            'length': 1835,
             'resistance': 4.64e-6,
             'inductance': 8.33e-7,
             'ampacity': 3500,
@@ -789,8 +1008,7 @@ def parameters():
         {
             'line_id': 'L8',
             'power_capacity': 6000,
-            
-            'length': 1200,
+            'length': 1980,
             'resistance': 4.64e-6,
             'inductance': 8.33e-7,
             'ampacity': 3500,
@@ -798,8 +1016,7 @@ def parameters():
         {
             'line_id': 'L9',
             'power_capacity': 6000,
-            
-            'length': 500,
+            'length': 388,
             'resistance': 4.64e-6,
             'inductance': 8.33e-7,
             'ampacity': 3500,
@@ -807,8 +1024,7 @@ def parameters():
         {
             'line_id': 'L10',
             'power_capacity': 6000,
-            
-            'length': 400,
+            'length': 1024,
             'resistance': 4.64e-6,
             'inductance': 8.33e-7,
             'ampacity': 3500,
@@ -816,8 +1032,7 @@ def parameters():
         {
             'line_id': 'L11',
             'power_capacity': 6000,
-            
-            'length': 1500,
+            'length': 1164,
             'resistance': 4.64e-6,
             'inductance': 8.33e-7,
             'ampacity': 3500,
@@ -825,8 +1040,7 @@ def parameters():
         {
             'line_id': 'L12',
             'power_capacity': 6000,
-            
-            'length': 800,
+            'length': 1220,
             'resistance': 4.64e-6,
             'inductance': 8.33e-7,
             'ampacity': 3500,
@@ -834,8 +1048,7 @@ def parameters():
         {
             'line_id': 'L13',
             'power_capacity': 6000,
-            
-            'length': 800,
+            'length': 1204,
             'resistance': 4.64e-6,
             'inductance': 8.33e-7,
             'ampacity': 3500,
@@ -843,8 +1056,7 @@ def parameters():
         {
             'line_id': 'L14',
             'power_capacity': 6000,
-            
-            'length': 900,
+            'length': 1325,
             'resistance': 4.64e-6,
             'inductance': 8.33e-7,
             'ampacity': 3500,
@@ -852,8 +1064,7 @@ def parameters():
         {
             'line_id': 'L15',
             'power_capacity': 6000,
-            
-            'length': 1000,
+            'length': 1431,
             'resistance': 4.64e-6,
             'inductance': 8.33e-7,
             'ampacity': 3500,
@@ -861,8 +1072,7 @@ def parameters():
         {
             'line_id': 'L16',
             'power_capacity': 6000,
-            
-            'length': 200,
+            'length': 1007,
             'resistance': 4.64e-6,
             'inductance': 8.33e-7,
             'ampacity': 3500,
@@ -870,8 +1080,7 @@ def parameters():
         {
             'line_id': 'L17',
             'power_capacity': 6000,
-            
-            'length': 900,
+            'length': 1660,
             'resistance': 4.64e-6,
             'inductance': 8.33e-7,
             'ampacity': 3500,
@@ -879,8 +1088,7 @@ def parameters():
         {
             'line_id': 'L18',
             'power_capacity': 6000,
-            
-            'length': 300,
+            'length': 1673,
             'resistance': 4.64e-6,
             'inductance': 8.33e-7,
             'ampacity': 3500,
@@ -888,8 +1096,7 @@ def parameters():
         {
             'line_id': 'L19',
             'power_capacity': 6000,
-            
-            'length': 400,
+            'length': 2398,
             'resistance': 4.64e-6,
             'inductance': 8.33e-7,
             'ampacity': 3500,
@@ -897,8 +1104,7 @@ def parameters():
         {
             'line_id': 'L20',
             'power_capacity': 6000,
-            
-            'length': 500,
+            'length': 1830,
             'resistance': 4.64e-6,
             'inductance': 8.33e-7,
             'ampacity': 3500,
@@ -906,8 +1112,7 @@ def parameters():
         {
             'line_id': 'L21',
             'power_capacity': 6000,
-            
-            'length': 200,
+            'length': 1657,
             'resistance': 4.64e-6,
             'inductance': 8.33e-7,
             'ampacity': 3500,
@@ -915,8 +1120,7 @@ def parameters():
         {
             'line_id': 'L22',
             'power_capacity': 6000,
-            
-            'length': 400,
+            'length': 1756,
             'resistance': 4.64e-6,
             'inductance': 8.33e-7,
             'ampacity': 3500,
@@ -924,8 +1128,7 @@ def parameters():
         {
             'line_id': 'L23',
             'power_capacity': 6000,
-            
-            'length': 400,
+            'length': 1743,
             'resistance': 4.64e-6,
             'inductance': 8.33e-7,
             'ampacity': 3500,
@@ -933,8 +1136,7 @@ def parameters():
         {
             'line_id': 'L24',
             'power_capacity': 6000,
-            
-            'length': 1100,
+            'length': 1562,
             'resistance': 4.64e-6,
             'inductance': 8.33e-7,
             'ampacity': 3500,
@@ -942,8 +1144,95 @@ def parameters():
         {
             'line_id': 'L25',
             'power_capacity': 6000,
-            
-            'length': 300,
+            'length': 1777,
+            'resistance': 4.64e-6,
+            'inductance': 8.33e-7,
+            'ampacity': 3500,
+        },
+        {
+            'line_id': 'L26',
+            'power_capacity': 6000,
+            'length': 1802,
+            'resistance': 4.64e-6,
+            'inductance': 8.33e-7,
+            'ampacity': 3500,
+        },
+        {
+            'line_id': 'L27',
+            'power_capacity': 6000,
+            'length': 696,
+            'resistance': 4.64e-6,
+            'inductance': 8.33e-7,
+            'ampacity': 3500,
+        },
+        {
+            'line_id': 'L28',
+            'power_capacity': 6000,
+            'length': 874,
+            'resistance': 4.64e-6,
+            'inductance': 8.33e-7,
+            'ampacity': 3500,
+        },
+        {
+            'line_id': 'L29',
+            'power_capacity': 6000,
+            'length': 980,
+            'resistance': 4.64e-6,
+            'inductance': 8.33e-7,
+            'ampacity': 3500,
+        },
+        {
+            'line_id': 'L30',
+            'power_capacity': 6000,
+            'length': 1515,
+            'resistance': 4.64e-6,
+            'inductance': 8.33e-7,
+            'ampacity': 3500,
+        },
+        {
+            'line_id': 'L31',
+            'power_capacity': 6000,
+            'length': 2081,
+            'resistance': 4.64e-6,
+            'inductance': 8.33e-7,
+            'ampacity': 3500,
+        },
+        {
+            'line_id': 'L32',
+            'power_capacity': 6000,
+            'length': 1996,
+            'resistance': 4.64e-6,
+            'inductance': 8.33e-7,
+            'ampacity': 3500,
+        },
+        {
+            'line_id': 'L33',
+            'power_capacity': 6000,
+            'length': 1818,
+            'resistance': 4.64e-6,
+            'inductance': 8.33e-7,
+            'ampacity': 3500,
+        },
+        {
+            'line_id': 'L34',
+            'power_capacity': 6000,
+            'length': 1677,
+            'resistance': 4.64e-6,
+            'inductance': 8.33e-7,
+            'ampacity': 3500,
+        },
+        {
+            'line_id': 'L35',
+            'power_capacity': 6000,
+            'length': 1627,
+            'resistance': 4.64e-6,
+            'inductance': 8.33e-7,
+            'ampacity': 3500,
+        },
+        {
+            'line_id': 'L36',
+            'power_capacity': 6000,
+            'length': 1058,
             'resistance': 4.64e-6,
             'inductance': 8.33e-7,
             'ampacity': 3500,
@@ -954,10 +1243,29 @@ def parameters():
     # Add batteries options
     parameter['batteries'] = [
         {
-          'name':'pf_bat_node5',
-          'capacity': 411,
+          'name':'pf_bat_node4',
+          'capacity': 1025,
           'degradation_endoflife': 80,
-          'degradation_replacementcost': 6000.0,
+          'degradation_replacementcost': 28700.0,#6000.0, #28700#
+          'efficiency_charging': 0.96,
+          'efficiency_discharging': 0.96,
+          'nominal_V':  24,
+          'power_charge': 150,
+          'maxS': 150,
+          'power_discharge': 150,
+          'self_discharging': 0.001,
+          'soc_final': 0.8,
+          'soc_initial': 0.2,
+          'soc_max': 0.8,
+          'soc_min': 0.2,
+          # 'temperature_initial': 22.0,
+          'thermal_C': 100000.0,
+          'thermal_R': 0.01
+        },{
+          'name':'pf_bat_node5',
+          'capacity': 1431,
+          'degradation_endoflife': 80,
+          'degradation_replacementcost': 28700.0,#6000.0, #28700#
           'efficiency_charging': 0.96,
           'efficiency_discharging': 0.96,
           'nominal_V':  24,
@@ -975,9 +1283,9 @@ def parameters():
         },
         {
           'name':'pf_bat_node6',
-          'capacity': 149,
+          'capacity': 163,
           'degradation_endoflife': 80,
-          'degradation_replacementcost': 6000.0,
+          'degradation_replacementcost': 8200.0,# 6000.0, #8200
           'efficiency_charging': 0.96,
           'efficiency_discharging': 0.96,
           'nominal_V':  24,
@@ -995,9 +1303,9 @@ def parameters():
         },
         {
           'name':'pf_bat_node7',
-          'capacity': 237,
+          'capacity': 524,
           'degradation_endoflife': 80,
-          'degradation_replacementcost': 6000.0,
+          'degradation_replacementcost': 16400.0,# 6000.0, #16400
           'efficiency_charging': 0.96,
           'efficiency_discharging': 0.96,
           'nominal_V':  24,
@@ -1015,9 +1323,9 @@ def parameters():
         },
         {
           'name':'pf_bat_node8',
-          'capacity': 3300,
+          'capacity': 667,
           'degradation_endoflife': 80,
-          'degradation_replacementcost': 6000.0,
+          'degradation_replacementcost': 221400.0,#6000.0, #221400
           'efficiency_charging': 0.96,
           'efficiency_discharging': 0.96,
           'nominal_V':  24,
@@ -1035,9 +1343,9 @@ def parameters():
         },
         {
           'name':'pf_bat_node9',
-          'capacity': 707,
+          'capacity': 202,
           'degradation_endoflife': 80,
-          'degradation_replacementcost': 6000.0,
+          'degradation_replacementcost': 49200.0,#6000.0, #49200
           'efficiency_charging': 0.96,
           'efficiency_discharging': 0.96,
           'nominal_V':  24,
@@ -1055,9 +1363,9 @@ def parameters():
         },
         {
           'name':'pf_bat_node10',
-          'capacity': 602,
+          'capacity': 571,
           'degradation_endoflife': 80,
-          'degradation_replacementcost': 6000.0,
+          'degradation_replacementcost': 41000.0,#6000.0, #41000
           'efficiency_charging': 0.96,
           'efficiency_discharging': 0.96,
           'nominal_V':  24,
@@ -1075,9 +1383,9 @@ def parameters():
         },
         {
           'name':'pf_bat_node11',
-          'capacity': 1031,
+          'capacity': 310,
           'degradation_endoflife': 80,
-          'degradation_replacementcost': 6000.0,
+          'degradation_replacementcost': 69700.0,#6000.0, #69700
           'efficiency_charging': 0.96,
           'efficiency_discharging': 0.96,
           'nominal_V':  24,
@@ -1095,9 +1403,9 @@ def parameters():
         },
         {
           'name':'pf_bat_node12',
-          'capacity': 1019,
+          'capacity': 256,
           'degradation_endoflife': 80,
-          'degradation_replacementcost': 6000.0,
+          'degradation_replacementcost': 69700.0,#6000.0, #69700
           'efficiency_charging': 0.96,
           'efficiency_discharging': 0.96,
           'nominal_V':  24,
@@ -1115,9 +1423,9 @@ def parameters():
         },
         {
           'name':'pf_bat_node13',
-          'capacity': 1431,
+          'capacity': 174,
           'degradation_endoflife': 80,
-          'degradation_replacementcost': 6000.0,
+          'degradation_replacementcost': 98400.0,#6000.0, #98400
           'efficiency_charging': 0.96,
           'efficiency_discharging': 0.96,
           'nominal_V':  24,
@@ -1135,9 +1443,9 @@ def parameters():
         },
         {
           'name':'pf_bat_node14',
-          'capacity': 163,
+          'capacity': 296,
           'degradation_endoflife': 80,
-          'degradation_replacementcost': 6000.0,
+          'degradation_replacementcost': 12300.0,#6000.0, #12300
           'efficiency_charging': 0.96,
           'efficiency_discharging': 0.96,
           'nominal_V':  24,
@@ -1155,9 +1463,9 @@ def parameters():
         },
         {
           'name':'pf_bat_node15',
-          'capacity': 524,
+          'capacity': 180,
           'degradation_endoflife': 80,
-          'degradation_replacementcost': 6000.0,
+          'degradation_replacementcost': 36900.0,#6000.0, #36900
           'efficiency_charging': 0.96,
           'efficiency_discharging': 0.96,
           'nominal_V':  24,
@@ -1175,9 +1483,9 @@ def parameters():
         },
         {
           'name':'pf_bat_node16',
-          'capacity': 819,
+          'capacity': 380,
           'degradation_endoflife': 80,
-          'degradation_replacementcost': 6000.0,
+          'degradation_replacementcost': 57400.0,#6000.0, #57400
           'efficiency_charging': 0.96,
           'efficiency_discharging': 0.96,
           'nominal_V':  24,
@@ -1195,9 +1503,9 @@ def parameters():
         },
         {
           'name':'pf_bat_node17',
-          'capacity': 667,
+          'capacity': 1112,
           'degradation_endoflife': 80,
-          'degradation_replacementcost': 6000.0,
+          'degradation_replacementcost': 45100.0,#6000.0, #45100
           'efficiency_charging': 0.96,
           'efficiency_discharging': 0.96,
           'nominal_V':  24,
@@ -1215,9 +1523,9 @@ def parameters():
         },
         {
           'name':'pf_bat_node18',
-          'capacity': 202,
+          'capacity': 707,
           'degradation_endoflife': 80,
-          'degradation_replacementcost': 6000.0,
+          'degradation_replacementcost': 12300.0,#6000.0, #12300
           'efficiency_charging': 0.96,
           'efficiency_discharging': 0.96,
           'nominal_V':  24,
@@ -1235,9 +1543,9 @@ def parameters():
         },
         {
           'name':'pf_bat_node19',
-          'capacity': 571,
+          'capacity': 819,
           'degradation_endoflife': 80,
-          'degradation_replacementcost': 6000.0,
+          'degradation_replacementcost': 36900.0,#6000.0, #36900
           'efficiency_charging': 0.96,
           'efficiency_discharging': 0.96,
           'nominal_V':  24,
@@ -1255,9 +1563,9 @@ def parameters():
         },
         {
           'name':'pf_bat_node20',
-          'capacity': 310,
+          'capacity': 220,
           'degradation_endoflife': 80,
-          'degradation_replacementcost': 6000.0,
+          'degradation_replacementcost': 20500.0,#6000.0, #20500
           'efficiency_charging': 0.96,
           'efficiency_discharging': 0.96,
           'nominal_V':  24,
@@ -1275,9 +1583,9 @@ def parameters():
         },
         {
           'name':'pf_bat_node21',
-          'capacity': 256,
+          'capacity': 175,
           'degradation_endoflife': 80,
-          'degradation_replacementcost': 6000.0,
+          'degradation_replacementcost': 16400.0,#6000.0, #16400
           'efficiency_charging': 0.96,
           'efficiency_discharging': 0.96,
           'nominal_V':  24,
@@ -1295,9 +1603,9 @@ def parameters():
         },
         {
           'name':'pf_bat_node22',
-          'capacity': 171,
+          'capacity': 2325,
           'degradation_endoflife': 80,
-          'degradation_replacementcost': 6000.0,
+          'degradation_replacementcost': 12300.0,#6000.0, #12300
           'efficiency_charging': 0.96,
           'efficiency_discharging': 0.96,
           'nominal_V':  24,
@@ -1315,9 +1623,9 @@ def parameters():
         },
         {
           'name':'pf_bat_node23',
-          'capacity': 296,
+          'capacity': 439,
           'degradation_endoflife': 80,
-          'degradation_replacementcost': 6000.0,
+          'degradation_replacementcost': 20500.0,#6000.0,#20500
           'efficiency_charging': 0.96,
           'efficiency_discharging': 0.96,
           'nominal_V':  24,
@@ -1335,9 +1643,9 @@ def parameters():
         },
         {
           'name':'pf_bat_node24',
-          'capacity': 177,
+          'capacity': 220,
           'degradation_endoflife': 80,
-          'degradation_replacementcost': 6000.0,
+          'degradation_replacementcost': 12300.0,#6000.0,#12300
           'efficiency_charging': 0.96,
           'efficiency_discharging': 0.96,
           'nominal_V':  24,
@@ -1355,9 +1663,9 @@ def parameters():
         },
         {
           'name':'pf_bat_node25',
-          'capacity': 220,
+          'capacity': 146,
           'degradation_endoflife': 80,
-          'degradation_replacementcost': 6000.0,
+          'degradation_replacementcost': 16400.0,#6000.0,#16400
           'efficiency_charging': 0.96,
           'efficiency_discharging': 0.96,
           'nominal_V':  24,
@@ -1372,13 +1680,212 @@ def parameters():
           # 'temperature_initial': 22.0,
           'thermal_C': 100000.0,
           'thermal_R': 0.01
-        }
-        ,
+        },
         {
           'name':'pf_bat_node26',
-          'capacity': 380,
+          'capacity': 146,
           'degradation_endoflife': 80,
-          'degradation_replacementcost': 6000.0,
+          'degradation_replacementcost': 24600.0,#6000.0,#24600
+          'efficiency_charging': 0.96,
+          'efficiency_discharging': 0.96,
+          'nominal_V':  24,
+          'power_charge': 350,
+          'maxS': 350,
+          'power_discharge': 350,
+          'self_discharging': 0.001,
+          'soc_final': 0.8,
+          'soc_initial': 0.2,
+          'soc_max': 0.8,
+          'soc_min': 0.2,
+          # 'temperature_initial': 22.0,
+          'thermal_C': 100000.0,
+          'thermal_R': 0.01
+        },
+        {
+          'name':'pf_bat_node27',
+          'capacity': 411,
+          'degradation_endoflife': 80,
+          'degradation_replacementcost': 24600.0,#6000.0,#24600
+          'efficiency_charging': 0.96,
+          'efficiency_discharging': 0.96,
+          'nominal_V':  24,
+          'power_charge': 350,
+          'maxS': 350,
+          'power_discharge': 350,
+          'self_discharging': 0.001,
+          'soc_final': 0.8,
+          'soc_initial': 0.2,
+          'soc_max': 0.8,
+          'soc_min': 0.2,
+          # 'temperature_initial': 22.0,
+          'thermal_C': 100000.0,
+          'thermal_R': 0.01
+        },
+        {
+          'name':'pf_bat_node28',
+          'capacity': 149,
+          'degradation_endoflife': 80,
+          'degradation_replacementcost': 24600.0,#6000.0,#24600
+          'efficiency_charging': 0.96,
+          'efficiency_discharging': 0.96,
+          'nominal_V':  24,
+          'power_charge': 350,
+          'maxS': 350,
+          'power_discharge': 350,
+          'self_discharging': 0.001,
+          'soc_final': 0.8,
+          'soc_initial': 0.2,
+          'soc_max': 0.8,
+          'soc_min': 0.2,
+          # 'temperature_initial': 22.0,
+          'thermal_C': 100000.0,
+          'thermal_R': 0.01
+        },
+        {
+          'name':'pf_bat_node29',
+          'capacity': 237,
+          'degradation_endoflife': 80,
+          'degradation_replacementcost': 24600.0,#6000.0,#24600
+          'efficiency_charging': 0.96,
+          'efficiency_discharging': 0.96,
+          'nominal_V':  24,
+          'power_charge': 350,
+          'maxS': 350,
+          'power_discharge': 350,
+          'self_discharging': 0.001,
+          'soc_final': 0.8,
+          'soc_initial': 0.2,
+          'soc_max': 0.8,
+          'soc_min': 0.2,
+          # 'temperature_initial': 22.0,
+          'thermal_C': 100000.0,
+          'thermal_R': 0.01
+        },
+        {
+          'name':'pf_bat_node30',
+          'capacity': 3300,
+          'degradation_endoflife': 80,
+          'degradation_replacementcost': 24600.0,#6000.0,#24600
+          'efficiency_charging': 0.96,
+          'efficiency_discharging': 0.96,
+          'nominal_V':  24,
+          'power_charge': 350,
+          'maxS': 350,
+          'power_discharge': 350,
+          'self_discharging': 0.001,
+          'soc_final': 0.8,
+          'soc_initial': 0.2,
+          'soc_max': 0.8,
+          'soc_min': 0.2,
+          # 'temperature_initial': 22.0,
+          'thermal_C': 100000.0,
+          'thermal_R': 0.01
+        },
+        {
+          'name':'pf_bat_node31',
+          'capacity': 602,
+          'degradation_endoflife': 80,
+          'degradation_replacementcost': 24600.0,#6000.0,#24600
+          'efficiency_charging': 0.96,
+          'efficiency_discharging': 0.96,
+          'nominal_V':  24,
+          'power_charge': 350,
+          'maxS': 350,
+          'power_discharge': 350,
+          'self_discharging': 0.001,
+          'soc_final': 0.8,
+          'soc_initial': 0.2,
+          'soc_max': 0.8,
+          'soc_min': 0.2,
+          # 'temperature_initial': 22.0,
+          'thermal_C': 100000.0,
+          'thermal_R': 0.01
+        },
+        {
+          'name':'pf_bat_node32',
+          'capacity': 1031,
+          'degradation_endoflife': 80,
+          'degradation_replacementcost': 24600.0,#6000.0,#24600
+          'efficiency_charging': 0.96,
+          'efficiency_discharging': 0.96,
+          'nominal_V':  24,
+          'power_charge': 350,
+          'maxS': 350,
+          'power_discharge': 350,
+          'self_discharging': 0.001,
+          'soc_final': 0.8,
+          'soc_initial': 0.2,
+          'soc_max': 0.8,
+          'soc_min': 0.2,
+          # 'temperature_initial': 22.0,
+          'thermal_C': 100000.0,
+          'thermal_R': 0.01
+        },
+        {
+          'name':'pf_bat_node33',
+          'capacity': 2180,
+          'degradation_endoflife': 80,
+          'degradation_replacementcost': 24600.0,#6000.0,#24600
+          'efficiency_charging': 0.96,
+          'efficiency_discharging': 0.96,
+          'nominal_V':  24,
+          'power_charge': 350,
+          'maxS': 350,
+          'power_discharge': 350,
+          'self_discharging': 0.001,
+          'soc_final': 0.8,
+          'soc_initial': 0.2,
+          'soc_max': 0.8,
+          'soc_min': 0.2,
+          # 'temperature_initial': 22.0,
+          'thermal_C': 100000.0,
+          'thermal_R': 0.01
+        },
+        {
+          'name':'pf_bat_node34',
+          'capacity': 2180,
+          'degradation_endoflife': 80,
+          'degradation_replacementcost': 24600.0,#6000.0,#24600
+          'efficiency_charging': 0.96,
+          'efficiency_discharging': 0.96,
+          'nominal_V':  24,
+          'power_charge': 350,
+          'maxS': 350,
+          'power_discharge': 350,
+          'self_discharging': 0.001,
+          'soc_final': 0.8,
+          'soc_initial': 0.2,
+          'soc_max': 0.8,
+          'soc_min': 0.2,
+          # 'temperature_initial': 22.0,
+          'thermal_C': 100000.0,
+          'thermal_R': 0.01
+        },
+        {
+          'name':'pf_bat_node35',
+          'capacity': 535,
+          'degradation_endoflife': 80,
+          'degradation_replacementcost': 24600.0,#6000.0,#24600
+          'efficiency_charging': 0.96,
+          'efficiency_discharging': 0.96,
+          'nominal_V':  24,
+          'power_charge': 350,
+          'maxS': 350,
+          'power_discharge': 350,
+          'self_discharging': 0.001,
+          'soc_final': 0.8,
+          'soc_initial': 0.2,
+          'soc_max': 0.8,
+          'soc_min': 0.2,
+          # 'temperature_initial': 22.0,
+          'thermal_C': 100000.0,
+          'thermal_R': 0.01
+        },
+        {
+          'name':'pf_bat_node36',
+          'capacity': 1898,
+          'degradation_endoflife': 80,
+          'degradation_replacementcost': 24600.0,#6000.0,#24600
           'efficiency_charging': 0.96,
           'efficiency_discharging': 0.96,
           'nominal_V':  24,
