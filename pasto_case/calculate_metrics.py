@@ -402,9 +402,9 @@ def consistency_ratio(priority_index,ahp_df):
                                                               ['priority index']),axis=0)
     lambda_max = lambda_max_df.mean()
     consistency_index = round((lambda_max-len(ahp_df.index))/(len(ahp_df.index)-1),3)
-    # print(f'The Consistency Index is: {consistency_index}')
+    print(f'The Consistency Index is: {consistency_index}')
     consistency_ratio = round(consistency_index/random_matrix[len(ahp_df.index)],3)
-    # print(f'The Consistency Ratio is: {consistency_ratio}')
+    print(f'The Consistency Ratio is: {consistency_ratio}')
     if consistency_ratio<0.1:
         print('The AHP model is consistent')
     else:
@@ -444,11 +444,14 @@ def generate_alternative_matrix(availability, autonomy, cost, incentives, emissi
             emissionsFactor.append(emissions[i] / emissions[j])
         data.append(availabilityFactor + drivingRangeFactor + costFactor + incentivesFactor + emissionsFactor)
     data = np.array(data).T.tolist()
-    ahp_df = pd.DataFrame(data, index=index, columns=['ICE','EVL1', 'EVL2', 'EVL3', 'CNG','PHEVL1', 'PHEVL2', 'PHEVL3'])
-    print(ahp_df.round(3))
+    ahp_df = pd.DataFrame(data, index=index, columns=['ICE','EVL1', 'EVL2', 'EVL3', 'CNG','PHEVL1', 'PHEVL2', 'PHEVL3']).round(3)
+    print('MATRIX CRITERIA')
+    ahp_df.to_excel('./results/matrix_criteria.xlsx')
     scaled_df = MinMaxScaler().fit_transform(ahp_df)
-    scaled_df = pd.DataFrame(scaled_df, index=index, columns=['ICE','EVL1', 'EVL2', 'EVL3', 'CNG','PHEVL1', 'PHEVL2', 'PHEVL3'])
-    print(scaled_df.round(3))
+    scaled_df = pd.DataFrame(scaled_df, index=index, columns=['ICE','EVL1', 'EVL2', 'EVL3', 'CNG','PHEVL1', 'PHEVL2', 'PHEVL3']).round(3)
+    print('MATRIX NORMALIZED')
+    print(scaled_df)
+    scaled_df.to_excel('./results/matrix_normalized.xlsx')
     return scaled_df
 
 def social_metric(altenativeMatrix):
@@ -472,8 +475,9 @@ def social_metric(altenativeMatrix):
     E_df = priority_index(ahp_df_1,'Emissions')
 
     alternative_df = pd.concat([AF_df,DR_df,AC_df, I_df, E_df],axis=1)
-    norm_df = alternative_df.multiply(np.array(priority_index_attr.loc['priority index']),axis=1) 
+    norm_df = alternative_df.multiply(np.array(priority_index_attr.loc['priority index']),axis=1).round(3)
     norm_df['Sum'] = norm_df.sum(axis=1)
+    norm_df.to_excel('./results/result_AHP.xlsx')
     print(round(norm_df,3))
     print('Max Score = ', round(norm_df['Sum'].max(),3), 'Best alternative = ', norm_df['Sum'].idxmax())
     return norm_df
@@ -519,14 +523,23 @@ def save_metrics_data(consumption, autonomy, cpt, cost, eco, emissions, socialCo
                 'Emissions per kilometer', 'Lifecycle emissions', 
                 'Social cost', 'Willingness-to-pay', 'Availability factor']})
     index = pd.MultiIndex.from_frame(df)  
-    data =  [[consumption[0], autonomy[0], cpt[0], cost[0], eco[0], emissions[0], socialCost[0], socialSum[0], availability[0]], 
-             [consumption[1], autonomy[1], cpt[1], cost[1], eco[1], emissions[1], socialCost[1], socialSum[1], availability[1]],
-             [consumption[1], autonomy[2], cpt[1], cost[2], eco[1], emissions[1], socialCost[1], socialSum[2], availability[2]],
-             [consumption[1], autonomy[3], cpt[1], cost[3], eco[1], emissions[1], socialCost[1], socialSum[3], availability[3]],
-             [consumption[2], autonomy[4], cpt[2], cost[4], eco[2], emissions[2], socialCost[2], socialSum[4], availability[4]],
-             [consumption[3], autonomy[5], cpt[3], cost[5], eco[3], emissions[3], socialCost[3], socialSum[5], availability[5]],
-             [consumption[3], autonomy[6], cpt[3], cost[6], eco[3], emissions[3], socialCost[3], socialSum[6], availability[6]],
-             [consumption[3], autonomy[7], cpt[3], cost[7], eco[3], emissions[3], socialCost[3], socialSum[7], availability[7]]]
+    consumption = pd.Series(consumption)
+    autonomy = pd.Series(autonomy)
+    cpt = pd.Series(cpt)
+    cost = pd.Series(cost)
+    eco = pd.Series(eco)
+    emissions = pd.Series(emissions)
+    socialCost = pd.Series(socialCost)
+    socialSum = pd.Series(socialSum)
+    availability = pd.Series(availability)
+    data =  [[consumption.iloc[0], autonomy.iloc[0], cpt.iloc[0], cost.iloc[0], eco.iloc[0], emissions.iloc[0], socialCost.iloc[0], socialSum.iloc[0], availability.iloc[0]], 
+             [consumption.iloc[1], autonomy.iloc[1], cpt.iloc[1], cost.iloc[1], eco.iloc[1], emissions.iloc[1], socialCost.iloc[1], socialSum.iloc[1], availability.iloc[1]],
+             [consumption.iloc[1], autonomy.iloc[2], cpt.iloc[1], cost.iloc[2], eco.iloc[1], emissions.iloc[1], socialCost.iloc[1], socialSum.iloc[2], availability.iloc[2]],
+             [consumption.iloc[1], autonomy.iloc[3], cpt.iloc[1], cost.iloc[3], eco.iloc[1], emissions.iloc[1], socialCost.iloc[1], socialSum.iloc[3], availability.iloc[3]],
+             [consumption.iloc[2], autonomy.iloc[4], cpt.iloc[2], cost.iloc[4], eco.iloc[2], emissions.iloc[2], socialCost.iloc[2], socialSum.iloc[4], availability.iloc[4]],
+             [consumption.iloc[3], autonomy.iloc[5], cpt.iloc[3], cost.iloc[5], eco.iloc[3], emissions.iloc[3], socialCost.iloc[3], socialSum.iloc[5], availability.iloc[5]],
+             [consumption.iloc[3], autonomy.iloc[6], cpt.iloc[3], cost.iloc[6], eco.iloc[3], emissions.iloc[3], socialCost.iloc[3], socialSum.iloc[6], availability.iloc[6]],
+             [consumption.iloc[3], autonomy.iloc[7], cpt.iloc[3], cost.iloc[7], eco.iloc[3], emissions.iloc[3], socialCost.iloc[3], socialSum.iloc[7], availability.iloc[7]]]
     data = np.array(data).T.tolist()
     metrics_df = pd.DataFrame(data, index=index, columns=['ICE','EVL1', 'EVL2', 'EVL3', 'CNG', 'PHEVL1', 'PHEVL2', 'PHEVL3'])
 
