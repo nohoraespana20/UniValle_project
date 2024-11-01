@@ -144,28 +144,32 @@ def execute_solver(parameter, data):
     return df, res
 
 def save_results_solver(df, i):
-    df.to_csv(f'C:/Nohora/UniValle_project/pasto_case/results/L2_3/doperRes{i}.csv', index=False)
+    df.to_csv(f'C:/Nohora/UniValle_project/pasto_case/results/L1_home/doperRes{i}.csv', index=False)
 
 def show_results_solver(df, i):
     plt.plot(df[['Import Power [kW]','PV Power [kW]', 'Load Power [kW]']])
     plt.title('Power flow at PCC')
     plt.legend(['Import Power [kW]','PV Power [kW]', 'Load Power [kW]'])
-    plt.savefig(f'C:/Nohora/UniValle_project/pasto_case/results/L2_3/Fig1_{i}.jpg')
-    plot_dynamic(df, parameter, plotFile = f'C:/Nohora/UniValle_project/pasto_case/results/L2_3/Fig2_{i}.jpg', plot_reg=False)
+    plt.savefig(f'C:/Nohora/UniValle_project/pasto_case/results/L1_home/Fig1_{i}.jpg')
+    plot_dynamic(df, parameter, plotFile = f'C:/Nohora/UniValle_project/pasto_case/results/L1_home/Fig2_{i}.jpg', plot_reg=False)
 
 if __name__ == '__main__':  
     parameter = parameters()
-    demand = [8.9, 38.7, 582.5, 1155.6, 2989.8, 6340.0, 9108.8, 23724.3, 11865.5, #demand L2
-             4629.7, 19548.7, 25972.5, 35441.8, 41558.6, 536.5, 2301.6, 139.3,
-             86847.3, 123598.7, 155795.6, 109602.5, 108342.6, 99047.5, 67926.1,
-             14709.8, 236133.7, 19783.1, 226017.5, 20115.6, 35732.1]
-    # demand = [11.2, 105.6, 304.5, 709.0, 1353.9, 909.9, 2684.1, 139.3, 21.6,5031.2, # demand L1 #5, 11, 14, 16, 21, 22, 25, 26, 28
-    #           848.3, 5882.9, 6526.3, 243.5, 19847.1, 23634.2, 29872.8, 1163.5, 2629.1, 1135.7, 
-    #           39.4, 4308.3, 33677.1, 6931.9, 66063.3, 12667.2, 71894.8, 335.3, 27659.8, 45793.6]
+    #DEMAND L1 HOME-WORKPLACE
+    demand = [11.2, 105.6, 304.5, 709.0, 1353.9, 909.9, 2684.1, 139.3, 21.6,5031.2,
+              848.3, 5882.9, 6526.3, 243.5, 19847.1, 23634.2, 29872.8, 1163.5, 2629.1, 1135.7, 
+              39.4, 4308.3, 33677.1, 6931.9, 66063.3, 12667.2, 71894.8, 335.3, 27659.8, 45793.6]
+    #DEMAND L2 SHOPPING MALL
+    # demand = [8.9, 38.7, 582.5, 1155.6, 2989.8, 6340.0, 9108.8, 23724.3, 11865.5, 
+    #          4629.7, 19548.7, 25972.5, 35441.8, 41558.6, 536.5, 2301.6, 139.3,
+    #          86847.3, 123598.7, 155795.6, 109602.5, 108342.6, 99047.5, 67926.1,
+    #          14709.8, 236133.7, 19783.1, 226017.5, 20115.6, 35732.1]
+    #DEMAND L3 FAST
+    # demand = [0.0, 4.7, 226.5, 134.2, 522.4, 87.2, 1514.9, 124.9, 497.5, 14610.3, 4553.6, 
+    #           13179.0, 983.2, 1183.4, 32933.0, 492.7, 112.1, 52.1, 76430.1, 41323.4, 53832.9,
+    #           150721.6, 102287.8, 10489.3, 208568.5, 111.6, 16747.6, 3055.4, 227745.7, 164255.1, 62742.2]
     data_frames = []
     
-
-    # for i in [0, 1, 2, 3, 5, 7, 8, 11, 13, 14, 16, 20, 21, 22, 25, 26, 27, 28]:
     for i in range(len(demand)):
         print('Demand = ', demand[i], 'Año = ', i)
         try:
@@ -175,8 +179,7 @@ if __name__ == '__main__':
             save_results_solver(df, i)
             show_results_solver(df, i)
             print(standard_report(res))
-            with open(f'C:/Nohora/UniValle_project/pasto_case/results/L2_3/terminalRes{i}.txt', 'w') as k:
+            with open(f'C:/Nohora/UniValle_project/pasto_case/results/L1_home/terminalRes{i}.txt', 'w') as k:
                 k.write(standard_report(res))
         except:
             print(f'Error in solver {i}')
-    # #TODO: Correr para L1, L2y3, L4

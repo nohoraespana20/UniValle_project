@@ -1,4 +1,0 @@
-Duration [s]		2015.58
-Objective [$]		25.67			25.67 (Total Cost)
-Cost [$]		29.56 (Energy)	10.29 (Demand)
-CO2 Emissions [kg]		0.0
