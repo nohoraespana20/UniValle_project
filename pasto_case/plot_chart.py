@@ -27,7 +27,6 @@ def plot_radar_chart(data, metrics, title, yticks_value, yticks_name):
     plt.yticks(yticks_value, yticks_name, color="black", size=8)
     plt.xticks(theta, metrics + [metrics[0]], color='black', size=8)
     plt.legend() 
-    
     return fig
 
 
@@ -35,12 +34,15 @@ data_frame1 = pd.read_csv("C:\\Nohora\\UniValle_project\\pasto_case\\results\\re
 df1 = data_frame1.copy()
 df1 = df1.drop(['Sum'], axis=1)
 metrics = df1.columns[1:].tolist()
+
 data_frame2 = pd.read_csv("C:\\Nohora\\UniValle_project\\pasto_case\\results\\result_AHP2.csv")
 df2 = data_frame2.copy()
 df2 = df2.drop(['Sum'], axis=1)
+
 data_frame3 = pd.read_csv("C:\\Nohora\\UniValle_project\\pasto_case\\results\\result_AHP3.csv")
 df3 = data_frame3.copy()
 df3 = df3.drop(['Sum'], axis=1)
+
 data_frame4 = pd.read_csv("C:\\Nohora\\UniValle_project\\pasto_case\\results\\result_AHP4.csv")
 df4 = data_frame4.copy()
 df4 = df4.drop(['Sum'], axis=1)

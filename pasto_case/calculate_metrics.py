@@ -235,8 +235,8 @@ def accumulatedCost(configuration, combustion, electric, gas, hybrid, vehType, E
         checkCost = combustion[7] * 0.7 
     elif vehType == 'PHEV':
         EkWh_100km = 16.85
-        powerConsumptionICE = (E_100km / (100 * 9.67)) * annualDistance * 0.7
-        powerConsumptionEV = (EkWh_100km/100) * annualDistance * 0.3
+        powerConsumptionICE = (E_100km / (100 * 9.67)) * annualDistance * 0.3
+        powerConsumptionEV = (EkWh_100km/100) * annualDistance * 0.7
         hybrid_1 = hybrid[1] / 3.785
         totalCost[0] = hybrid[0]
         annualCost[0] = hybrid[0]
@@ -375,7 +375,7 @@ def recycling_emission(vehType, mass, capacity):
 
 def lifecycle_emissions(vehType, mass, capacity, emission, aDistance):
     if vehType == 'PHEV':
-        annualDistance = aDistance * 0.7
+        annualDistance = aDistance * 0.3
     else:
         annualDistance = aDistance
     production = production_emission(vehType, mass, capacity)
@@ -455,14 +455,39 @@ def generate_alternative_matrix(availability, autonomy, cost, incentives, emissi
     return scaled_df
 
 def social_metric(altenativeMatrix):
+    #Caso 1
     comparisonMatrix = {}
     comparisonMatrix['Availability Factor'] =   [1, 1/4, 1/5, 1/6, 1/7]
     comparisonMatrix['Driving Range'] =         [4, 1,   1/2, 1/3, 1/4]
     comparisonMatrix['Accumulated Cost'] =      [5, 2,   1,   1/2, 1/3]
     comparisonMatrix['Incentives'] =            [6, 3,   2,   1,   1/2]
     comparisonMatrix['Emissions'] =             [7, 4,   3,   2,   1]
+    #Caso 2
+    # comparisonMatrix = {}
+    # comparisonMatrix['Availability Factor'] =[5, 2,   1,   1/2, 1/3]
+    # comparisonMatrix['Driving Range'] =      [6, 3,   2,   1,   1/2]
+    # comparisonMatrix['Accumulated Cost'] =   [1, 1/4, 1/5, 1/6, 1/7]
+    # comparisonMatrix['Incentives'] =         [4, 1,   1/2, 1/3, 1/4]
+    # comparisonMatrix['Emissions'] =          [7, 4,   3,   2,   1]
+    # Caso 3
+    # comparisonMatrix = {}
+    # comparisonMatrix['Availability Factor'] =[4, 1,   1/2, 1/3, 1/4]
+    # comparisonMatrix['Driving Range'] =      [5, 2,   1,   1/2, 1/3]
+    # comparisonMatrix['Accumulated Cost'] =   [6, 3,   2,   1,   1/2]
+    # comparisonMatrix['Incentives'] =         [7, 4,   3,   2,   1]
+    # comparisonMatrix['Emissions'] =          [1, 1/4, 1/5, 1/6, 1/7]
+    # Caso 4
+    # comparisonMatrix = {}
+    # comparisonMatrix['Availability Factor'] =   [1, 1, 1, 1, 1]
+    # comparisonMatrix['Driving Range'] =         [1, 1, 1, 1, 1]
+    # comparisonMatrix['Accumulated Cost'] =      [1, 1, 1, 1, 1]
+    # comparisonMatrix['Incentives'] =            [1, 1, 1, 1, 1]
+    # comparisonMatrix['Emissions'] =             [1, 1, 1, 1, 1]
 
     ahp_df = pd.DataFrame(comparisonMatrix, index=['Availability Factor', 'Driving Range', 'Accumulated Cost', 'Incentives', 'Emissions'])
+    # ahp_df = pd.DataFrame(comparisonMatrix, index=['Accumulated Cost', 'Incentives', 'Availability Factor', 'Driving Range', 'Emissions'])
+    # ahp_df = pd.DataFrame(comparisonMatrix, index=['Emissions', 'Availability Factor', 'Driving Range', 'Accumulated Cost', 'Incentives'])
+    # ahp_df = pd.DataFrame(comparisonMatrix, index=['Availability Factor', 'Driving Range', 'Accumulated Cost', 'Incentives', 'Emissions'])
     priority_index_attr = ahp_attributes(ahp_df)
     consistency_ratio(priority_index_attr,ahp_df)
 
@@ -477,7 +502,8 @@ def social_metric(altenativeMatrix):
     alternative_df = pd.concat([AF_df,DR_df,AC_df, I_df, E_df],axis=1)
     norm_df = alternative_df.multiply(np.array(priority_index_attr.loc['priority index']),axis=1).round(3)
     norm_df['Sum'] = norm_df.sum(axis=1)
-    norm_df.to_excel('./results/result_AHP.xlsx')
+    norm_df.to_excel('./results/result_AHP1.xlsx')
+    norm_df.to_csv('./results/result_AHP1.csv')
     print(round(norm_df,3))
     print('Max Score = ', round(norm_df['Sum'].max(),3), 'Best alternative = ', norm_df['Sum'].idxmax())
     return norm_df
