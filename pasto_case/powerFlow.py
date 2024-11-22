@@ -15,9 +15,9 @@ def control_model(inputs, parameter):
     
     def objective_function(model):
         return model.sum_energy_cost * parameter['objective']['weight_energy'] \
-            #    + model.sum_demand_cost * parameter['objective']['weight_demand'] #\
-            #    + model.sum_export_revenue * parameter['objective']['weight_export'] \
-            #    + model.fuel_cost_total * parameter['objective']['weight_energy'] 
+               + model.sum_demand_cost * parameter['objective']['weight_demand'] \
+               + model.sum_export_revenue * parameter['objective']['weight_export'] \
+               + model.fuel_cost_total * parameter['objective']['weight_energy'] 
     model.objective = Objective(rule=objective_function, sense=minimize, doc='objective function')
     return model
 
@@ -133,6 +133,7 @@ def data_multinode(parameter, demand):
 def execute_solver(parameter, data):
     output_list = default_output_list(parameter)
     solver_path = "C:\\Nohora\\UniValle_project\\pasto_case\\DOPER\\doper\\solvers\\Windows64\\cbc.exe"
+    
     smartDER = DOPER(model=control_model,
                      parameter=parameter,
                      solver_path=solver_path,
@@ -144,14 +145,14 @@ def execute_solver(parameter, data):
     return df, res
 
 def save_results_solver(df, i):
-    df.to_csv(f'C:/Nohora/UniValle_project/pasto_case/results/all/doperResL3.csv', index=False)
+    df.to_csv(f'C:/Nohora/UniValle_project/pasto_case/results/all/doperResL3{i}.csv', index=False)
 
 def show_results_solver(df, i):
     plt.plot(df[['Import Power [kW]','PV Power [kW]', 'Load Power [kW]']])
     plt.title('Power flow at PCC')
     plt.legend(['Import Power [kW]','PV Power [kW]', 'Load Power [kW]'])
-    plt.savefig(f'C:/Nohora/UniValle_project/pasto_case/results/all/Fig1_L3.jpg')
-    plot_dynamic(df, parameter, plotFile = f'C:/Nohora/UniValle_project/pasto_case/results/all/Fig2_L3.jpg', plot_reg=False)
+    plt.savefig(f'C:/Nohora/UniValle_project/pasto_case/results/all/Fig1_L3{i}.jpg')
+    plot_dynamic(df, parameter, plotFile = f'C:/Nohora/UniValle_project/pasto_case/results/all/Fig2_L3{i}.jpg', plot_reg=False)
 
 if __name__ == '__main__':  
     parameter = parameters()
@@ -168,19 +169,20 @@ if __name__ == '__main__':
     # demand = [0.0, 4.7, 226.5, 134.2, 522.4, 87.2, 1514.9, 124.9, 497.5, 14610.3, 4553.6, 
     #           13179.0, 983.2, 1183.4, 32933.0, 492.7, 112.1, 52.1, 76430.1, 41323.4, 53832.9,
     #           150721.6, 102287.8, 10489.3, 208568.5, 111.6, 16747.6, 3055.4, 227745.7, 164255.1, 62742.2]
-    demand = [11000]
+    demand = [1000, 2000, 4000, 4500, 5000, 5500, 6000, 6500, 7000, 7500, 8000, 8500, 9000, 9500, 10000, 10500, 11000]
     data_frames = []
     
     for i in range(len(demand)):
-        print('Demand = ', demand[i], 'Año = ', i)
+        print('Demand = ', demand[i], 'Position = ', i)
         try:
             data = data_multinode(parameter, demand[i])
+
             df, res = execute_solver(parameter, data)
             data_frames.append(df)
             save_results_solver(df, i)
             show_results_solver(df, i)
             print(standard_report(res))
-            with open(f'C:/Nohora/UniValle_project/pasto_case/results/all/terminalResL3.txt', 'w') as k:
+            with open(f'C:/Nohora/UniValle_project/pasto_case/results/all/terminalResL3{i}.txt', 'w') as k:
                 k.write(standard_report(res))
         except:
             print(f'Error in solver {i}')
