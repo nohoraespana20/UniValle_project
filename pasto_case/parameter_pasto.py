@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd
 from pprint import pprint
 import projections as pr
-# Example data for running SINGLE-NODE models (development)
+
 def parameters():
     """default_parameter"""
     parameter = {}
@@ -57,20 +57,17 @@ def parameters():
         parameter['tariff']['demand_coincident'] = 0.5 # $/kW for coincident
         parameter['tariff']['export'] = {0:0} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
     else:
-        #LEVEL CHARGE : L1 & L2
-        parameter['tariff']['energy'] = {0:0.25, 1:0.5, 2:0.5} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
-        parameter['tariff']['demand'] = {0:0.25, 1:0.5, 2:0.5} # $/kW for periods 0-offpeak, 1-midpeak, 2-onpeak
-        # parameter['tariff']['demand'] = {0:67.9, 1:67.9, 2:67.9} # $/kW for periods 0-offpeak, 1-midpeak, 2-onpeak
-        parameter['tariff']['demand_coincident'] = 0.5 # $/kW for coincident
-        parameter['tariff']['export'] = {0:0.12} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
-        # parameter['tariff']['export'] = {0:0.14} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
+        # # #LEVEL CHARGE : L1 & L2
+        # parameter['tariff']['energy'] = {0:0.25, 1:0.5, 2:0.5} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
+        # parameter['tariff']['demand'] = {0:0.25, 1:0.5, 2:0.5} # $/kW for periods 0-offpeak, 1-midpeak, 2-onpeak
+        # parameter['tariff']['demand_coincident'] = 0.5 # $/kW for coincident
+        # parameter['tariff']['export'] = {0:0.12} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
+
         # #LEVEL CHARGE : L3
-        # parameter['tariff']['energy'] = {0:0.75, 1:1.5, 2:1.5} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
-        # parameter['tariff']['demand'] = {0:0.75, 1:1.5, 2:1.5} # $/kW for periods 0-offpeak, 1-midpeak, 2-onpeak
-        # # parameter['tariff']['demand'] = {0:67.9, 1:67.9, 2:67.9} # $/kW for periods 0-offpeak, 1-midpeak, 2-onpeak
-        # parameter['tariff']['demand_coincident'] = 1.5 # $/kW for coincident
-        # parameter['tariff']['export'] = {0:0.36} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
-        # # parameter['tariff']['export'] = {0:0.14} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
+        parameter['tariff']['energy'] = {0:0.75, 1:1.50, 2:1.5} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
+        parameter['tariff']['demand'] = {0:0.75, 1:1.50, 2:1.5} # $/kW for periods 0-offpeak, 1-midpeak, 2-onpeak
+        parameter['tariff']['demand_coincident'] = 1.5 # $/kW for coincident
+        parameter['tariff']['export'] = {0:0.36} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
 
     parameter['site'] = {}
     parameter['site']['customer'] = 'Commercial' # Type of customer [commercial or none]; decides if demand charge
@@ -83,8 +80,8 @@ def parameters():
     parameter['site']['regulation_reserved'] = False # Flag to reserve site capacity for regulation
     parameter['site']['regulation_reserved_battery'] = False # Flag to reserve battery capacity for regulation
     parameter['site']['regulation_reserved_variable_battery'] = False # Flag to reserve battery capacity for regulation (variable ts)
-    parameter['site']['import_max'] = 10000 # kW
-    parameter['site']['export_max'] = 10000 # kW
+    parameter['site']['import_max'] = 230000 # kW
+    parameter['site']['export_max'] = 20461 # kW
     parameter['site']['demand_periods_prev'] = {0:0,1:0,2:0} # kW peak previously set for periods 0-offpeak, 1-midpeak, 2-onpeak
     parameter['site']['demand_coincident_prev'] = 0 # kW peak previously set for coincident
     parameter['site']['input_timezone'] = -5 # Timezone of inputs (in hourly offset from UTC)
@@ -1929,15 +1926,15 @@ def ts_inputs(parameter={}, load='Flexlab', scale_load=4, scale_pv=4):
         data['load_demand'] = data['load_demand']/data['load_demand'].max()
     elif load =='B90':
         data = pd.DataFrame(index=pd.date_range(start='2019-01-01 00:00', end='2019-01-01 23:50', freq='h'))
-        data['load_demand'] = [0.5, 0.45, 0.32, 0.25, 0.12, 0.05, 0.15, 0.29, 0.38, 0.47, 0.58, 0.675, 0.74, 0.812, 0.92, 0.835, 0.751, 0.69, 0.57, 0.42, 0.37, 0.26, 0.25, 0.24] # curva L1 at home
+        # data['load_demand'] = [0.5, 0.45, 0.32, 0.25, 0.12, 0.05, 0.15, 0.29, 0.38, 0.47, 0.58, 0.675, 0.74, 0.812, 0.92, 0.835, 0.751, 0.69, 0.57, 0.42, 0.37, 0.26, 0.25, 0.24] # curva L1 at home
         # data['load_demand'] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.35, 0.5, 0.69, 0.8, 0.87, 0.8, 0.75, 0.4, 0.3, 0.15, 0.05, 0.01, 0,0,0,0,0,0,0] # curva L1 workplace
         # data['load_demand'] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.03, 0.05, 0.25, 0.35, 0.5, 0.59, 0.52, 0.4, 0.35, 0.4, 0.6, 0.69, 0.8, 0.87, 0.75, 0.4, 0.1, 0.0]#curva L2 shopping mall
-        # data['load_demand'] = [0.005, 0.005, 0.005, 0.005, 0.050, 0.01, 0.03, 0.05, 0.25, 0.35, 0.5, 0.59, 0.52, 0.4, 0.35, 0.4, 0.6, 0.79, 0.9, 1, 0.85, 0.4, 0.1, 0.0]#curva L3 CHARGING STATION
+        data['load_demand'] = [0.05, 0.07, 0.08, 0.09, 0.150, 0.261, 0.273, 0.315, 0.425, 0.535, 0.55, 0.59, 0.52, 0.4, 0.35, 0.4, 0.6, 0.79, 0.9, 1, 0.85, 0.4, 0.1, 0.05]#curva L3 CHARGING STATION
         data['load_demand'] = data['load_demand']/data['load_demand'].max()
     # Scale Load data
     data['load_demand'] = data['load_demand'] * scale_load
     # Mode of OAT
-    data['oat'] = np.sin(data.index.view(np.int64)/(1e12*np.pi*4))*3 + 22
+    data['oat'] = np.sin(data.index.view(np.int64)/(1e12*np.pi*4))*3 + 15  #TODO: Cambiar temperatura a 15
     # Makeup Tariff
     data['tariff_energy_map'] = 0
     # data['tariff_energy_map'] = data['tariff_energy_map'].mask((data.index.hour>=8) & (data.index.hour<22), 1)
