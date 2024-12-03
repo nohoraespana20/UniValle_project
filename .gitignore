@@ -1,10 +1,7 @@
-*.xlsx
 __pycache__
 report.log
 *.png
 *.bak
-*.json
-
 tmp
 
 # Python compiled files #

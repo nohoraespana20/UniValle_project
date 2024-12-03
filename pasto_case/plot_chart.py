@@ -53,20 +53,20 @@ fig = plot_radar_chart(df1, metrics, '', yticks_value, yticks_name)
 plt.savefig("C:\\Nohora\\UniValle_project\\pasto_case\\results\\index1")
 plt.show()
 
-yticks_value = [0, 0.075, 0.15, 0.225, 0.3]
-yticks_name = ["0", "0.075", "0.15", "0.225", "0.3"]
+yticks_value = [0, 0.0625, 0.125, 0.1875, 0.25]
+yticks_name = ["0", "0.02", "0.04", "0.06", "0.25"]
 fig = plot_radar_chart(df2, metrics, '', yticks_value, yticks_name)
 plt.savefig("C:\\Nohora\\UniValle_project\\pasto_case\\results\\index2")
 plt.show()
 
-yticks_value = [0, 0.0225, 0.045, 0.0675, 0.09]
-yticks_name = ["0", "0.0225", "0.045", "0.0675", "0.09"]
+yticks_value = [0, 0.02, 0.04, 0.06, 0.08]
+yticks_name = ["0", "0.02", "0.04", "0.06", "0.08"]
 fig = plot_radar_chart(df3, metrics, '', yticks_value, yticks_name)
 plt.savefig("C:\\Nohora\\UniValle_project\\pasto_case\\results\\index3")
 plt.show()
 
-yticks_value = [0, 0.0225, 0.045, 0.0675, 0.09]
-yticks_name = ["0", "0.0225", "0.045", "0.0675", "0.09"]
+yticks_value = [0, 0.02, 0.04, 0.06, 0.09]
+yticks_name = ["0", "0.02", "0.04", "0.06", "0.09"]
 fig = plot_radar_chart(df4, metrics, '', yticks_value, yticks_name)
 plt.savefig("C:\\Nohora\\UniValle_project\\pasto_case\\results\\index4")
 plt.show()
