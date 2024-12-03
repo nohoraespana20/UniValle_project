@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import math
 
 def process_data_files(input_folder, output_folder, graph_folder):
     """
@@ -39,15 +40,12 @@ def process_data_files(input_folder, output_folder, graph_folder):
                 df.to_csv(output_path, index=False)
                 print(f"Procesado: {file_name} -> {output_path}")
 
-                # Llamada a la función para generar figuras
-                generate_figures(df, file_name, graph_folder)
-
             except ZeroDivisionError:
                 print(f"Error: División por cero en {file_name}. Se omite.")
             except Exception as e:
                 print(f"Error inesperado al procesar {file_name}: {e}")
 
-def generate_figures(df, file_name, graph_folder):
+def generate_figures_technical(df, file_name, graph_folder, metric_name):
     """
     Genera figuras a partir de los datos procesados y las guarda en la carpeta de gráficas.
 
@@ -56,35 +54,79 @@ def generate_figures(df, file_name, graph_folder):
         file_name (str): Nombre del archivo CSV original.
         graph_folder (str): Ruta de la carpeta para guardar las gráficas.
     """
-    graph_path_pv = os.path.join(graph_folder, f"pv_{os.path.splitext(file_name)[0]}.png")
-    graph_path_bat = os.path.join(graph_folder, f"bat_{os.path.splitext(file_name)[0]}.png")
+    graph_path = os.path.join(graph_folder, f"{os.path.splitext(file_name)[0]}.png")
 
     total_rows = len(df)
     time_intervals = pd.date_range(start='00:00', periods=total_rows, freq='5min').strftime('%H:%M')
 
-    # Figura de PV/Import Power
     plt.figure(figsize=(10, 6))
-    plt.plot(time_intervals, df['PV/Import Power (%)'], label='PV/Import Power (%)')
+    plt.plot(time_intervals, df)
     plt.xlabel('Time')
-    plt.ylabel('SRG [%]')
-    plt.title(f'Share of Renewable Generation L1 - Home chargers')
+    plt.ylabel(f'{metric_name}')
+    plt.title(f'{file_name}')
     plt.grid(True)
-    plt.legend()
+    plt.legend(['Home', 'Workplace', 'Shopping Mall', 'Fast CS'])
     step = max(1, total_rows // 10)
     plt.xticks(ticks=np.arange(0, total_rows, step), labels=time_intervals[::step], rotation=0)
-    plt.savefig(graph_path_pv)
+    plt.savefig(graph_path)
     plt.close()
 
-    # Figura de Battery Utilization Rate
+def generate_figures_economic(df, years, file_name, graph_folder, metric_name):
+    """
+    Genera figuras a partir de los datos procesados y las guarda en la carpeta de gráficas.
+
+    Args:
+        df (pd.DataFrame): DataFrame procesado con los datos calculados.
+        file_name (str): Nombre del archivo CSV original.
+        graph_folder (str): Ruta de la carpeta para guardar las gráficas.
+    """
+    graph_path = os.path.join(graph_folder, f"{os.path.splitext(file_name)[0]}.png")
+
+    year = list(range(years))
     plt.figure(figsize=(10, 6))
-    plt.plot(time_intervals, df['Battery Utilization Rate (%)'], label='Battery Utilization Rate (%)')
-    plt.xlabel('Time')
-    plt.ylabel('BUR [%]')
-    plt.title(f'Battery Utilization Rate L1 - Home chargers')
+    plt.plot(year, df)
+    plt.xlabel('Year')
+    plt.ylabel(f'{metric_name}')
+    plt.title(f'{file_name}')
     plt.grid(True)
+    plt.legend(['Home', 'Workplace', 'Shopping Mall', 'Fast CS'])
+    step = max(1, years // 10)
+    plt.xticks(ticks=np.arange(0, years, step), labels=year[::step], rotation=0)
+    plt.savefig(graph_path)
+    plt.close()
+
+def generate_figures_economic2(df, years, file_name, graph_folder, metric_name):
+    graph_path = os.path.join(graph_folder, f"bar_{os.path.splitext(file_name)[0]}.png")
+    year = list(range(years))
+    categories = df.columns  # Asume que las columnas del DataFrame son 'Home', 'Workplace', etc.
+    bar_width = 0.2  # Ancho de cada grupo de barras
+
+    # Configurar el tamaño de la figura
+    plt.figure(figsize=(12, 6))
+
+    # Graficar cada categoría con un desplazamiento
+    for i, category in enumerate(categories):
+        plt.bar(
+            np.array(year) + i * bar_width,
+            df[category],
+            width=bar_width,
+            label=category
+        )
+
+    # Configurar etiquetas y título
+    plt.xlabel('Year')
+    plt.ylabel(f'{metric_name}')
+    plt.title(f'{file_name}')
+    plt.xticks(
+        ticks=np.arange(years) + bar_width * (len(categories) - 1) / 2,
+        labels=year,
+        rotation=0
+    )
     plt.legend()
-    plt.xticks(ticks=np.arange(0, total_rows, step), labels=time_intervals[::step], rotation=0)
-    plt.savefig(graph_path_bat)
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+    # Guardar la gráfica y cerrar la figura
+    plt.savefig(graph_path)
     plt.close()
 
 def calculate_accumulated_cost(I_PV, I_bat, years, profit_energy):
@@ -124,36 +166,87 @@ def calculate_accumulated_cost(I_PV, I_bat, years, profit_energy):
 
 if __name__ == '__main__':
     input_folder = "C:\\Users\\noluc\\OneDrive\\Escritorio\\Univalle\\AvanceTesis_2024B\\simulador\\results_DOPER_oct2024\\L1_home"
-    output_folder = "C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L1_home"
+    output_folder = "C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics"
     graph_folder = os.path.join(output_folder, "graficas")
 
-    # #Technical metrics
-    # process_data_files(input_folder, output_folder, graph_folder)
+    #####Technical metrics####
+    ## process_data_files(input_folder, output_folder, graph_folder)
 
-    # # Economis metrics
+    df1 = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L1_home\\doperRes25.csv")
+    df2 = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L1_work\\doperRes14.csv")
+    df3 = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L2\\doperRes8.csv")
+    df4 = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L3\\doperRes10.csv")
+
+    df_SRG = pd.DataFrame({'Home' : []})
+    df_SRG['Home'] = df1['PV/Import Power (%)']
+    df_SRG['Work'] = df2['PV/Import Power (%)']
+    df_SRG['Shopping'] = df3['PV/Import Power (%)']
+    df_SRG['Fast'] = df4['PV/Import Power (%)']
+    # generate_figures(df_SRG,'Shared Renewable Generation',graph_folder, 'SGR [%]')
+    
+    df_BUR = pd.DataFrame({'Home' : []})
+    df_BUR['Home'] = df1['Battery Utilization Rate (%)']
+    df_BUR['Work'] = df2['Battery Utilization Rate (%)']
+    df_BUR['Shopping'] = df3['Battery Utilization Rate (%)']
+    df_BUR['Fast'] = df4['Battery Utilization Rate (%)']
+    # generate_figures(df_BUR,'Battery Utilization Rate',graph_folder, 'BUR [%]')
+
+
+     #####Economis metrics #####
     kW_pv =  20461 # PV total
     kW_bat = 11537 # Bat total
-
     I_pv = (609 * 1.071) * kW_pv  # USD (compra e instalación)
     I_bat = 67.4 * kW_bat  # USD (compra) 
-    df = pd.read_csv("C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L2\\doperRes8.csv")
-    profit_energy = round(df['Profit surplus energy - annual [USD]'].sum() / 1000)
     years = 30  # Número de años
 
-    annual_cost, accumulated_cost = calculate_accumulated_cost(I_pv, I_bat, years, profit_energy)
-    print(f"El costo acumulado (AC) es: {accumulated_cost[-1]} thousand USD", accumulated_cost[-1]*5000/1000000, 'million COP')
-    year = list(range(years))
-    plt.plot(year, accumulated_cost)
-    plt.xlabel("Year")
-    plt.ylabel("Thousands of USD")
-    plt.title(f"Accumulated cost - PV system {kW_pv} kW")
-    plt.grid(axis = 'y')
-    plt.savefig('C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\accumPV_Shopping8.png')
-    plt.close()
+    df_home = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L1_home\\doperRes25.csv")
+    profit_energy_home =  round(df_home['Profit surplus energy - annual [USD]'].sum() / 1000)
+    max_demand_home = round(df_home['Load Power [kW]'].max()) 
+    annual_cost_home, accumulated_cost_home = calculate_accumulated_cost(I_pv, I_bat, years, profit_energy_home)
 
-    plt.plot(year, annual_cost)
-    plt.xlabel("Year")
-    plt.ylabel("Thousands of USD")
-    plt.title(f"Annual cost - PV system {kW_pv} kW")
-    plt.grid(axis = 'y')
-    plt.savefig('C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\annualPV_Shopping8.png')
+    df_work = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L1_work\\doperRes14.csv")
+    profit_energy_work =  round(df_work['Profit surplus energy - annual [USD]'].sum() / 1000)
+    max_demand_work = round(df_work['Load Power [kW]'].max()) 
+    annual_cost_work, accumulated_cost_work = calculate_accumulated_cost(I_pv, I_bat, years, profit_energy_work)
+
+    df_shop = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L2\\doperRes8.csv")
+    profit_energy_shop =  round(df_shop['Profit surplus energy - annual [USD]'].sum() / 1000)
+    max_demand_shop = round(df_shop['Load Power [kW]'].max()) 
+    annual_cost_shop, accumulated_cost_shop = calculate_accumulated_cost(I_pv, I_bat, years, profit_energy_shop)
+
+    df_fast = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L3\\doperRes10.csv")
+    profit_energy_fast =  round(df_fast['Profit surplus energy - annual [USD]'].sum() / 1000)
+    max_demand_fast = round(df_fast['Load Power [kW]'].max()) 
+    annual_cost_fast, accumulated_cost_fast = calculate_accumulated_cost(I_pv, I_bat, years, profit_energy_fast)
+
+    df_accum = pd.DataFrame({'Home' : []})
+    df_accum['Home'] = accumulated_cost_home
+    df_accum['Work'] = accumulated_cost_work
+    df_accum['Shopping'] = accumulated_cost_shop
+    df_accum['Fast'] = accumulated_cost_fast
+    generate_figures_economic(df_accum, years, 'Accumulated Cost', graph_folder, 'Thousand of USD')
+
+    df_annual = pd.DataFrame({'Home' : []})
+    df_annual['Home'] = annual_cost_home
+    df_annual['Work'] = annual_cost_work
+    df_annual['Shopping'] = annual_cost_shop
+    df_annual['Fast'] = annual_cost_fast
+    generate_figures_economic2(df_annual, years, 'Annual Cost', graph_folder, 'Thousand of USD')
+    
+    interestRate = 0.1125
+    npc_home = []
+    npc_work = []
+    npc_shop = []
+    npc_fast = []
+    for i in range(years-1):
+        npc_home.append(annual_cost_home[i] / ((1 + interestRate)**i))
+        npc_work.append(annual_cost_work[i] / ((1 + interestRate)**i))
+        npc_shop.append(annual_cost_shop[i] / ((1 + interestRate)**i))
+        npc_fast.append(annual_cost_fast[i] / ((1 + interestRate)**i))
+    npc_home_total = math.ceil(sum(npc_home))
+    npc_work_total = math.ceil(sum(npc_work))
+    npc_shop_total = math.ceil(sum(npc_shop))
+    npc_fast_total = math.ceil(sum(npc_fast))
+    
+    print('NPC home = ', npc_home_total, '\nNPC workplace = ', npc_work_total, 
+          '\nNPC shopping mall = ', npc_shop_total, '\nNPC fast CS = ', npc_fast_total)  
