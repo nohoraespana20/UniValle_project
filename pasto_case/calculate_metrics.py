@@ -12,11 +12,11 @@ def readJson(file):
     return data
 
 def importData():
-    dataConfig = readJson('config_files/data_config.json')
-    dataCombustion = readJson('config_files/data_combustion.json')
-    dataGas = readJson('config_files/data_gas.json')
-    dataElectric = readJson('config_files/data_electric.json')
-    dataHybrid = readJson('config_files/data_hybrid.json')
+    dataConfig = readJson('C:/Nohora/UniValle_project/pasto_case/config_files/data_config.json')
+    dataCombustion = readJson('C:/Nohora/UniValle_project/pasto_case/config_files/data_combustion.json')
+    dataGas = readJson('C:/Nohora/UniValle_project/pasto_case/config_files/data_gas.json')
+    dataElectric = readJson('C:/Nohora/UniValle_project/pasto_case/config_files/data_electric.json')
+    dataHybrid = readJson('C:/Nohora/UniValle_project/pasto_case/config_files/data_hybrid.json')
 
     currency = dataConfig['Currency']
     vehicle = dataConfig['Mode of transport']
@@ -446,36 +446,36 @@ def generate_alternative_matrix(availability, autonomy, cost, incentives, emissi
     data = np.array(data).T.tolist()
     ahp_df = pd.DataFrame(data, index=index, columns=['ICE','EVL1', 'EVL2', 'EVL3', 'CNG','PHEVL1', 'PHEVL2', 'PHEVL3']).round(3)
     print('MATRIX CRITERIA')
-    ahp_df.to_excel('./results/matrix_criteria.xlsx')
+    ahp_df.to_excel('C:/Nohora/UniValle_project/pasto_case/results/matrix_criteria.xlsx')
     scaled_df = MinMaxScaler().fit_transform(ahp_df)
     scaled_df = pd.DataFrame(scaled_df, index=index, columns=['ICE','EVL1', 'EVL2', 'EVL3', 'CNG','PHEVL1', 'PHEVL2', 'PHEVL3']).round(3)
     print('MATRIX NORMALIZED')
     print(scaled_df)
-    scaled_df.to_excel('./results/matrix_normalized.xlsx')
+    scaled_df.to_excel('C:/Nohora/UniValle_project/pasto_case/results/matrix_normalized.xlsx')
     return scaled_df
 
 def social_metric(altenativeMatrix):
     #Caso 1
     comparisonMatrix = {}
-    comparisonMatrix['Availability Factor'] =   [1, 1/4, 1/5, 1/6, 1/7]
-    comparisonMatrix['Driving Range'] =         [4, 1,   1/2, 1/3, 1/4]
-    comparisonMatrix['Accumulated Cost'] =      [5, 2,   1,   1/2, 1/3]
-    comparisonMatrix['Incentives'] =            [6, 3,   2,   1,   1/2]
-    comparisonMatrix['Emissions'] =             [7, 4,   3,   2,   1]
+    comparisonMatrix['Availability Factor'] =   [1, 1/3, 1/5, 1/7, 1/9]
+    comparisonMatrix['Driving Range'] =         [3, 1,   1/3, 1/5, 1/7]
+    comparisonMatrix['Accumulated Cost'] =      [5, 3,   1,   1/3, 1/5]
+    comparisonMatrix['Incentives'] =            [7, 5,   3,   1,   1/3]
+    comparisonMatrix['Emissions'] =             [9, 7,   5,   3,   1]
     #Caso 2
     # comparisonMatrix = {}
-    # comparisonMatrix['Availability Factor'] =[5, 2,   1,   1/2, 1/3]
-    # comparisonMatrix['Driving Range'] =      [6, 3,   2,   1,   1/2]
-    # comparisonMatrix['Accumulated Cost'] =   [1, 1/4, 1/5, 1/6, 1/7]
-    # comparisonMatrix['Incentives'] =         [4, 1,   1/2, 1/3, 1/4]
-    # comparisonMatrix['Emissions'] =          [7, 4,   3,   2,   1]
+    # comparisonMatrix['Availability Factor'] =[1, 1/3, 5, 3, 1/5]
+    # comparisonMatrix['Driving Range'] =      [3, 1, 7, 5, 1/3]
+    # comparisonMatrix['Accumulated Cost'] =   [1/5, 1/7, 1, 1/3, 1/9] 
+    # comparisonMatrix['Incentives'] =         [1/3, 1/5, 3, 1, 1/7]
+    # comparisonMatrix['Emissions'] =          [5, 3, 9, 7, 1]
     # Caso 3
     # comparisonMatrix = {}
-    # comparisonMatrix['Availability Factor'] =[4, 1,   1/2, 1/3, 1/4]
-    # comparisonMatrix['Driving Range'] =      [5, 2,   1,   1/2, 1/3]
-    # comparisonMatrix['Accumulated Cost'] =   [6, 3,   2,   1,   1/2]
-    # comparisonMatrix['Incentives'] =         [7, 4,   3,   2,   1]
-    # comparisonMatrix['Emissions'] =          [1, 1/4, 1/5, 1/6, 1/7]
+    # comparisonMatrix['Availability Factor'] =[1, 1/3, 1/5, 1/7, 3]
+    # comparisonMatrix['Driving Range'] =      [3, 1, 1/3, 1/5, 5]
+    # comparisonMatrix['Accumulated Cost'] =   [5, 3, 1, 1/3, 7]
+    # comparisonMatrix['Incentives'] =         [7, 5, 3, 1, 9]
+    # comparisonMatrix['Emissions'] =          [1/3, 1/5, 1/7, 1/9, 1]
     # Caso 4
     # comparisonMatrix = {}
     # comparisonMatrix['Availability Factor'] =   [1, 1, 1, 1, 1]
@@ -485,9 +485,6 @@ def social_metric(altenativeMatrix):
     # comparisonMatrix['Emissions'] =             [1, 1, 1, 1, 1]
 
     ahp_df = pd.DataFrame(comparisonMatrix, index=['Availability Factor', 'Driving Range', 'Accumulated Cost', 'Incentives', 'Emissions'])
-    # ahp_df = pd.DataFrame(comparisonMatrix, index=['Accumulated Cost', 'Incentives', 'Availability Factor', 'Driving Range', 'Emissions'])
-    # ahp_df = pd.DataFrame(comparisonMatrix, index=['Emissions', 'Availability Factor', 'Driving Range', 'Accumulated Cost', 'Incentives'])
-    # ahp_df = pd.DataFrame(comparisonMatrix, index=['Availability Factor', 'Driving Range', 'Accumulated Cost', 'Incentives', 'Emissions'])
     priority_index_attr = ahp_attributes(ahp_df)
     consistency_ratio(priority_index_attr,ahp_df)
 
@@ -502,8 +499,8 @@ def social_metric(altenativeMatrix):
     alternative_df = pd.concat([AF_df,DR_df,AC_df, I_df, E_df],axis=1)
     norm_df = alternative_df.multiply(np.array(priority_index_attr.loc['priority index']),axis=1).round(3)
     norm_df['Sum'] = norm_df.sum(axis=1)
-    norm_df.to_excel('./results/result_AHP1.xlsx')
-    norm_df.to_csv('./results/result_AHP1.csv')
+    norm_df.to_excel('C:/Nohora/UniValle_project/pasto_case/results/result_AHP1.xlsx')
+    norm_df.to_csv('C:/Nohora/UniValle_project/pasto_case/results/result_AHP1.csv')
     print(round(norm_df,3))
     print('Max Score = ', round(norm_df['Sum'].max(),3), 'Best alternative = ', norm_df['Sum'].idxmax())
     return norm_df
@@ -569,7 +566,7 @@ def save_metrics_data(consumption, autonomy, cpt, cost, eco, emissions, socialCo
     data = np.array(data).T.tolist()
     metrics_df = pd.DataFrame(data, index=index, columns=['ICE','EVL1', 'EVL2', 'EVL3', 'CNG', 'PHEVL1', 'PHEVL2', 'PHEVL3'])
 
-    metrics_df.to_csv('./results/metrics_data.csv')
+    metrics_df.to_csv('C:/Nohora/UniValle_project/pasto_case/results/metrics_data.csv')
 
 
 if __name__ == '__main__':
@@ -581,17 +578,17 @@ if __name__ == '__main__':
 
     #Generate data frame for EV
     emission_classes_EV = ['Energy/unknown']#['HBEFA4/PC_BEV']
-    rush_df_EV = generate_data_frame(emission_classes_EV,"./results/rush/data_emissions_EV.csv")
+    rush_df_EV = generate_data_frame(emission_classes_EV,"C:/Nohora/UniValle_project/pasto_case/results/rush/data_emissions_EV.csv")
 
     #Generate data frame for ICE
     emission_classes_ICE = ['HBEFA4/PC_petrol_Euro-2', 'HBEFA4/PC_petrol_Euro-3', 
                         'HBEFA4/PC_petrol_Euro-4', 'HBEFA4/PC_petrol_Euro-5', 
                         'HBEFA4/PC_petrol_Euro-6d']
-    rush_df_ICE = generate_data_frame(emission_classes_ICE,"./results/rush/data_emissions_ICE.csv")
+    rush_df_ICE = generate_data_frame(emission_classes_ICE,"C:/Nohora/UniValle_project/pasto_case/results/rush/data_emissions_ICE.csv")
 
     #Generate data frame for CNG
     emission_classes_CNG = ['HBEFA4/PC_CNG_petrol_Euro-6_(CNG)']
-    rush_df_CNG = generate_data_frame(emission_classes_CNG,"./results/rush/data_emissions_CNG.csv")
+    rush_df_CNG = generate_data_frame(emission_classes_CNG,"C:/Nohora/UniValle_project/pasto_case/results/rush/data_emissions_CNG.csv")
     print('Emissions CNG')
     print(rush_df_CNG)
 
@@ -630,13 +627,13 @@ if __name__ == '__main__':
     emission_ICE = emission_metric(mean_daily('ICE', rush_df_ICE, trips, 3), mean_daily('ICE', rush_df_ICE, trips, 8), dailyDistance, 'ICE')
     emission_EV = emission_metric(mean_daily('EV', rush_df_EV, trips, 3), mean_daily('EV', rush_df_EV, trips, 9), dailyDistance, 'EV')
     emission_CNG = emission_metric(mean_daily('CNG', rush_df_CNG, trips, 3), mean_daily('CNG', rush_df_CNG, trips, 8), dailyDistance, 'CNG')
-    emission_PHEV = (emission_ICE * 0.7) + (emission_EV * 0.3)
+    emission_PHEV = (emission_ICE * 0.3) + (emission_EV * 0.7)
     
     #Calculate the Social cost metric - Rush hour
     socialCost_ICE = socialCost_metric(mean_daily('ICE', rush_df_ICE, trips, 3))
     socialCost_EV = socialCost_metric(mean_daily('EV', rush_df_EV, trips, 3))
     socialCost_CNG = socialCost_metric(mean_daily('CNG', rush_df_CNG, trips, 3))
-    socialCost_PHEV = (socialCost_ICE * 0.7) + (socialCost_EV * 0.3)
+    socialCost_PHEV = (socialCost_ICE * 0.3) + (socialCost_EV * 0.7)
     
     #Calculate the availability factor metric - Rush hour
     availabilityFactor_ICE = chargingTime_metric(9.25, 951.02, annualDistance / 365 , 9.25, E100km_ICE)
@@ -662,7 +659,7 @@ if __name__ == '__main__':
     autonomy = [autonomy_ICE, autonomy_EV, autonomy_EV, autonomy_EV, autonomy_CNG, autonomy_PHEV, autonomy_PHEV, autonomy_PHEV]
     cost = [accumulatedCost_ICE[-1], accumulatedCost_EV1[-1], accumulatedCost_EV1[-1], accumulatedCost_EV3[-1], accumulatedCost_CNG[-1], 
             accumulatedCost_PHEV1[-1], accumulatedCost_PHEV1[-1], accumulatedCost_PHEV3[-1]]
-    incentives = [1, 9, 9, 9, 9, 4, 4, 4]
+    incentives = [1, 9, 9, 9, 6, 3, 3, 3]
     emissions = [lifecycleEmissions_ICE, lifecycleEmissions_EV, lifecycleEmissions_EV, lifecycleEmissions_EV, lifecycleEmissions_CNG, lifecycleEmissions_PHEV, lifecycleEmissions_PHEV, lifecycleEmissions_PHEV]
 
     social = social_metric(generate_alternative_matrix(availability, autonomy, cost, incentives, emissions))
