@@ -1,7 +1,7 @@
 {
-    "Vehicle cost": 70000000.0,
-    "m3 cost": 2600.0,
-    "m3 raise": 21.0,
+    "Vehicle cost": 130000000.0,
+    "m3 cost": 2700.0,
+    "m3 raise": 6.0,
     "Daily consumption": 5.0,
-    "Maintenance cost": 7000000.0
+    "Maintenance cost": 5000000.0
 }

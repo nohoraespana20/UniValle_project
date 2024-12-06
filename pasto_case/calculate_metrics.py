@@ -211,11 +211,11 @@ def accumulatedCost(configuration, combustion, electric, gas, hybrid, vehType, E
 
     if vehType == 'ICE':
         powerConsumption = (E_100km / (100 * 9.67)) * annualDistance
-        combustion[1] = combustion[1] / 3.785
-        totalCost[0] = combustion[0] 
-        annualCost[0] = combustion[0] 
-        taxCost = combustion[0] * 0.01 # Based on "Ley 1964 de 2019, Congreso de Colombia"
-        annualPowerCost = powerConsumption * combustion[1] 
+        combustion[1] = combustion[1] / 3.785 #Galon cost
+        totalCost[0] = combustion[0]  #Vehicle initial cost
+        annualCost[0] = combustion[0]  #Vehicle initial cost
+        taxCost = combustion[0] * 0.035 #Impuesto vehicular Based on "Ley 1964 de 2019, Congreso de Colombia" 
+        annualPowerCost = powerConsumption * combustion[1] #Galon cost
         annualPowerCostRaise  = combustion[2] / 100
         maintenanceCost = combustion[4]
         soatCost = combustion[5]
@@ -260,7 +260,7 @@ def accumulatedCost(configuration, combustion, electric, gas, hybrid, vehType, E
         soatCost = combustion[5] * 0.9
         otherInsurance = combustion[6] * 0.9 # Contractual insuarence and all damages insurance
         checkCost = combustion[7] * 0.7 
-        batteryCost = electric[4] * 156 * 4000  # Batery cost in COP
+        batteryCost = electric[4] * 156 * 5000  # Batery cost in COP
         batteryYearlyRaise = -0.0967 # According to technology reduction cost trend
     else:
         print('vehType parameter is not defined ')
@@ -359,7 +359,7 @@ def utilization_emission(emission, annualDistance):
     # else:
     #     print('Vehicle type is not defined')
     # utilizationEmission = E100km * e_wtw * annualDistance / 100
-    utilizationEmission = emission * annualDistance
+    utilizationEmission = emission #* annualDistance
     return round(utilizationEmission, 2)
 
 def recycling_emission(vehType, mass, capacity):
@@ -659,7 +659,7 @@ if __name__ == '__main__':
     autonomy = [autonomy_ICE, autonomy_EV, autonomy_EV, autonomy_EV, autonomy_CNG, autonomy_PHEV, autonomy_PHEV, autonomy_PHEV]
     cost = [accumulatedCost_ICE[-1], accumulatedCost_EV1[-1], accumulatedCost_EV1[-1], accumulatedCost_EV3[-1], accumulatedCost_CNG[-1], 
             accumulatedCost_PHEV1[-1], accumulatedCost_PHEV1[-1], accumulatedCost_PHEV3[-1]]
-    incentives = [1, 9, 9, 9, 6, 3, 3, 3]
+    incentives = [1, 9, 9, 9, 5, 7, 7, 7]
     emissions = [lifecycleEmissions_ICE, lifecycleEmissions_EV, lifecycleEmissions_EV, lifecycleEmissions_EV, lifecycleEmissions_CNG, lifecycleEmissions_PHEV, lifecycleEmissions_PHEV, lifecycleEmissions_PHEV]
 
     social = social_metric(generate_alternative_matrix(availability, autonomy, cost, incentives, emissions))
