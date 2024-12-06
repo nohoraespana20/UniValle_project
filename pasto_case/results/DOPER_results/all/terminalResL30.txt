@@ -1,4 +1,8 @@
+<<<<<<< HEAD
+Duration [s]		5680.52
+=======
 Duration [s]		7770.07
+>>>>>>> 3fafbb988408d200b3e7ca274807ca3bd929ed4b
 Objective [$]		4501.39			4501.39 (Total Cost)
 Cost [$]		3327.55 (Energy)	2769.48 (Demand)
 CO2 Emissions [kg]		0.0
