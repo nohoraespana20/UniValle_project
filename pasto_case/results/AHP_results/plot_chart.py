@@ -22,7 +22,6 @@ def plot_radar_chart(data, metrics, title, yticks_value, yticks_name):
         values = row[metrics].values.flatten().tolist()
         values = values + [values[0]]
         ax.plot(theta, values, linewidth=1.0, linestyle='solid', label=row['Alternative'], marker='o', markersize=6, color=color_palette[idx % len(color_palette)])
-        # ax.fill(theta, values, alpha=0.50, color=color_palette[idx % len(color_palette)])
     
     plt.yticks(yticks_value, yticks_name, color="black", size=8)
     plt.xticks(theta, metrics + [metrics[0]], color='black', size=8)
@@ -47,68 +46,79 @@ data_frame4 = pd.read_csv("C:/Nohora/UniValle_project/pasto_case/results/AHP_res
 df4 = data_frame4.copy()
 df4 = df4.drop(['Sum'], axis=1)
 
-# yticks_value = [0, 0.02, 0.04, 0.06, 0.08]
-# yticks_name = ["0", "0.02", "0.04", "0.06", "0.08"]
-# fig = plot_radar_chart(df1, metrics, '', yticks_value, yticks_name)
-# plt.savefig("C:/Nohora/UniValle_project/pasto_case/results/AHP_results/index1")
-# plt.show()
 
-# yticks_value = [0, 0.0625, 0.125, 0.1875, 0.25]
-# yticks_name = ["0", "0.06", "0.13", "0.19", "0.25"]
-# fig = plot_radar_chart(df2, metrics, '', yticks_value, yticks_name)
-# plt.savefig("C:/Nohora/UniValle_project/pasto_case/results/AHP_results/index2")
-# plt.show()
+data_frame5 = pd.read_csv("C:/Nohora/UniValle_project/pasto_case/results/AHP_results/result_AHP5.csv")
+df5 = data_frame5.copy()
+df5 = df5.drop(['Sum'], axis=1)
 
-# yticks_value = [0, 0.025, 0.050, 0.075, 0.10]
-# yticks_name = ["0", "0.025", "0.050", "0.075", "0.10"]
-# fig = plot_radar_chart(df3, metrics, '', yticks_value, yticks_name)
-# plt.savefig("C:/Nohora/UniValle_project/pasto_case/results/AHP_results/index3")
-# plt.show()
-
-# yticks_value = [0, 0.0225, 0.045, 0.0675, 0.09]
-# yticks_name = ["0", "0.02", "0.05", "0.068", "0.09"]
-# fig = plot_radar_chart(df4, metrics, '', yticks_value, yticks_name)
-# plt.savefig("C:/Nohora/UniValle_project/pasto_case/results/AHP_results/index4")
-# plt.show()
-
-
-data_frame1 = pd.read_csv("C:/Nohora/UniValle_project/pasto_case/results/AHP_results/AHP_TOPSIS_results1.csv")
-df1 = data_frame1.copy()
-df1 = df1.drop(['Distance to Positive Ideal', 'Distance to Negative Ideal','Closeness Coefficient'], axis=1)
-metrics = df1.columns[1:].tolist()
-
-data_frame2 = pd.read_csv("C:/Nohora/UniValle_project/pasto_case/results/AHP_results/AHP_TOPSIS_results2.csv")
-df2 = data_frame2.copy()
-df2 = df2.drop(['Distance to Positive Ideal', 'Distance to Negative Ideal','Closeness Coefficient'], axis=1)
-
-data_frame3 = pd.read_csv("C:/Nohora/UniValle_project/pasto_case/results/AHP_results/AHP_TOPSIS_results3.csv")
-df3 = data_frame3.copy()
-df3 = df3.drop(['Distance to Positive Ideal', 'Distance to Negative Ideal','Closeness Coefficient'], axis=1)
-
-data_frame4 = pd.read_csv("C:/Nohora/UniValle_project/pasto_case/results/AHP_results/AHP_TOPSIS_results4.csv")
-df4 = data_frame4.copy()
-df4 = df4.drop(['Distance to Positive Ideal', 'Distance to Negative Ideal','Closeness Coefficient'], axis=1)
-
-yticks_value = [0, 0.021, 0.042, 0.063, 0.084]
-yticks_name = ["0", "0.021", "0.042", "0.063", "0.084"]
+yticks_value = [0, 0.02, 0.03, 0.05, 0.07]
+yticks_name = ["0", "0.02", "0.03", "0.05", "0.07"]
 fig = plot_radar_chart(df1, metrics, '', yticks_value, yticks_name)
-plt.savefig("C:/Nohora/UniValle_project/pasto_case/results/AHP_results/index1_topsis")
+plt.savefig("C:/Nohora/UniValle_project/pasto_case/results/AHP_results/index1")
 plt.show()
 
-yticks_value = [0, 0.06, 0.12, 0.18, 0.24]
-yticks_name = ["0", "0.06", "0.12", "0.18", "0.24"]
+yticks_value = [0, 0.05, 0.09, 0.14, 0.18]
+yticks_name = ["0", "0.05", "0.09", "0.14", "0.18"]
 fig = plot_radar_chart(df2, metrics, '', yticks_value, yticks_name)
-plt.savefig("C:/Nohora/UniValle_project/pasto_case/results/AHP_results/index2_topsis")
+plt.savefig("C:/Nohora/UniValle_project/pasto_case/results/AHP_results/index2")
 plt.show()
 
-yticks_value = [0, 0.023, 0.046, 0.069, 0.092]
-yticks_name = ["0", "0.023", "0.046", "0.069", "0.092"]
+yticks_value = [0, 0.03, 0.06, 0.09, 0.12]
+yticks_name = ["0", "0.03", "0.06", "0.09", "0.12"]
 fig = plot_radar_chart(df3, metrics, '', yticks_value, yticks_name)
-plt.savefig("C:/Nohora/UniValle_project/pasto_case/results/AHP_results/index3_topsis")
+plt.savefig("C:/Nohora/UniValle_project/pasto_case/results/AHP_results/index3")
 plt.show()
 
-yticks_value = [0, 0.022, 0.044, 0.066, 0.088]
-yticks_name = ["0", "0.022", "0.044", "0.066", "0.088"]
+yticks_value = [0, 0.02, 0.04, 0.05, 0.07]
+yticks_name = ["0", "0.02", "0.04", "0.05", "0.07"]
 fig = plot_radar_chart(df4, metrics, '', yticks_value, yticks_name)
-plt.savefig("C:/Nohora/UniValle_project/pasto_case/results/AHP_results/index4_topsis")
+plt.savefig("C:/Nohora/UniValle_project/pasto_case/results/AHP_results/index4")
 plt.show()
+
+yticks_value = [0, 0.01, 0.02, 0.03, 0.04]
+yticks_name = ["0", "0.01", "0.02", "0.03", "0.04"]
+fig = plot_radar_chart(df5, metrics, '', yticks_value, yticks_name)
+plt.savefig("C:/Nohora/UniValle_project/pasto_case/results/AHP_results/index5")
+plt.show()
+
+
+# data_frame1 = pd.read_csv("C:/Nohora/UniValle_project/pasto_case/results/AHP_results/AHP_TOPSIS_results1.csv")
+# df1 = data_frame1.copy()
+# df1 = df1.drop(['Distance to Positive Ideal', 'Distance to Negative Ideal','Closeness Coefficient'], axis=1)
+# metrics = df1.columns[1:].tolist()
+
+# data_frame2 = pd.read_csv("C:/Nohora/UniValle_project/pasto_case/results/AHP_results/AHP_TOPSIS_results2.csv")
+# df2 = data_frame2.copy()
+# df2 = df2.drop(['Distance to Positive Ideal', 'Distance to Negative Ideal','Closeness Coefficient'], axis=1)
+
+# data_frame3 = pd.read_csv("C:/Nohora/UniValle_project/pasto_case/results/AHP_results/AHP_TOPSIS_results3.csv")
+# df3 = data_frame3.copy()
+# df3 = df3.drop(['Distance to Positive Ideal', 'Distance to Negative Ideal','Closeness Coefficient'], axis=1)
+
+# data_frame4 = pd.read_csv("C:/Nohora/UniValle_project/pasto_case/results/AHP_results/AHP_TOPSIS_results4.csv")
+# df4 = data_frame4.copy()
+# df4 = df4.drop(['Distance to Positive Ideal', 'Distance to Negative Ideal','Closeness Coefficient'], axis=1)
+
+# yticks_value = [0, 0.021, 0.042, 0.063, 0.084]
+# yticks_name = ["0", "0.021", "0.042", "0.063", "0.084"]
+# fig = plot_radar_chart(df1, metrics, '', yticks_value, yticks_name)
+# plt.savefig("C:/Nohora/UniValle_project/pasto_case/results/AHP_results/index1_topsis")
+# plt.show()
+
+# yticks_value = [0, 0.06, 0.12, 0.18, 0.24]
+# yticks_name = ["0", "0.06", "0.12", "0.18", "0.24"]
+# fig = plot_radar_chart(df2, metrics, '', yticks_value, yticks_name)
+# plt.savefig("C:/Nohora/UniValle_project/pasto_case/results/AHP_results/index2_topsis")
+# plt.show()
+
+# yticks_value = [0, 0.023, 0.046, 0.069, 0.092]
+# yticks_name = ["0", "0.023", "0.046", "0.069", "0.092"]
+# fig = plot_radar_chart(df3, metrics, '', yticks_value, yticks_name)
+# plt.savefig("C:/Nohora/UniValle_project/pasto_case/results/AHP_results/index3_topsis")
+# plt.show()
+
+# yticks_value = [0, 0.022, 0.044, 0.066, 0.088]
+# yticks_name = ["0", "0.022", "0.044", "0.066", "0.088"]
+# fig = plot_radar_chart(df4, metrics, '', yticks_value, yticks_name)
+# plt.savefig("C:/Nohora/UniValle_project/pasto_case/results/AHP_results/index4_topsis")
+# plt.show()

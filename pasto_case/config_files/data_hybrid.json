@@ -1,8 +1,8 @@
 {
-    "Vehicle cost": 100000000.0,
-    "Galon cost": 13600.0,
-    "Fuel raise": 16.0,
-    "kWh cost": 1000.0,
-    "kWh raise": 16.0,
+    "Vehicle cost": 130000000.0,
+    "Galon cost": 13726.0,
+    "Fuel raise": 14.0,
+    "kWh cost": 1073.0,
+    "kWh raise": 9.0,
     "Batery capacity [kWh]": 8
 }
