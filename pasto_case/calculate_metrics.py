@@ -101,34 +101,29 @@ def generate_data_frame(emission_classes, file):
 def mean_daily(vehType, dataFrame, numberPaths, category):
     '''
     Calculate the mean daily for all categories in vehicle data.
-    vehType: EV (Electric Vehicle) or ICE (Internal Combustion Engine)
+    vehType: EV (Electric Vehicle) or ICEV (Internal Combustion Engine)
     dataFrame: local variable for data frame from vehicle data
     numberPaths: number of paths done daily
     category: number corresponding to list of categories [0:'route', 1:'emission_class',
-    2:'distance [km]', 3:'CO2 [kg]', 4:'CO [kg]', 5:'HC [kg]', 6:'PMx [kg]', 7:'NOx [kg]', 
+    2:'distance [km]', 3:'CO2 [g]', 4:'CO [g]', 5:'HC [g]', 6:'PMx [g]', 7:'NOx [g]', 
     8:'fuel [gl]', 9:'energy [kWh]', 10:'noise [dB]']
     '''
+
     np_np = numberPaths * 0.5
     np_p = numberPaths * 0.3
     p_p = numberPaths * 0.2
 
-    if vehType == "ICE":
+    if vehType == "ICEV":
         route1_tot = list(dataFrame.iloc[0:5, category])
         route2_tot = list(dataFrame.iloc[10:15, category])
         route3_tot = list(dataFrame.iloc[25:30, category])
-
-        route1 = (route1_tot[0]*0.25)+(route1_tot[0]*0.20)+(route1_tot[0]*0.20)+(route1_tot[0]*0.20)+(route1_tot[0]*0.15)
-        route2 = (route2_tot[0]*0.25)+(route2_tot[0]*0.20)+(route2_tot[0]*0.20)+(route2_tot[0]*0.20)+(route2_tot[0]*0.15)
-        route3 = (route3_tot[0]*0.25)+(route3_tot[0]*0.20)+(route3_tot[0]*0.20)+(route3_tot[0]*0.20)+(route3_tot[0]*0.15)
-
-    elif vehType == "EV" or vehType == 'CNG':
+        route1 = (route1_tot[0]*0.25)+(route1_tot[1]*0.50)+(route1_tot[2]*0.25)+(route1_tot[3]*0.00)+(route1_tot[4]*0.00)
+        route2 = (route2_tot[0]*0.25)+(route2_tot[1]*0.50)+(route2_tot[2]*0.25)+(route2_tot[3]*0.00)+(route2_tot[4]*0.00)
+        route3 = (route3_tot[0]*0.25)+(route3_tot[1]*0.50)+(route3_tot[2]*0.25)+(route3_tot[3]*0.00)+(route3_tot[4]*0.00)
+    elif vehType == "EV" or vehType == 'NGV':
         route1 = dataFrame.iloc[0, category]
         route2 = dataFrame.iloc[2, category]
         route3 = dataFrame.iloc[5, category]
-        # if vehType == 'CNG':
-        #     print('CNG ', route1, category)
-        # else:
-        #     print('EV ', route1, category)
     else:
         print('Vehicle type is not defined')
     mean = route1*np_np + route2*np_p + route3*p_p
@@ -137,13 +132,13 @@ def mean_daily(vehType, dataFrame, numberPaths, category):
 def consumption_metric(vehType, distance, consumption):
     '''
     Efficiency is quantified in terms of consumption per 100 kilometer traveled 
-    vehType: EV (Electric Vehicle) or ICE (Internal Combustion Engine)
+    vehType: EV (Electric Vehicle) or ICEV (Internal Combustion Engine)
     distance: paths in km
     consumption: fuel or kwh consumed in paths
     '''
-    if vehType == "ICE":
+    if vehType == "ICEV":
         E_100km = (consumption*9.67*100)/distance
-    elif vehType == 'CNG':
+    elif vehType == 'NGV':
         E_100km = (consumption*10.70*100)/distance
     elif vehType == 'Diesel':
         E_100km = (consumption*10.69*100)/distance
@@ -156,14 +151,14 @@ def consumption_metric(vehType, distance, consumption):
 def autonomy_metric(vehType, E_100km, capacity):
     '''
     Return driving range in km.
-    vehType: EV (Electric Vehicle) or ICE (Internal Combustion Engine)
+    vehType: EV (Electric Vehicle) or ICEV (Internal Combustion Engine)
     E_100km: Efficiency is quantified in terms of consumption per 100 kilometer traveled
     capacity: tank (gallons) or battery (kWh) capacity depends from vehType
     '''
-    if vehType == "ICE":
+    if vehType == "ICEV":
         consumption = E_100km/(100*9.67)
         autonomy = capacity * 3.785 / consumption
-    elif vehType == 'CNG':
+    elif vehType == 'NGV':
         consumption = E_100km/(100*10.70)
         autonomy = capacity * 3.785 / consumption
     elif vehType == "EV":
@@ -181,6 +176,7 @@ def accumulatedCost(configuration, combustion, electric, gas, hybrid, vehType, E
     Initial investment plus the sum of operating costs (insurance, vehicle tax, 
     technical-mechanical inspection, fuel), and maintenance, including annual increases. 
     In the case of EVs, governmental incentives must be included. 
+    Now includes discounted costs with a 12% annual discount rate.
     '''
     if configuration[0] == "USD":
         currency = 1000
@@ -189,12 +185,12 @@ def accumulatedCost(configuration, combustion, electric, gas, hybrid, vehType, E
     else:
         print("currency parameter is not defined")
 
-    ipc = 0.0457 # Average value of IPC in Colombia
+    ipc = 0.0457  # Average value of IPC in Colombia
+    discount_rate = 0.12  # Annual discount rate
     otherInsurance = combustion[6]
     insuranceCostRaise = combustion[8] / 100 
-    totalCost = []
     totalCost = [*range(0, configuration[2], 1)]
-    annualCost = []
+    totalDiscountedCost = [0] * configuration[2]  # Initialize discounted costs array
     annualCost = [*range(0, configuration[2], 1)]
 
     if levelCharge == 'Level1' or levelCharge == 'Level2':
@@ -210,90 +206,99 @@ def accumulatedCost(configuration, combustion, electric, gas, hybrid, vehType, E
     else:
         print('Level Charge is not defined')
 
-    if vehType == 'ICE':
+    if vehType == 'ICEV':
         powerConsumption = (E_100km / (100 * 9.67)) * annualDistance
-        combustion[1] = combustion[1] / 3.785 #Galon cost
-        totalCost[0] = combustion[0]  #Vehicle initial cost
-        annualCost[0] = combustion[0]  #Vehicle initial cost
-        taxCost = round(combustion[0] * 0.035715, 1) #Impuesto vehicular Based on "Ley 1964 de 2019, Congreso de Colombia" 
-        annualPowerCost = powerConsumption * combustion[1] #Galon cost
-        annualPowerCostRaise  = combustion[2] / 100
+        combustion[1] = combustion[1] / 3.785  # Galon cost
+        totalCost[0] = combustion[0]  # Vehicle initial cost
+        annualCost[0] = combustion[0]  # Vehicle initial cost
+        taxCost = round(combustion[0] * 0.035715, 1)  # Impuesto vehicular
+        annualPowerCost = powerConsumption * combustion[1]  # Galon cost
+        annualPowerCostRaise = combustion[2] / 100
         maintenanceCost = combustion[4]
         soatCost = combustion[5]
-        otherInsurance = combustion[6] # Contractual insuarence and all damages insurance
+        otherInsurance = combustion[6]
         checkCost = combustion[7]
-    elif vehType == 'CNG':
+    elif vehType == 'NGV':
         powerConsumption = (E_100km / (100 * 10.70)) * annualDistance
         gas[1] = gas[1] / 1000
         totalCost[0] = gas[0]
         annualCost[0] = gas[0] 
-        taxCost = gas[0] * 0.01  # Based on "LEY 2128 DE 2021, Congreso de Colombia"
-        annualPowerCost = powerConsumption * gas[1] 
-        annualPowerCostRaise  = gas[2] / 100
+        taxCost = gas[0] * 0.01
+        annualPowerCost = powerConsumption * gas[1]
+        annualPowerCostRaise = gas[2] / 100
         maintenanceCost = combustion[4] * 0.8
-        soatCost = combustion[5] * 0.9 # Based on "LEY 2128 DE 2021, Congreso de Colombia"
-        otherInsurance = combustion[6] * 0.9 # Contractual insuarence and all damages insurance # Based on "LEY 2128 DE 2021, Congreso de Colombia"
+        soatCost = combustion[5] * 0.9
+        otherInsurance = combustion[6] * 0.9
         checkCost = combustion[7] * 0.7 
     elif vehType == 'PHEV':
         EkWh_100km = 16.85
-        powerConsumptionICE = (E_100km / (100 * 9.67)) * annualDistance * 0.3
-        powerConsumptionEV = (EkWh_100km/100) * annualDistance * 0.7
+        powerConsumptionICEV = (E_100km / (100 * 9.67)) * annualDistance * 0.3
+        powerConsumptionEV = (EkWh_100km / 100) * annualDistance * 0.7
         hybrid_1 = hybrid[1] / 3.785
         totalCost[0] = hybrid[0]
         annualCost[0] = hybrid[0]
-        taxCost = hybrid[0] * 0.01 *0.6 # Based on "Ley 1964 de 2019, Congreso de Colombia"
-        annualPowerCost = (powerConsumptionICE * hybrid_1) + (powerConsumptionEV * hybrid[4])
-        annualPowerCostRaise  = hybrid[2] / 100
+        taxCost = hybrid[0] * 0.01 * 0.6
+        annualPowerCost = (powerConsumptionICEV * hybrid_1) + (powerConsumptionEV * hybrid[4])
+        annualPowerCostRaise = hybrid[2] / 100
         maintenanceCost = combustion[4] * 0.6
-        soatCost = combustion[5] *0.9
-        otherInsurance = combustion[6] *0.9 # Contractual insurance and all damages insurance
-        checkCost = combustion[7] *0.7
-        batteryCost = hybrid[6] * 156 * 5000  # Batery cost in COP
-        batteryYearlyRaise = -0.0967 # According to technology reduction cost trend
+        soatCost = combustion[5] * 0.9
+        otherInsurance = combustion[6] * 0.9
+        checkCost = combustion[7] * 0.7
+        batteryCost = hybrid[6] * 156 * 5000
+        batteryYearlyRaise = -0.0967
     elif vehType == 'EV':
-        powerConsumption = (E_100km/100) * annualDistance
+        powerConsumption = (E_100km / 100) * annualDistance
         totalCost[0] = electric[0]
         annualCost[0] = electric[0]
-        taxCost = electric[0] * 0.01 * 0.4 # Based on "Ley 1964 de 2019, Congreso de Colombia"
+        taxCost = electric[0] * 0.01 * 0.4
         annualPowerCost = powerConsumption * electric[1]
-        annualPowerCostRaise  = electric[2] / 100
+        annualPowerCostRaise = electric[2] / 100
         maintenanceCost = combustion[4] * 0.4
         soatCost = combustion[5] * 0.9
-        otherInsurance = combustion[6] * 0.9 # Contractual insuarence and all damages insurance
+        otherInsurance = combustion[6] * 0.9
         checkCost = combustion[7] * 0.7 
-        batteryCost = electric[4] * 156 * 5000  # Batery cost in COP
-        batteryYearlyRaise = -0.0967 # According to technology reduction cost trend
+        batteryCost = electric[4] * 156 * 5000
+        batteryYearlyRaise = -0.0967
     else:
-        print('vehType parameter is not defined ')
-    del hybrid
-    for i in range(1,configuration[2],1):
+        print('vehType parameter is not defined')
+
+    # del hybrid
+
+    for i in range(1, configuration[2], 1):
         annualCost[i] = annualPowerCost + maintenanceCost + soatCost + otherInsurance + taxCost
         totalCost[i] = totalCost[i-1] + annualPowerCost + maintenanceCost + soatCost + otherInsurance + taxCost
+
+        # Annual variance of parameter costs
         if i >= 2:
-        #Annual variance of parameters costs
             taxCost = taxCost * (1 + insuranceCostRaise)
             annualPowerCost = annualPowerCost * (1 + annualPowerCostRaise)
             maintenanceCost = maintenanceCost * (1 + ipc)
             soatCost = soatCost * (1 + insuranceCostRaise)
             otherInsurance = otherInsurance * (1 + insuranceCostRaise)
             checkCost = checkCost * (1 + insuranceCostRaise)
-            annualCost[i] = annualPowerCost + maintenanceCost + soatCost + otherInsurance + \
-                taxCost + checkCost
-            totalCost[i] = totalCost[i-1] + annualPowerCost + maintenanceCost + soatCost + otherInsurance + \
-                taxCost + checkCost
+            annualCost[i] = annualPowerCost + maintenanceCost + soatCost + otherInsurance + taxCost + checkCost
+            totalCost[i] = totalCost[i-1] + annualPowerCost + maintenanceCost + soatCost + otherInsurance + taxCost + checkCost
+
             if vehType == 'EV' or vehType == 'PHEV':
                 batteryCost = batteryCost * (1 + batteryYearlyRaise)
-                if i==batteryReplacementYear or i==2*batteryReplacementYear or i==3*batteryReplacementYear or i==4*batteryReplacementYear or i==5*batteryReplacementYear or i==6*batteryReplacementYear:
-                    annualCost[i] = annualPowerCost + maintenanceCost + soatCost + otherInsurance \
-                        + checkCost + taxCost + batteryCost
-                    totalCost[i] = totalCost[i-1] + annualPowerCost + maintenanceCost + soatCost + otherInsurance \
-                        + checkCost + taxCost + batteryCost
+                if i % batteryReplacementYear == 0:
+                    annualCost[i] += batteryCost
+                    totalCost[i] += batteryCost
 
+    # Compute discounted costs
+    for i in range(len(annualCost)):
+        discountedAnnualCost = annualCost[i] / ((1 + discount_rate) ** i)
+        totalDiscountedCost[i] = totalDiscountedCost[i-1] + discountedAnnualCost if i > 0 else discountedAnnualCost
+
+    # Round results
     for i in range(len(totalCost)):
-        totalCost[i] = round(totalCost[i] / currency , 2)
-        annualCost[i] = round(annualCost[i] / currency , 2)
-    
-    return totalCost, annualCost
+        totalCost[i] = round(totalCost[i] / currency, 2)
+        annualCost[i] = round(annualCost[i] / currency, 2)
+        totalDiscountedCost[i] = round(totalDiscountedCost[i] / currency, 2)
+
+    return totalCost, annualCost, totalDiscountedCost
+
+
 
 def ICR_metric(powerCost, consumption, distance):
     '''
@@ -310,13 +315,14 @@ def emission_metric(co2Emission, noxEmission, consumption, distance, vehType):
     Expressed in kilograms of CO2 per kilometer for both ICEVs and EVs. 
     '''
     
-    if vehType == 'ICE' or vehType == 'CNG':
+    if vehType == 'ICEV' or vehType == 'NGV':
         factor_Nox2Co2 = 298
-        emissionPerKilometer = ((co2Emission + (noxEmission * factor_Nox2Co2))* 1000) / distance
+        emissionPerKilometer = (co2Emission + (noxEmission * factor_Nox2Co2)) / distance
     elif vehType == 'EV':
         emissionPerKilometer = 164.38 * consumption / distance
     else:
         print('Vehicle type is not defined')
+    print('Emission per km ', vehType, round(emissionPerKilometer, 2), 'gr/km')
     return round(emissionPerKilometer / 1000, 2)
 
 def socialCost_metric(co2Emission):
@@ -339,7 +345,7 @@ def chargingTime_metric(chargeNeeded, chargingSpeed, distance, capacity, E100km)
 def production_emission(vehType, mass, capacity):
     e_body = 4.56
     e_bat = 83.5
-    if vehType == 'ICE' or vehType == 'CNG':
+    if vehType == 'ICEV' or vehType == 'NGV':
         productionEmission = mass * e_body
     elif vehType == 'EV':
         quantity = round(configuration[2] / (8 * 0.9 * annualDistance / 160000))
@@ -352,21 +358,19 @@ def production_emission(vehType, mass, capacity):
     return round(productionEmission, 2)
 
 def utilization_emission(vehType, emission, annualDistance, consumption):
+# recibe kgCO2_eq/km para entregar kgCO2_eq en 20 años 
     if vehType == 'PHEV':
-        emission_ICE = emission * 0.3 * 1000
-        consumption_ICE = consumption * 0.3 * 1000
-        emission_EV = emission * 0.7 * 1000
-        consumption_EV = consumption * 0.7 * 1000
-        utilizationEmission = ((emission_ICE * annualDistance * 0.3 / (consumption_ICE / 100))+ (emission_EV * annualDistance * 0.7 / (consumption_EV / 100)))  * configuration[2]
+        emission_ICEV = emission * 0.3 
+        emission_EV = emission * 0.7 
+        utilizationEmission = ((emission_ICEV * 0.3) + (emission_EV * 0.7 )) * annualDistance  * configuration[2]
     else:
-        emission = emission * 1000
-        utilizationEmission = (emission / (consumption / 100)) * annualDistance * configuration[2]
+        utilizationEmission = emission  * annualDistance * configuration[2]
     return round(utilizationEmission, 2)
 
 def recycling_emission(vehType, mass, capacity):
     e_body = -2.93
     e_bat = -48.4
-    if vehType == 'ICE' or vehType == 'CNG':
+    if vehType == 'ICEV' or vehType == 'NGV':
         productionEmission = mass * e_body
     elif vehType == 'EV':
         quantity = round(configuration[2] / (8 * 0.9 * annualDistance / 160000))
@@ -384,6 +388,10 @@ def lifecycle_emissions(vehType, mass, capacity, emission, aDistance, consumptio
     utilization = utilization_emission(vehType, emission, annualDistance, consumption)
     recycling = recycling_emission(vehType, mass, capacity)
     lifecycleTotalEmissions = production + utilization + recycling
+    print(vehType)
+    print('production ', production)
+    print('utilization ', utilization)
+    print('recycling ', recycling)
     return round(lifecycleTotalEmissions, 2)
 
 def ahp_attributes(ahp_df):
@@ -431,9 +439,9 @@ def generate_alternative_matrix(availability, autonomy, cost, incentives, emissi
                 'Accumulated Cost', 'Accumulated Cost', 'Accumulated Cost', 'Accumulated Cost', 'Accumulated Cost', 'Accumulated Cost', 'Accumulated Cost', 'Accumulated Cost', 
                 'Incentives', 'Incentives', 'Incentives', 'Incentives', 'Incentives', 'Incentives', 'Incentives', 'Incentives', 
                 'Emissions', 'Emissions', 'Emissions', 'Emissions', 'Emissions', 'Emissions', 'Emissions', 'Emissions'],
-    "Alternative": ['ICE', 'EVL1', 'EVL2', 'EVL3', 'CNG', 'PHEVL1', 'PHEVL2', 'PHEVL3', 'ICE', 'EVL1', 'EVL2', 'EVL3', 'CNG', 'PHEVL1', 'PHEVL2', 'PHEVL3',
-                    'ICE', 'EVL1', 'EVL2', 'EVL3', 'CNG', 'PHEVL1', 'PHEVL2', 'PHEVL3', 'ICE', 'EVL1', 'EVL2', 'EVL3', 'CNG', 'PHEVL1', 'PHEVL2', 'PHEVL3', 
-                    'ICE', 'EVL1', 'EVL2', 'EVL3', 'CNG', 'PHEVL1', 'PHEVL2', 'PHEVL3']})
+    "Alternative": ['ICEV', 'EV-L1', 'EV-L2', 'EV-L3', 'NGV', 'PHEV-L1', 'PHEV-L2', 'PHEV-L3', 'ICEV', 'EV-L1', 'EV-L2', 'EV-L3', 'NGV', 'PHEV-L1', 'PHEV-L2', 'PHEV-L3',
+                    'ICEV', 'EV-L1', 'EV-L2', 'EV-L3', 'NGV', 'PHEV-L1', 'PHEV-L2', 'PHEV-L3', 'ICEV', 'EV-L1', 'EV-L2', 'EV-L3', 'NGV', 'PHEV-L1', 'PHEV-L2', 'PHEV-L3', 
+                    'ICEV', 'EV-L1', 'EV-L2', 'EV-L3', 'NGV', 'PHEV-L1', 'PHEV-L2', 'PHEV-L3']})
     index = pd.MultiIndex.from_frame(df)  
     data = []
     for i in range(len(availability)):
@@ -446,11 +454,11 @@ def generate_alternative_matrix(availability, autonomy, cost, incentives, emissi
             emissionsFactor.append(emissions[i] / emissions[j])
         data.append(availabilityFactor + drivingRangeFactor + costFactor + incentivesFactor + emissionsFactor)
     data = np.array(data).T.tolist()
-    ahp_df = pd.DataFrame(data, index=index, columns=['ICE','EVL1', 'EVL2', 'EVL3', 'CNG','PHEVL1', 'PHEVL2', 'PHEVL3']).round(3)
+    ahp_df = pd.DataFrame(data, index=index, columns=['ICEV','EV-L1', 'EV-L2', 'EV-L3', 'NGV','PHEV-L1', 'PHEV-L2', 'PHEV-L3']).round(3)
     # print('MATRIX CRITERIA')
     ahp_df.to_excel('C:/Nohora/UniValle_project/pasto_case/results/AHP_results/matrix_criteria.xlsx')
     scaled_df = MinMaxScaler().fit_transform(ahp_df)
-    scaled_df = pd.DataFrame(scaled_df, index=index, columns=['ICE','EVL1', 'EVL2', 'EVL3', 'CNG','PHEVL1', 'PHEVL2', 'PHEVL3']).round(3)
+    scaled_df = pd.DataFrame(scaled_df, index=index, columns=['ICEV','EV-L1', 'EV-L2', 'EV-L3', 'NGV','PHEV-L1', 'PHEV-L2', 'PHEV-L3']).round(3)
     # print('MATRIX NORMALIZED')
     # print(scaled_df)
     scaled_df.to_excel('C:/Nohora/UniValle_project/pasto_case/results/AHP_results/matrix_normalized.xlsx')
@@ -506,44 +514,133 @@ def social_metric(altenativeMatrix):
     print('Max Score = ', round(norm_df['Sum'].max(),3), 'Best alternative = ', norm_df['Sum'].idxmax())
     return norm_df
 
-def plot_cost(accumulatedCost_ICE, accumulatedCost_EV1, accumulatedCost_EV2, accumulatedCost_PHEV1, accumulatedCost_PHEV3, accumulatedCost_CNG):
+def ahp_topsis(alternative_df, priority_index_attr):
+    """
+    Implementación de AHP-TOPSIS.
+    """
+    # Multiplicar la matriz de alternativas normalizada por los pesos calculados con AHP
+    weighted_matrix = alternative_df.multiply(np.array(priority_index_attr.loc['priority index']), axis=1)
+
+    # Identificar los valores ideales (positivo y negativo)
+    ideal_positive = weighted_matrix.max()
+    ideal_negative = weighted_matrix.min()
+
+    # Calcular las distancias euclidianas a los ideales
+    distances_positive = np.sqrt(((weighted_matrix - ideal_positive) ** 2).sum(axis=1))
+    distances_negative = np.sqrt(((weighted_matrix - ideal_negative) ** 2).sum(axis=1))
+
+    # Calcular el índice de preferencia (closeness coefficient)
+    closeness_coefficient = distances_negative / (distances_positive + distances_negative)
+
+    # Crear un DataFrame con los resultados
+    result_df = pd.DataFrame({
+        'Distance to Positive Ideal': distances_positive,
+        'Distance to Negative Ideal': distances_negative,
+        'Closeness Coefficient': closeness_coefficient
+    }, index=alternative_df.index)
+
+    # Identificar la mejor alternativa
+    best_alternative = result_df['Closeness Coefficient'].idxmax()
+    # print(f"Best Alternative: {best_alternative}, Closeness Coefficient: {result_df['Closeness Coefficient'].max()}")
+
+    return weighted_matrix, result_df
+
+
+# Modificación de la función `social_metric` para incluir TOPSIS
+def social_metric_topsis(alternativeMatrix):
+    # AHP: Comparar criterios y calcular los pesos
+    #Caso 1
+    comparisonMatrix = {}
+    comparisonMatrix['Availability Factor'] =   [1, 1/3, 1/5, 1/7, 1/9]
+    comparisonMatrix['Driving Range'] =         [3, 1,   1/3, 1/5, 1/7]
+    comparisonMatrix['Accumulated Cost'] =      [5, 3,   1,   1/3, 1/5]
+    comparisonMatrix['Incentives'] =            [7, 5,   3,   1,   1/3]
+    comparisonMatrix['Emissions'] =             [9, 7,   5,   3,   1]
+    #Caso 2
+    # comparisonMatrix = {}
+    # comparisonMatrix['Availability Factor'] =[1, 1/3, 5, 3, 1/5]
+    # comparisonMatrix['Driving Range'] =      [3, 1, 7, 5, 1/3]
+    # comparisonMatrix['Accumulated Cost'] =   [1/5, 1/7, 1, 1/3, 1/9] 
+    # comparisonMatrix['Incentives'] =         [1/3, 1/5, 3, 1, 1/7]
+    # comparisonMatrix['Emissions'] =          [5, 3, 9, 7, 1]
+    # Caso 3
+    # comparisonMatrix = {}
+    # comparisonMatrix['Availability Factor'] =[1, 1/3, 1/5, 1/7, 3]
+    # comparisonMatrix['Driving Range'] =      [3, 1, 1/3, 1/5, 5]
+    # comparisonMatrix['Accumulated Cost'] =   [5, 3, 1, 1/3, 7]
+    # comparisonMatrix['Incentives'] =         [7, 5, 3, 1, 9]
+    # comparisonMatrix['Emissions'] =          [1/3, 1/5, 1/7, 1/9, 1]
+    # Caso 4
+    # comparisonMatrix = {}
+    # comparisonMatrix['Availability Factor'] =   [1, 1, 1, 1, 1]
+    # comparisonMatrix['Driving Range'] =         [1, 1, 1, 1, 1]
+    # comparisonMatrix['Accumulated Cost'] =      [1, 1, 1, 1, 1]
+    # comparisonMatrix['Incentives'] =            [1, 1, 1, 1, 1]
+    # comparisonMatrix['Emissions'] =             [1, 1, 1, 1, 1]
+    ahp_df = pd.DataFrame(comparisonMatrix, index=['Availability Factor', 'Driving Range', 'Accumulated Cost', 'Incentives', 'Emissions'])
+    priority_index_attr = ahp_attributes(ahp_df)
+    consistency_ratio(priority_index_attr, ahp_df)
+
+    # Calcular la matriz normalizada para las alternativas
+    AF_df = priority_index(alternativeMatrix, 'Availability Factor')
+    DR_df = priority_index(alternativeMatrix, 'Driving Range')
+    AC_df = priority_index(alternativeMatrix, 'Accumulated Cost')
+    I_df = priority_index(alternativeMatrix, 'Incentives')
+    E_df = priority_index(alternativeMatrix, 'Emissions')
+
+    alternative_df = pd.concat([AF_df, DR_df, AC_df, I_df, E_df], axis=1)
+    
+    # Aplicar AHP-TOPSIS
+    weight_matrix, result_df  = ahp_topsis(alternative_df, priority_index_attr)
+
+    # Combinar los resultados de TOPSIS con las calificaciones ponderadas
+    full_result_df = pd.concat([weight_matrix, result_df], axis=1)
+
+    # Guardar resultados en Excel
+    full_result_df.to_excel('C:/Nohora/UniValle_project/pasto_case/results/AHP_results/AHP_TOPSIS_results1.xlsx')
+    full_result_df.to_csv('C:/Nohora/UniValle_project/pasto_case/results/AHP_results/AHP_TOPSIS_results1.csv')
+
+    return full_result_df
+
+def plot_cost(accumulatedCost_ICEV, accumulatedCost_EV1, accumulatedCost_EV3, accumulatedCost_PHEV1, accumulatedCost_PHEV3, accumulatedCost_NGV, title):
     #Plot Accumulated and Annual Cost
     year = list(range(20))
-    for i in range(len(accumulatedCost_ICE)):
-        accumulatedCost_ICE[i] = accumulatedCost_ICE[i] * 1000 / 5000
+    for i in range(len(accumulatedCost_ICEV)):
+        accumulatedCost_ICEV[i] = accumulatedCost_ICEV[i] * 1000 / 5000
         accumulatedCost_EV1[i] = accumulatedCost_EV1[i] * 1000 / 5000
         accumulatedCost_EV3[i] = accumulatedCost_EV3[i] * 1000 / 5000
         accumulatedCost_PHEV1[i] = accumulatedCost_PHEV1[i] * 1000 / 5000
         accumulatedCost_PHEV3[i] = accumulatedCost_PHEV3[i] * 1000 / 5000
-        accumulatedCost_CNG[i] = accumulatedCost_CNG[i] * 1000 / 5000
-    plt.plot(year, accumulatedCost_ICE, '#620062', label="ICEV")
+        accumulatedCost_NGV[i] = accumulatedCost_NGV[i] * 1000 / 5000
+    plt.plot(year, accumulatedCost_ICEV, '#620062', label="ICEV")
     plt.plot(year, accumulatedCost_EV1, '#d54855', label="EV - L1&2")
     plt.plot(year, accumulatedCost_EV3, '#f4814b', label="EV - L3")
     plt.plot(year, accumulatedCost_PHEV1, '#00b6d6', label="PHEV - L1&2")
     plt.plot(year, accumulatedCost_PHEV3, '#006cbe', label="PHEV - L3")
-    plt.plot(year, accumulatedCost_CNG, '#ffbc4f', label="NGV")
+    plt.plot(year, accumulatedCost_NGV, '#ffbc4f', label="NGV")
     plt.xlabel("Year")
     plt.ylabel("Thousand of dollars")
+    plt.title(title)
     plt.grid()
     plt.legend()
     plt.show()
 
-    years = [*range(0, 20, 1)]
-    Y = [str(x) for x in years]
-    conventional = annualCost_ICE
-    electric1 = annualCost_EV1
-    electric3 = annualCost_EV3
-    gas = annualCost_CNG
-    phev1 = annualCost_PHEV1
-    phev3 = annualCost_PHEV3
-    df = pd.DataFrame({'Gasolina': conventional, 'Eléctrico - L2': electric1, 'Eléctrico - L3': electric3, 'Híbrido - L2': phev1, 'Híbrido - L3': phev3,'Gas': gas}, index=Y)
-    df.plot( kind = 'bar', rot=0, color=['#444444', '#adff2f', "#38761d", "#512647", "#ddcd82", "#89cff0"])
-    plt.xlabel("Año")
-    plt.ylabel("Millones COP]")
-    plt.title("Costo anual Gasolina, Eléctrico, Hídbrido, Gas")
-    plt.grid()
-    plt.legend()
-    plt.show()
+    # years = [*range(0, 20, 1)]
+    # Y = [str(x) for x in years]
+    # conventional = annualCost_ICEV
+    # electric1 = annualCost_EV1
+    # electric3 = annualCost_EV3
+    # gas = annualCost_NGV
+    # phev1 = annualCost_PHEV1
+    # phev3 = annualCost_PHEV3
+    # df = pd.DataFrame({'Gasolina': conventional, 'Eléctrico - L2': electric1, 'Eléctrico - L3': electric3, 'Híbrido - L2': phev1, 'Híbrido - L3': phev3,'Gas': gas}, index=Y)
+    # df.plot( kind = 'bar', rot=0, color=['#444444', '#adff2f', "#38761d", "#512647", "#ddcd82", "#89cff0"])
+    # plt.xlabel("Año")
+    # plt.ylabel("Millones COP]")
+    # plt.title("Costo anual Gasolina, Eléctrico, Hídbrido, Gas")
+    # plt.grid()
+    # plt.legend()
+    # plt.show()
 
 def save_metrics_data(consumption, autonomy, cpt, cost, eco, emissions, socialCost, social, availability):
     socialSum = social['Sum']
@@ -571,13 +668,11 @@ def save_metrics_data(consumption, autonomy, cpt, cost, eco, emissions, socialCo
              [consumption.iloc[3], autonomy.iloc[6], cpt.iloc[3], cost.iloc[6], eco.iloc[3], emissions.iloc[3], socialCost.iloc[3], socialSum.iloc[6], availability.iloc[6]],
              [consumption.iloc[3], autonomy.iloc[7], cpt.iloc[3], cost.iloc[7], eco.iloc[3], emissions.iloc[3], socialCost.iloc[3], socialSum.iloc[7], availability.iloc[7]]]
     data = np.array(data).T.tolist()
-    metrics_df = pd.DataFrame(data, index=index, columns=['ICE','EVL1', 'EVL2', 'EVL3', 'CNG', 'PHEVL1', 'PHEVL2', 'PHEVL3'])
+    metrics_df = pd.DataFrame(data, index=index, columns=['ICEV','EV-L1', 'EV-L2', 'EV-L3', 'NGV', 'PHEV-L1', 'PHEV-L2', 'PHEV-L3'])
 
     metrics_df.to_csv('C:/Nohora/UniValle_project/pasto_case/results/EV_metrics.csv')
 
 if __name__ == '__main__':
-    
-
     # Load configuration data 
     configuration, combustion, gas, electric, hybrid = importData()
     trips = 35
@@ -586,68 +681,68 @@ if __name__ == '__main__':
     emission_classes_EV = ['Energy/unknown']
     rush_df_EV = generate_data_frame(emission_classes_EV,"C:/Nohora/UniValle_project/pasto_case/results/rush/data_emissions_EV.csv")
 
-    #Generate data frame for ICE
-    emission_classes_ICE = ['HBEFA4/PC_petrol_Euro-2', 'HBEFA4/PC_petrol_Euro-3', 
+    #Generate data frame for ICEV
+    emission_classes_ICEV = ['HBEFA4/PC_petrol_Euro-2', 'HBEFA4/PC_petrol_Euro-3', 
                         'HBEFA4/PC_petrol_Euro-4', 'HBEFA4/PC_petrol_Euro-5', 
                         'HBEFA4/PC_petrol_Euro-6d']
-    rush_df_ICE = generate_data_frame(emission_classes_ICE,"C:/Nohora/UniValle_project/pasto_case/results/rush/data_emissions_ICE.csv")
+    rush_df_ICEV = generate_data_frame(emission_classes_ICEV,"C:/Nohora/UniValle_project/pasto_case/results/rush/data_emissions_ICEV.csv")
 
-    #Generate data frame for CNG
-    emission_classes_CNG = ['HBEFA4/PC_CNG_petrol_Euro-6_(CNG)']
-    rush_df_CNG = generate_data_frame(emission_classes_CNG,"C:/Nohora/UniValle_project/pasto_case/results/rush/data_emissions_CNG.csv")
+    #Generate data frame for NGV
+    emission_classes_NGV = ['HBEFA4/PC_NGV_petrol_Euro-6_(NGV)']
+    rush_df_NGV = generate_data_frame(emission_classes_NGV,"C:/Nohora/UniValle_project/pasto_case/results/rush/data_emissions_NGV.csv")
 
     #category=[0:'route', 1:'emission_class', 2:'distance [km]', 3:'CO2 [kg]', 4:'CO [kg]', 5:'HC [kg]', 6:'PMx [kg]', 7:'NOx [kg]', 8:'fuel [gl]', 9:'energy [kWh]', 10:'noise [dB]']
     
-    dailyDistance = mean_daily('ICE', rush_df_ICE, trips, 2)
+    dailyDistance = mean_daily('ICEV', rush_df_ICEV, trips, 2)
     annualDistance = dailyDistance * 365
 
     #Calculate the E100k metric - Rush hour
-    E100km_ICE = consumption_metric('ICE', dailyDistance, mean_daily('ICE', rush_df_ICE, trips, 8))
+    E100km_ICEV = consumption_metric('ICEV', dailyDistance, mean_daily('ICEV', rush_df_ICEV, trips, 8))
     E100km_EV = consumption_metric('EV', dailyDistance, mean_daily('EV', rush_df_EV, trips, 9))
-    E100km_CNG = consumption_metric('CNG', dailyDistance, mean_daily('CNG', rush_df_CNG, trips, 8))
-    E100km_PHEV = (E100km_ICE * 0.7) + (E100km_EV * 0.3)
+    E100km_NGV = consumption_metric('NGV', dailyDistance, mean_daily('NGV', rush_df_NGV, trips, 8))
+    E100km_PHEV = (E100km_ICEV * 0.7) + (E100km_EV * 0.3)
     
     #Calculate the Driving Range metric -Rush hour
-    autonomy_ICE = autonomy_metric('ICE', E100km_ICE, 9.25) #View KIA grand EKO Taxi datasheet (tank capacity)
+    autonomy_ICEV = autonomy_metric('ICEV', E100km_ICEV, 9.25) #View KIA grand EKO Taxi datasheet (tank capacity)
     autonomy_EV = autonomy_metric('EV', E100km_EV, 53.5) #View BYD D1 datasheet (battery capacity)
-    autonomy_CNG = autonomy_metric('CNG', E100km_CNG, 5.28) #Without datasheet (tank capacity in gallons)
-    autonomy_PHEV = (autonomy_ICE * 0.7 + autonomy_EV * 0.3) 
+    autonomy_NGV = autonomy_metric('NGV', E100km_NGV, 5.28) #Without datasheet (tank capacity in gallons)
+    autonomy_PHEV = (autonomy_ICEV * 0.7 + autonomy_EV * 0.3) 
     
     #Calculate the ICR metric - Rush hour
-    icr_ICE = ICR_metric(combustion[1]/3.785 , mean_daily('ICE', rush_df_ICE, trips, 8) , dailyDistance)
+    icr_ICEV = ICR_metric(combustion[1]/3.785 , mean_daily('ICEV', rush_df_ICEV, trips, 8) , dailyDistance)
     icr_EV = ICR_metric(electric[1] , mean_daily('EV', rush_df_EV, trips, 9) , dailyDistance)
-    icr_CNG = ICR_metric(gas[1] , mean_daily('CNG', rush_df_CNG, trips, 8) , dailyDistance)
-    icr_PHEV = (icr_ICE * 0.7) + (icr_EV * 0.3)
+    icr_NGV = ICR_metric(gas[1] , mean_daily('NGV', rush_df_NGV, trips, 8) , dailyDistance)
+    icr_PHEV = (icr_ICEV * 0.7) + (icr_EV * 0.3)
     
     #Calculate the Accumulated cost and Annual cost metric - Rush hour
-    accumulatedCost_ICE, annualCost_ICE= accumulatedCost(configuration, combustion, electric, gas, hybrid, 'ICE', E100km_ICE, annualDistance, 'Level1')
-    accumulatedCost_EV1, annualCost_EV1 = accumulatedCost(configuration, combustion, electric, gas, hybrid,'EV', E100km_EV, annualDistance, 'Level1')
-    accumulatedCost_EV3, annualCost_EV3 = accumulatedCost(configuration, combustion, electric, gas, hybrid,'EV', E100km_EV, annualDistance, 'Level3')
-    accumulatedCost_CNG, annualCost_CNG = accumulatedCost(configuration, combustion, electric, gas, hybrid,'CNG', E100km_CNG, annualDistance, 'Level1')
-    accumulatedCost_PHEV1, annualCost_PHEV1 = accumulatedCost(configuration, combustion, electric, gas, hybrid,'PHEV', E100km_ICE, annualDistance, 'Level1')
-    accumulatedCost_PHEV3, annualCost_PHEV3 = accumulatedCost(configuration, combustion, electric, gas, hybrid,'PHEV', E100km_ICE, annualDistance, 'Level3')
+    accumulatedCost_ICEV, annualCost_ICEV, acDiscount_ICEV= accumulatedCost(configuration, combustion, electric, gas, hybrid, 'ICEV', E100km_ICEV, annualDistance, 'Level1')
+    accumulatedCost_EV1, annualCost_EV1, acDiscount_EV1 = accumulatedCost(configuration, combustion, electric, gas, hybrid,'EV', E100km_EV, annualDistance, 'Level1')
+    accumulatedCost_EV3, annualCost_EV3, acDiscount_EV3 = accumulatedCost(configuration, combustion, electric, gas, hybrid,'EV', E100km_EV, annualDistance, 'Level3')
+    accumulatedCost_NGV, annualCost_NGV, acDiscount_NGV = accumulatedCost(configuration, combustion, electric, gas, hybrid,'NGV', E100km_NGV, annualDistance, 'Level1')
+    accumulatedCost_PHEV1, annualCost_PHEV1, acDiscount_PHEV1 = accumulatedCost(configuration, combustion, electric, gas, hybrid,'PHEV', E100km_ICEV, annualDistance, 'Level1')
+    accumulatedCost_PHEV3, annualCost_PHEV3, acDiscount_PHEV3 = accumulatedCost(configuration, combustion, electric, gas, hybrid,'PHEV', E100km_ICEV, annualDistance, 'Level3')
    
     #Calculate the emission per kilometer metric - Rush hour
-    emission_ICE = emission_metric(mean_daily('ICE', rush_df_ICE, trips, 3), mean_daily('ICE', rush_df_ICE, trips, 7), mean_daily('ICE', rush_df_ICE, trips, 8), dailyDistance, 'ICE')
+    emission_ICEV = emission_metric(mean_daily('ICEV', rush_df_ICEV, trips, 3), mean_daily('ICEV', rush_df_ICEV, trips, 7), mean_daily('ICEV', rush_df_ICEV, trips, 8), dailyDistance, 'ICEV')
     emission_EV = emission_metric(mean_daily('EV', rush_df_EV, trips, 3), mean_daily('EV', rush_df_EV, trips, 7), mean_daily('EV', rush_df_EV, trips, 9), dailyDistance, 'EV')
-    emission_CNG = emission_metric(mean_daily('CNG', rush_df_CNG, trips, 3), mean_daily('CNG', rush_df_CNG, trips, 7), mean_daily('CNG', rush_df_CNG, trips, 8), dailyDistance, 'CNG')
-    emission_PHEV = (emission_ICE * 0.3) + (emission_EV * 0.7)
+    emission_NGV = emission_metric(mean_daily('NGV', rush_df_NGV, trips, 3), mean_daily('NGV', rush_df_NGV, trips, 7), mean_daily('NGV', rush_df_NGV, trips, 8), dailyDistance, 'NGV')
+    emission_PHEV = (emission_ICEV * 0.3) + (emission_EV * 0.7)
 
-    #ICE
-    co2_ice = math.trunc(mean_daily('ICE', rush_df_ICE, trips, 3))
-    co_ice = math.trunc(mean_daily('ICE', rush_df_ICE, trips, 4))
-    hc_ice = math.trunc(mean_daily('ICE', rush_df_ICE, trips, 5))
-    pmx_ice = math.trunc(mean_daily('ICE', rush_df_ICE, trips, 6))
-    nox_ice = math.trunc(mean_daily('ICE', rush_df_ICE, trips, 7))
-    energy_ice = math.trunc(mean_daily('ICE', rush_df_ICE, trips, 8) * 9.67)
+    #ICEV
+    co2_ICEV = math.trunc(mean_daily('ICEV', rush_df_ICEV, trips, 3))
+    co_ICEV = math.trunc(mean_daily('ICEV', rush_df_ICEV, trips, 4))
+    hc_ICEV = math.trunc(mean_daily('ICEV', rush_df_ICEV, trips, 5))
+    pmx_ICEV = math.trunc(mean_daily('ICEV', rush_df_ICEV, trips, 6))
+    nox_ICEV = math.trunc(mean_daily('ICEV', rush_df_ICEV, trips, 7))
+    energy_ICEV = math.trunc(mean_daily('ICEV', rush_df_ICEV, trips, 8) * 9.67)
 
     #NGV
-    co2_ngv = math.trunc(mean_daily('CNG', rush_df_CNG, trips, 3))
-    co_ngv = math.trunc(mean_daily('CNG', rush_df_CNG, trips, 4))
-    hc_ngv = math.trunc(mean_daily('CNG', rush_df_CNG, trips, 5))
-    pmx_ngv = math.trunc(mean_daily('CNG', rush_df_CNG, trips, 6))
-    nox_ngv = math.trunc(mean_daily('CNG', rush_df_CNG, trips, 7))
-    energy_ngv = math.trunc(mean_daily('CNG', rush_df_CNG, trips, 8) * 10.70)
+    co2_ngv = math.trunc(mean_daily('NGV', rush_df_NGV, trips, 3))
+    co_ngv = math.trunc(mean_daily('NGV', rush_df_NGV, trips, 4))
+    hc_ngv = math.trunc(mean_daily('NGV', rush_df_NGV, trips, 5))
+    pmx_ngv = math.trunc(mean_daily('NGV', rush_df_NGV, trips, 6))
+    nox_ngv = math.trunc(mean_daily('NGV', rush_df_NGV, trips, 7))
+    energy_ngv = math.trunc(mean_daily('NGV', rush_df_NGV, trips, 8) * 10.70)
 
     #EV
     co2_ev = math.trunc(mean_daily('EV', rush_df_EV, trips, 3))
@@ -658,57 +753,56 @@ if __name__ == '__main__':
     energy_ev = math.trunc(mean_daily('EV', rush_df_EV, trips, 9))
 
     #PHEV
-    co2_phev = math.trunc(mean_daily('ICE', rush_df_ICE, trips, 3) * 0.3)
-    co_phev = math.trunc(mean_daily('ICE', rush_df_ICE, trips, 4) * 0.3)
-    hc_phev = math.trunc(mean_daily('ICE', rush_df_ICE, trips, 5) * 0.3)
-    pmx_phev = math.trunc(mean_daily('ICE', rush_df_ICE, trips, 6) * 0.3)
-    nox_phev = math.trunc(mean_daily('ICE', rush_df_ICE, trips, 7) * 0.3)
-    energy_phev = math.trunc(mean_daily('ICE', rush_df_ICE, trips, 8) * 0.3 * 9.67) + math.trunc(mean_daily('EV', rush_df_EV, trips, 9) * 0.7)
+    co2_phev = math.trunc(mean_daily('ICEV', rush_df_ICEV, trips, 3) * 0.3)
+    co_phev = math.trunc(mean_daily('ICEV', rush_df_ICEV, trips, 4) * 0.3)
+    hc_phev = math.trunc(mean_daily('ICEV', rush_df_ICEV, trips, 5) * 0.3)
+    pmx_phev = math.trunc(mean_daily('ICEV', rush_df_ICEV, trips, 6) * 0.3)
+    nox_phev = math.trunc(mean_daily('ICEV', rush_df_ICEV, trips, 7) * 0.3)
+    energy_phev = math.trunc(mean_daily('ICEV', rush_df_ICEV, trips, 8) * 0.3 * 9.67) + math.trunc(mean_daily('EV', rush_df_EV, trips, 9) * 0.7)
 
+    # labels = ['ICEV', 'NGV', 'EV', 'PHEV']
+    # energies = [energy_ICEV, energy_ngv, energy_ev, energy_phev]
+    # plt.figure(figsize=(6, 5))
+    # plt.bar(labels, energies, color=['#620062', '#f4814b', '#ffbc4f', '#006cbe'])
+    # plt.ylabel('Energy consumption [kWh]')
+    # plt.ylim(0, max(energies) + 10)
+    # plt.tight_layout()
+    # plt.show()
 
-    labels = ['ICE', 'CNG', 'EV', 'PHEV']
-    energies = [energy_ice, energy_ngv, energy_ev, energy_phev]
-    plt.figure(figsize=(6, 5))
-    plt.bar(labels, energies, color=['#620062', '#f4814b', '#ffbc4f', '#006cbe'])
-    plt.ylabel('Energy consumption [kWh]')
-    plt.ylim(0, max(energies) + 10)
-    plt.tight_layout()
-    plt.show()
+    technologies = ['ICEV', 'NGV', 'PHEV']
+    co2 = [co2_ICEV, co2_ngv, co2_phev]
+    co = [co_ICEV, co_ngv, co_phev]
+    nox = [nox_ICEV, nox_ngv, nox_phev]
+    pmx = [pmx_ICEV, pmx_ngv, pmx_phev]
+    hc = [hc_ICEV, hc_ngv, hc_phev]
 
-    # technologies = ['ICE', 'CNG', 'PHEV']
-    # co2 = [co2_ice, co2_ngv, co2_phev]
-    # co = [co_ice, co_ngv, co_phev]
-    # nox = [nox_ice, nox_ngv, nox_phev]
-    # pmx = [pmx_ice, pmx_ngv, pmx_phev]
-    # hc = [hc_ice, hc_ngv, hc_phev]
+    ICEV_values = [co2_ICEV, co_ICEV, nox_ICEV, pmx_ICEV, hc_ICEV]
+    NGV_values = [co2_ngv, co_ngv, nox_ngv, pmx_ngv, hc_ngv]
+    phev_values = [co2_phev, co_phev, nox_phev, pmx_phev, hc_phev]
+    categories = ['CO₂', 'CO', 'NOx', 'PMx', 'HC']
+    values = np.array([ICEV_values, NGV_values, phev_values]).T
 
-    # ice_values = [co2_ice, co_ice, nox_ice, pmx_ice, hc_ice]
-    # cng_values = [co2_ngv, co_ngv, nox_ngv, pmx_ngv, hc_ngv]
-    # phev_values = [co2_phev, co_phev, nox_phev, pmx_phev, hc_phev]
-    # categories = ['CO₂', 'CO', 'NOx', 'PMx', 'HC']
-    # values = np.array([ice_values, cng_values, phev_values]).T
-
-    # max_values = np.max([ice_values, cng_values, phev_values], axis=0)
-    # ice_norm = [v / max_v for v, max_v in zip(ice_values, max_values)]
-    # cng_norm = [v / max_v for v, max_v in zip(cng_values, max_values)]
-    # phev_norm = [v / max_v for v, max_v in zip(phev_values, max_values)]
+    max_values = np.max([ICEV_values, NGV_values, phev_values], axis=0)
+    ICEV_norm = [v / max_v for v, max_v in zip(ICEV_values, max_values)]
+    NGV_norm = [v / max_v for v, max_v in zip(NGV_values, max_values)]
+    phev_norm = [v / max_v for v, max_v in zip(phev_values, max_values)]
 
     # x = np.arange(len(categories))
     # width = 0.6
     # fig, ax = plt.subplots(figsize=(6, 5))
 
-    # bars_ice = ax.bar(x, ice_norm, width, label='ICE', color='#620062')
-    # bars_cng = ax.bar(x, cng_norm, width, bottom=ice_norm, label='CNG', color='#ffbc4f')
-    # bars_phev = ax.bar(x, phev_norm, width, bottom=np.array(ice_norm) + np.array(cng_norm), label='PHEV', color='#006cbe')
+    # bars_ICEV = ax.bar(x, ICEV_norm, width, label='ICEV', color='#620062')
+    # bars_NGV = ax.bar(x, NGV_norm, width, bottom=ICEV_norm, label='NGV', color='#ffbc4f')
+    # bars_phev = ax.bar(x, phev_norm, width, bottom=np.array(ICEV_norm) + np.array(NGV_norm), label='PHEV', color='#006cbe')
 
-    # ax.set_ylabel('Normalized ratio')
+    # ax.set_ylabel('Normalized ratio - daily emissions')
     # ax.set_xticks(x)
     # ax.set_xticklabels(categories)
-    # ax.legend(loc='upper right')
+    # ax.legend(loc='upper center')
 
-    # for bars, values, bottom_values in zip([bars_ice, bars_cng, bars_phev], 
-    #                                     [ice_values, cng_values, phev_values],
-    #                                     [np.zeros_like(ice_values), ice_norm, np.array(ice_norm) + np.array(cng_norm)]):
+    # for bars, values, bottom_values in zip([bars_ICEV, bars_NGV, bars_phev], 
+    #                                     [ICEV_values, NGV_values, phev_values],
+    #                                     [np.zeros_like(ICEV_values), ICEV_norm, np.array(ICEV_norm) + np.array(NGV_norm)]):
     #     for bar, value, bottom in zip(bars, values, bottom_values):
     #         height = bar.get_height()  
     #         center = bottom + height / 2
@@ -717,47 +811,49 @@ if __name__ == '__main__':
     # plt.tight_layout()
     # plt.show()
 
-    # #Calculate the Social cost metric - Rush hour
-    # socialCost_ICE = socialCost_metric(mean_daily('ICE', rush_df_ICE, trips, 3))
-    # socialCost_EV = socialCost_metric(mean_daily('EV', rush_df_EV, trips, 3))
-    # socialCost_CNG = socialCost_metric(mean_daily('CNG', rush_df_CNG, trips, 3))
-    # socialCost_PHEV = (socialCost_ICE * 0.3) + (socialCost_EV * 0.7)
+    #Calculate the Social cost metric - Rush hour
+    socialCost_ICEV = socialCost_metric(mean_daily('ICEV', rush_df_ICEV, trips, 3))
+    socialCost_EV = socialCost_metric(mean_daily('EV', rush_df_EV, trips, 3))
+    socialCost_NGV = socialCost_metric(mean_daily('NGV', rush_df_NGV, trips, 3))
+    socialCost_PHEV = (socialCost_ICEV * 0.3) + (socialCost_EV * 0.7)
     
-    # #Calculate the availability factor metric - Rush hour
-    # availabilityFactor_ICE = chargingTime_metric(9.25, 951.02, annualDistance / 365 , 9.25, E100km_ICE)
-    # availabilityFactor_EV1 = chargingTime_metric(53.5, 1.8, annualDistance / 365, 53.5, E100km_EV)
-    # availabilityFactor_EV2 = chargingTime_metric(53.5, 22.0, annualDistance / 365, 53.5, E100km_EV)
-    # availabilityFactor_EV3 = chargingTime_metric(53.5, 50.0, annualDistance / 365, 53.5, E100km_EV)
-    # availabilityFactor_CNG = chargingTime_metric(5.28, 55.0, annualDistance / 365, 5.28, E100km_CNG)
-    # availabilityFactor_PHEV1 = np.mean([chargingTime_metric(9.25, 951.02, dailyDistance * 0.7 , 9.25, E100km_ICE) , chargingTime_metric(8.0, 1.8, dailyDistance * 0.3, 8.0, E100km_EV)])
-    # availabilityFactor_PHEV2 = np.mean([chargingTime_metric(9.25, 951.02, dailyDistance * 0.7 , 9.25, E100km_ICE) , chargingTime_metric(8.0, 22.0, dailyDistance * 0.3, 8.0, E100km_EV)])
-    # availabilityFactor_PHEV3 = np.mean([chargingTime_metric(9.25, 951.02, dailyDistance * 0.7 , 9.25, E100km_ICE) , chargingTime_metric(8.0, 50.0, dailyDistance * 0.3, 8.0, E100km_EV)])
+    #Calculate the availability factor metric - Rush hour
+    availabilityFactor_ICEV = chargingTime_metric(9.25, 951.02, annualDistance / 365 , 9.25, E100km_ICEV)
+    availabilityFactor_EV1 = chargingTime_metric(53.5, 1.8, annualDistance / 365, 53.5, E100km_EV)
+    availabilityFactor_EV2 = chargingTime_metric(53.5, 22.0, annualDistance / 365, 53.5, E100km_EV)
+    availabilityFactor_EV3 = chargingTime_metric(53.5, 50.0, annualDistance / 365, 53.5, E100km_EV)
+    availabilityFactor_NGV = chargingTime_metric(5.28, 55.0, annualDistance / 365, 5.28, E100km_NGV)
+    availabilityFactor_PHEV1 = np.mean([chargingTime_metric(9.25, 951.02, dailyDistance * 0.7 , 9.25, E100km_ICEV) , chargingTime_metric(8.0, 1.8, dailyDistance * 0.3, 8.0, E100km_EV)])
+    availabilityFactor_PHEV2 = np.mean([chargingTime_metric(9.25, 951.02, dailyDistance * 0.7 , 9.25, E100km_ICEV) , chargingTime_metric(8.0, 22.0, dailyDistance * 0.3, 8.0, E100km_EV)])
+    availabilityFactor_PHEV3 = np.mean([chargingTime_metric(9.25, 951.02, dailyDistance * 0.7 , 9.25, E100km_ICEV) , chargingTime_metric(8.0, 50.0, dailyDistance * 0.3, 8.0, E100km_EV)])
 
-    # #Calculate the LifeCycle Emission metric - Rush hour
-    # lifecycleEmissions_ICE = lifecycle_emissions('ICE', 894, 0, emission_ICE, annualDistance, E100km_ICE)
-    # lifecycleEmissions_EV = lifecycle_emissions('EV', 1640, 53.5, emission_EV, annualDistance, E100km_EV)
-    # lifecycleEmissions_CNG = lifecycle_emissions('CNG', 894, 0, emission_CNG, annualDistance, E100km_CNG)
-    # lifecycleEmissions_PHEV = lifecycle_emissions('PHEV', 1640, 8.0, emission_PHEV, annualDistance, E100km_PHEV)
+    #Calculate the LifeCycle Emission metric - Rush hour
+    lifecycleEmissions_ICEV = lifecycle_emissions('ICEV', 894, 0, emission_ICEV, annualDistance, E100km_ICEV)
+    lifecycleEmissions_EV = lifecycle_emissions('EV', 1640, 53.5, emission_EV, annualDistance, E100km_EV)
+    lifecycleEmissions_NGV = lifecycle_emissions('NGV', 894, 0, emission_NGV, annualDistance, E100km_NGV)
+    lifecycleEmissions_PHEV = lifecycle_emissions('PHEV', 1640, 8.0, emission_PHEV, annualDistance, E100km_PHEV)
 
-    # #Calculate the Social metric - Rush hour
-    # availability = [availabilityFactor_ICE, 
-    #                 availabilityFactor_EV1, availabilityFactor_EV2, availabilityFactor_EV3, 
-    #                 availabilityFactor_CNG, 
-    #                 availabilityFactor_PHEV1, availabilityFactor_PHEV2, availabilityFactor_PHEV3]
-    # autonomy = [autonomy_ICE, autonomy_EV, autonomy_EV, autonomy_EV, autonomy_CNG, autonomy_PHEV, autonomy_PHEV, autonomy_PHEV]
-    # cost = [accumulatedCost_ICE[-1], accumulatedCost_EV1[-1], accumulatedCost_EV1[-1], accumulatedCost_EV3[-1], accumulatedCost_CNG[-1], 
-    #         accumulatedCost_PHEV1[-1], accumulatedCost_PHEV1[-1], accumulatedCost_PHEV3[-1]]
+    #Calculate the Social metric - Rush hour
+    availability = [availabilityFactor_ICEV, 
+                    availabilityFactor_EV1, availabilityFactor_EV2, availabilityFactor_EV3, 
+                    availabilityFactor_NGV, 
+                    availabilityFactor_PHEV1, availabilityFactor_PHEV2, availabilityFactor_PHEV3]
+    autonomy = [autonomy_ICEV, autonomy_EV, autonomy_EV, autonomy_EV, autonomy_NGV, autonomy_PHEV, autonomy_PHEV, autonomy_PHEV]
+    cost = [accumulatedCost_ICEV[-1], accumulatedCost_EV1[-1], accumulatedCost_EV1[-1], accumulatedCost_EV3[-1], accumulatedCost_NGV[-1], 
+            accumulatedCost_PHEV1[-1], accumulatedCost_PHEV1[-1], accumulatedCost_PHEV3[-1]]
 
-    # incentives = [1, 9, 9, 9, 5, 7, 7, 7]
+    incentives = [1, 9, 9, 9, 5, 7, 7, 7]
 
-    # emissions = [lifecycleEmissions_ICE, lifecycleEmissions_EV, lifecycleEmissions_EV, lifecycleEmissions_EV, lifecycleEmissions_CNG, lifecycleEmissions_PHEV, lifecycleEmissions_PHEV, lifecycleEmissions_PHEV]
+    emissions = [lifecycleEmissions_ICEV, lifecycleEmissions_EV, lifecycleEmissions_EV, lifecycleEmissions_EV, lifecycleEmissions_NGV, lifecycleEmissions_PHEV, lifecycleEmissions_PHEV, lifecycleEmissions_PHEV]
 
-    # social = social_metric(generate_alternative_matrix(availability, autonomy, cost, incentives, emissions))
-    # plot_cost(accumulatedCost_ICE, accumulatedCost_EV1, accumulatedCost_EV3, accumulatedCost_PHEV1, accumulatedCost_PHEV3, accumulatedCost_CNG)
-    # consumption = [E100km_ICE, E100km_EV, E100km_CNG, E100km_PHEV]
-    # cpt = [icr_ICE, icr_EV, icr_CNG, icr_PHEV]
-    # eco = [emission_ICE, emission_EV, emission_CNG, emission_PHEV]
-    # emissions = [lifecycleEmissions_ICE, lifecycleEmissions_EV, lifecycleEmissions_CNG, lifecycleEmissions_PHEV]
-    # socialCost = [socialCost_ICE, socialCost_EV, socialCost_CNG, socialCost_PHEV]
+    social = social_metric(generate_alternative_matrix(availability, autonomy, cost, incentives, emissions))
+    social_metric_topsis(generate_alternative_matrix(availability, autonomy, cost, incentives, emissions))
+    # plot_cost(accumulatedCost_ICEV, accumulatedCost_EV1, accumulatedCost_EV3, accumulatedCost_PHEV1, accumulatedCost_PHEV3, accumulatedCost_NGV, 'Accumulated cost')
+    # plot_cost(acDiscount_ICEV, acDiscount_EV1, acDiscount_EV3, acDiscount_PHEV1, acDiscount_PHEV3, acDiscount_NGV, 'Discounted accumulated cost')
+    consumption = [E100km_ICEV, E100km_EV, E100km_NGV, E100km_PHEV]
+    cpt = [icr_ICEV, icr_EV, icr_NGV, icr_PHEV]
+    eco = [emission_ICEV, emission_EV, emission_NGV, emission_PHEV]
+    emissions = [lifecycleEmissions_ICEV, lifecycleEmissions_EV, lifecycleEmissions_NGV, lifecycleEmissions_PHEV]
+    socialCost = [socialCost_ICEV, socialCost_EV, socialCost_NGV, socialCost_PHEV]
 
-    # save_metrics_data(consumption, autonomy, cpt, cost, eco, emissions, socialCost, social, availability)
+    save_metrics_data(consumption, autonomy, cpt, cost, eco, emissions, socialCost, social, availability)

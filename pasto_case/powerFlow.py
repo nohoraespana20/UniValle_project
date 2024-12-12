@@ -1,3 +1,4 @@
+import gc
 from pyomo.environ import Objective, minimize
 from doper import DOPER, standard_report
 from doper.models.basemodel import base_model, default_output_list
@@ -173,7 +174,7 @@ if __name__ == '__main__':
     # #           150721.6, 102287.8, 10489.3, 208568.5, 111.6, 16747.6, 3055.4, 227745.7, 164255.1, 62742.2]
     # demand = [1000, 2000, 4000, 4500, 5000, 5500, 6000, 6500, 7000, 7500, 8000, 8500, 9000, 9500, 10000, 10500, 11000]
     data_frames = []
-    demand = [12667.2]
+    # demand = [12667.2]
     for i in range(len(demand)):
     # for i in [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 13, 17, 18, 20, 21, 25, 27]:
         print('Demand = ', demand[i], 'Position = ', i)
@@ -184,6 +185,8 @@ if __name__ == '__main__':
             data_frames.append(df)
             save_results_solver(df, i)
             show_results_solver(df, i)
+            del data, df, res
+            gc.collect()
             print(standard_report(res))
             with open(f'C:/Nohora/UniValle_project/pasto_case/results/L1_home/terminalRes{i}.txt', 'w') as k:
                 k.write(standard_report(res))
