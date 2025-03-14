@@ -1,0 +1,24 @@
+<configuration>
+
+<input>
+<net-file value="C:/Nohora/UniValle_project/test_VehicleConfiguration/consumption/config/pasto_network.net.xml"/>
+<route-files value="C:/Nohora/UniValle_project/test_VehicleConfiguration/consumption/config/route6.rou.xml,bus.trips.xml,taxi.trips.xml,moto.trips.xml,vehicle.trips.xml"/>
+</input>
+
+<emissions>
+    <emissions.volumetric-fuel value="true"/>
+</emissions>
+
+<processing>
+    <ignore-route-errors value="true"/>
+</processing>
+
+<report>
+    <no-warnings value="true"/>
+</report>
+
+<output>
+    <device.battery.probability value="1"/>
+</output>
+
+</configuration>

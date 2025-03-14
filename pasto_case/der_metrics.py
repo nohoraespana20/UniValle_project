@@ -165,56 +165,56 @@ def calculate_accumulated_cost(I_PV, I_bat, years, profit_energy):
     return annual_cost, accumulated_cost
 
 if __name__ == '__main__':
-    input_folder = "C:\\Users\\noluc\\OneDrive\\Escritorio\\Univalle\\AvanceTesis_2024B\\simulador\\results_DOPER_oct2024\\L1_home"
-    output_folder = "C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics"
+    input_folder = "C:/Users/noluc/OneDrive/Escritorio/resultados_conbateria_08-08/L2"
+    output_folder = "C:/Users/noluc/OneDrive/Escritorio/DERMetrics"
     graph_folder = os.path.join(output_folder, "graficas")
 
     #####Technical metrics####
-    ## process_data_files(input_folder, output_folder, graph_folder)
+    # process_data_files(input_folder, output_folder, graph_folder)
 
-    df1 = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L1_home\\doperRes25.csv")
-    df2 = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L1_work\\doperRes14.csv")
-    df3 = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L2\\doperRes8.csv")
-    df4 = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L3\\doperRes10.csv")
+    df1 = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L1_home\\doperRes29.csv")
+    df2 = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L1_work\\doperRes29.csv")
+    df3 = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L2\\doperRes29.csv")
+    df4 = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L3\\doperRes30.csv")
 
     df_SRG = pd.DataFrame({'Home' : []})
     df_SRG['Home'] = df1['PV/Import Power (%)']
     df_SRG['Work'] = df2['PV/Import Power (%)']
     df_SRG['Shopping'] = df3['PV/Import Power (%)']
     df_SRG['Fast'] = df4['PV/Import Power (%)']
-    # generate_figures(df_SRG,'Shared Renewable Generation',graph_folder, 'SGR [%]')
+    generate_figures_technical(df_SRG,'Shared Renewable Generation 29',graph_folder, 'SGR [%]')
     
     df_BUR = pd.DataFrame({'Home' : []})
     df_BUR['Home'] = df1['Battery Utilization Rate (%)']
     df_BUR['Work'] = df2['Battery Utilization Rate (%)']
     df_BUR['Shopping'] = df3['Battery Utilization Rate (%)']
     df_BUR['Fast'] = df4['Battery Utilization Rate (%)']
-    # generate_figures(df_BUR,'Battery Utilization Rate',graph_folder, 'BUR [%]')
+    generate_figures_technical(df_BUR,'Battery Utilization Rate 29',graph_folder, 'BUR [%]')
 
 
-     #####Economis metrics #####
+     ####Economis metrics #####
     kW_pv =  20461 # PV total
     kW_bat = 11537 # Bat total
     I_pv = (609 * 1.071) * kW_pv  # USD (compra e instalación)
     I_bat = 67.4 * kW_bat  # USD (compra) 
     years = 30  # Número de años
 
-    df_home = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L1_home\\doperRes25.csv")
+    df_home = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L1_home\\doperRes29.csv")
     profit_energy_home =  round(df_home['Profit surplus energy - annual [USD]'].sum() / 1000)
     max_demand_home = round(df_home['Load Power [kW]'].max()) 
     annual_cost_home, accumulated_cost_home = calculate_accumulated_cost(I_pv, I_bat, years, profit_energy_home)
 
-    df_work = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L1_work\\doperRes14.csv")
+    df_work = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L1_work\\doperRes29.csv")
     profit_energy_work =  round(df_work['Profit surplus energy - annual [USD]'].sum() / 1000)
     max_demand_work = round(df_work['Load Power [kW]'].max()) 
     annual_cost_work, accumulated_cost_work = calculate_accumulated_cost(I_pv, I_bat, years, profit_energy_work)
 
-    df_shop = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L2\\doperRes8.csv")
+    df_shop = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L2\\doperRes29.csv")
     profit_energy_shop =  round(df_shop['Profit surplus energy - annual [USD]'].sum() / 1000)
     max_demand_shop = round(df_shop['Load Power [kW]'].max()) 
     annual_cost_shop, accumulated_cost_shop = calculate_accumulated_cost(I_pv, I_bat, years, profit_energy_shop)
 
-    df_fast = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L3\\doperRes10.csv")
+    df_fast = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L3\\doperRes30.csv")
     profit_energy_fast =  round(df_fast['Profit surplus energy - annual [USD]'].sum() / 1000)
     max_demand_fast = round(df_fast['Load Power [kW]'].max()) 
     annual_cost_fast, accumulated_cost_fast = calculate_accumulated_cost(I_pv, I_bat, years, profit_energy_fast)
@@ -224,14 +224,14 @@ if __name__ == '__main__':
     df_accum['Work'] = accumulated_cost_work
     df_accum['Shopping'] = accumulated_cost_shop
     df_accum['Fast'] = accumulated_cost_fast
-    generate_figures_economic(df_accum, years, 'Accumulated Cost', graph_folder, 'Thousand of USD')
+    generate_figures_economic(df_accum, years, 'Accumulated Cost 29', graph_folder, 'Thousand of USD')
 
     df_annual = pd.DataFrame({'Home' : []})
     df_annual['Home'] = annual_cost_home
     df_annual['Work'] = annual_cost_work
     df_annual['Shopping'] = annual_cost_shop
     df_annual['Fast'] = annual_cost_fast
-    generate_figures_economic2(df_annual, years, 'Annual Cost', graph_folder, 'Thousand of USD')
+    generate_figures_economic2(df_annual, years, 'Annual Cost 29', graph_folder, 'Thousand of USD')
     
     interestRate = 0.1125
     npc_home = []

@@ -1,0 +1,12 @@
+<configuration>
+
+<input>
+<net-file value="C:/Nohora/UniValle_project/test_VehicleConfiguration/pasto_network.net.xml"/>
+<route-files value="C:/Nohora/UniValle_project/test_VehicleConfiguration/route1_1.rou.xml"/>
+</input>
+
+
+
+
+
+</configuration>
