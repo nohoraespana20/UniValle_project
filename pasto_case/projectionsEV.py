@@ -111,54 +111,24 @@ def plot_daily_demand(years, fuel_data, save_path):
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.savefig(save_path)
 
-def charging_time(chargeNeeded, chargerType):
-    if chargerType == 'low':
-        chargingSpeed = 7
-    elif chargerType == 'semifast1':
-        chargingSpeed = 20
-    elif chargerType == 'fast':
-        chargingSpeed = 60
-    else:
-        print('')
-    hourChargingTime = chargeNeeded / chargingSpeed
-    return round(hourChargingTime, 2)
-
-def percentage_preference_type_charger(annualVehicles):
-    np.random.seed(0)
-    publicPreference = np.random.random((1, annualVehicles))
-    normLevelPreference = []
-    for i in range(annualVehicles):
-        levelPreference = np.random.random((1,3))
-        sumLevelPreference = sum(levelPreference[0])
-        normLevelPreference.append([levelPreference[0][0]/ sumLevelPreference, levelPreference[0][1]/ sumLevelPreference, levelPreference[0][2]/ sumLevelPreference])
-    return publicPreference[0], normLevelPreference
-
-def demand_power_charge(demandPerVehicle , annualVehicles, chargerType, b, P):
-    powerNeeded = []
-    for i in range(annualVehicles):
-        if chargerType == 'low':
-            powerNeeded.append(demandPerVehicle * (1 - b))
-        elif chargerType == 'semifast':
-            powerNeeded.append(demandPerVehicle * b * P[0])
-        elif chargerType == 'fast':
-            powerNeeded.append(demandPerVehicle * b * P[1])
-    return sum(powerNeeded)
-
-
-
 if __name__ == '__main__':
     df_1 = escenario_1()
     df_2 = escenario_2()
     df_3 = escenario_3()
+
+    df_1["Scenario"] = "Scenario 1"
+    df_2["Scenario"] = "Scenario 2"
+    df_3["Scenario"] = "Scenario 3"
+    df_vehicles = pd.concat([df_1, df_2, df_3], ignore_index=True)
+    df_vehicles.to_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/ev_projections.csv')
 
     fig, axes = plt.subplots(3, 1, figsize=(12, 15))
     plot_escenario(df_1, "Scenario 1", axes[0])
     plot_escenario(df_2, "Scenario 2", axes[1])
     plot_escenario(df_3, "Scenario 3", axes[2])
     plt.tight_layout()
-    plt.savefig('C:/Users/noluc/OneDrive/Escritorio/Univalle/Avances2025/paper_netherland/projections.jpg')
+    plt.savefig('C:/Nohora/UniValle_project/pasto_case/results_netherlands/ev_projections.jpg')
 
-    # Calcular demanda
     fuel_1 = calculate_demand(df_1["ICEV"], df_1["CNG"], df_1["EV"], df_1["PHEV"], 0)
     fuel_2 = calculate_demand(df_2["ICEV"], df_2["CNG"], df_2["EV"], df_2["PHEV"], 0.3)
     fuel_3 = calculate_demand(df_3["ICEV"], df_3["CNG"], df_3["EV"], df_3["PHEV"], 0.3)
@@ -167,4 +137,12 @@ if __name__ == '__main__':
                 (fuel_2, 'dotted', 'Scenario 2'),
                 (fuel_3, '-', 'Scenario 3')]
 
-    plot_daily_demand(df_1["Year"], fuel_data, 'C:/Users/noluc/OneDrive/Escritorio/Univalle/Avances2025/paper_netherland/daily_demand.jpg')
+    df_fuel = pd.DataFrame({
+            "Year": df_1["Year"].tolist() * 3,  # Repite los años para los 3 escenarios
+            "Scenario": ["Scenario 1"] * len(df_1) + ["Scenario 2"] * len(df_2) + ["Scenario 3"] * len(df_3),
+            "Petrol [l]": list(fuel_1[0]) + list(fuel_2[0]) + list(fuel_3[0]),
+            "CNG [l]": list(fuel_1[1]) + list(fuel_2[1]) + list(fuel_3[1]),
+            "Electricity [kWh]": list(fuel_1[2]) + list(fuel_2[2]) + list(fuel_3[2])})
+
+    plot_daily_demand(df_1["Year"], fuel_data, 'C:/Nohora/UniValle_project/pasto_case/results_netherlands/fuel_demand.jpg')
+    df_fuel.to_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/fuel_demand.csv') 
