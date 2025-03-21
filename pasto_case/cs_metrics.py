@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 import pandas as pd
+import os
 
 def charging_time(chargeNeeded, chargerType):
     if chargerType == 'low':
@@ -99,6 +100,7 @@ def plot_charger_scenarios(df_electricity, df_vehicles, low, semifast, fast, sav
     
     plt.tight_layout()
     plt.savefig(save_path)
+    plt.close()
 
 def plot_charger(df_electricity, low, semifast, fast, save_path):
     scenario = "Scenario 3"
@@ -116,6 +118,7 @@ def plot_charger(df_electricity, low, semifast, fast, save_path):
     
     plt.tight_layout()
     plt.savefig(save_path)
+    plt.close()
 
 def plot_charger_bar(df_electricity, low, semifast, fast, save_path):
     scenario = "Scenario 3"
@@ -134,13 +137,11 @@ def plot_charger_bar(df_electricity, low, semifast, fast, save_path):
     
     plt.tight_layout()
     plt.savefig(save_path)
+    plt.close()
 
 def plot_csv_data(directory):
-    import os
     files = sorted([f for f in os.listdir(directory) if f.startswith("cs_projections_") and f.endswith(".csv") and "base" not in f], key=lambda x: int(x.split('_')[2].split('.')[0]) if x.split('_')[2].isdigit() else 0)
-    
-    data = {}
-    
+    data = {} 
     for file in files:
         df = pd.read_csv(os.path.join(directory, file))
         label = file.split('_')[2].split('.')[0]
@@ -168,6 +169,7 @@ def plot_csv_data(directory):
         ax.set_ylabel("Number charging points")
     plt.tight_layout()
     plt.savefig('C:/Nohora/UniValle_project/pasto_case/results_netherlands/cases_preference.jpg')
+    plt.close()
 
 def calcule_plot_evCP(scenario_selected_v, cL1, cL2, cL3, name):
     ev_cs = [[],[],[]]
@@ -177,7 +179,7 @@ def calcule_plot_evCP(scenario_selected_v, cL1, cL2, cL3, name):
         ev_cs[1].append(math.ceil(annualVehicles[i] / cL2[i]))
         ev_cs[2].append(math.ceil(annualVehicles[i] / cL3[i]))
     df = pd.DataFrame({ "L1": ev_cs[0], "L2": ev_cs[1], "L3": ev_cs[2]})
-    df.to_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/ev_cp_{name}.csv')
+    df.to_csv(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/ev_cp_{name}.csv')
     years = scenario_selected_v["Year"]
     plt.plot(years, ev_cs[0], label='L1', color='#bda5ad')
     plt.plot(years, ev_cs[1], label='L2', color='#00a099')
@@ -191,49 +193,58 @@ def calcule_plot_evCP(scenario_selected_v, cL1, cL2, cL3, name):
     plt.close()
     return ev_cs
 
-def discounted_accumulated_cost(path='C:/Nohora/UniValle_project/pasto_case/results_netherlands/cs_projections_base.csv'):
-    file = pd.read_csv(path)
-    charger_points = [list(file['L1']), list(file['L2']), list(file['L3'])]
-    print(len(charger_points[0]))
-    ipc = 0.0457  # Average value of IPC in Colombia
-    discount_rate = 0.12  # Annual discount rate
-    ipc = 0.0457 # Average value of IPC in Colombia
-    annualIncremental = 1 + ipc
-    
-    investment = [[800], [6500], [75000]]
-    annualInvestment = investment 
-    annualMaintenance, annualRetrofit = [[],[],[]], [[],[],[]]
-    maintenance, retrofit = [[],[],[]], [[],[],[]]
-    annualCost = [[], [], []]
-    accumulatedCost = [[], [], []]
-    numberCSnew = [[charger_points[0][0]], [charger_points[1][0]], [charger_points[2][0]]]
+def get_real_discount_rate(year):
+    """Retorna la tasa de descuento real según el horizonte del proyecto (DNP Documento 490)."""
+    if year <= 5:
+        return 0.095  # 9.5% para los primeros 5 años
+    elif year <= 25:
+        return 0.064  # 6.4% entre 6 y 25 años
+    else:
+        return 0.035  # 3.5% después de 25 años
 
-    for k in range(len(charger_points)):
-        for i in range(1, len(charger_points[0])):
-            annualInvestment[k].append((annualInvestment[k][i-1] * annualIncremental))
-            annualMaintenance[k].append((annualInvestment[k][i-1] * 0.1))
-            if k == 0:
-                annualRetrofit[k].append((annualInvestment[k][i-1] * 0.05))
-            else:
-                annualRetrofit[k].append((annualInvestment[k][i-1] * 0.5))
-    
-            if charger_points[k][i] - charger_points[k][i-1] > 0: 
-                numberCSnew[k].append(charger_points[k][i] - charger_points[k][i-1])
-                investment[k].append(annualInvestment[k][i] * numberCSnew[k][i])
-                maintenance[k].append(annualMaintenance[k][i-1] * numberCSnew[k][i-1])
-                retrofit[k].append(annualRetrofit[k][i-1] * numberCSnew[k][i-1])
-            else:
-                numberCSnew[k].append(1)
-                investment[k].append(0)
-                maintenance[k].append(annualMaintenance[k][i-1] * numberCSnew[k][i-1])
-                retrofit[k].append(annualRetrofit[k][i-1] * numberCSnew[k][i-1]) 
-            # if i == 10 or i == 20 or i == 30:
-            #     annualCost[k].append(math.ceil(investment[k][i] + maintenance[k][i] + retrofit[k][i]))
-            #     accumulatedCost[k].append(math.ceil(accumulatedCost[k][i-1] + annualCost[k][i]))
-            # else:
-            #     annualCost[k].append(math.ceil(investment[k][i] + maintenance[k][i] ))
-            #     accumulatedCost[k].append(math.ceil(accumulatedCost[k][i-1] + annualCost[k][i]))
-    print(len(maintenance[0]))
+def discounted_accumulated_cost(years, initial_cost, maintenance_rate, retrofit_rate, path, typeCS):
+    file = pd.read_csv(path)
+    charger_points = list(file[typeCS])
+
+    annualInvestment = [initial_cost]
+    annualMaintenance = [0]
+    annualRetrofit = [0]
+
+    numberCSnew = [charger_points[0] / 2]
+    maintenance = [0]
+    retrofit = [0]
+    annual = [initial_cost]
+    discountedAccumulatedCost = [initial_cost]
+    AccumulatedCost = [initial_cost]
+
+    for i in range(1, len(charger_points)):
+        discount_rate = get_real_discount_rate(i)  
+
+        annualInvestment.append(initial_cost)  
+        annualMaintenance.append(initial_cost * maintenance_rate)
+        annualRetrofit.append(initial_cost * retrofit_rate)
+
+        numberCSnew.append((charger_points[i] - charger_points[i-1]) / 2)   
+        maintenance.append(annualMaintenance[i-1] * numberCSnew[i-1])
+        retrofit.append(annualRetrofit[i-1] * numberCSnew[i-1])
+
+        if i == 10 or i == 20 or i == 30:
+            annual.append(math.ceil(maintenance[i] + retrofit[i]))
+        else:
+            annual.append(math.ceil(maintenance[i]))
+
+        discountedAccumulatedCost.append(math.ceil(discountedAccumulatedCost[i-1] + (annual[i] / ((1 + discount_rate) ** i))))
+        AccumulatedCost.append(math.ceil(AccumulatedCost[i-1] + annual[i]))
+
+    df = pd.DataFrame({ 
+        f"AC {typeCS}": AccumulatedCost, 
+        f'DAC {typeCS}': discountedAccumulatedCost, 
+        f'Annual {typeCS}': annual
+        })
+    if len(df) != len(file):
+        raise ValueError("El nuevo DataFrame tiene un número diferente de filas, lo que causará desalineación.")
+    file = pd.concat([file, df], axis=1)  
+    file.to_csv(path, index=False)
 
 if __name__ == '__main__':
     fuel_demand = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/fuel_demand.csv')
@@ -243,7 +254,7 @@ if __name__ == '__main__':
     df_vehicles = projections[["Year", "Scenario", "EV", "PHEV"]]
     
     P = [7, 20, 60] # charge speed
-    T = [24, 12, 24] # time available
+    T = [24, 8, 12] # time available
     E100km = 0.1103 # EV's performance (kwh/100km)
     dailyDistance = 175 # EV's daily distance (km)
     C = (E100km * 1) * 175 # electric demand daily per vehicle
@@ -262,10 +273,10 @@ if __name__ == '__main__':
         df.insert(0, 'Scenario', scenario)
         df_chargers = pd.concat([df_chargers, df])
 
-    year = scenario_selected_v['Year']
-    plt.plot(year, uL1, label='L1', color="#bda5ad")
-    plt.plot(year, uL2, label='L2', color="#00a099")
-    plt.plot(year, uL3, label='L3', color="#a4165f")
+    years = scenario_selected_v['Year']
+    plt.plot(years, uL1, label='L1', color="#bda5ad")
+    plt.plot(years, uL2, label='L2', color="#00a099")
+    plt.plot(years, uL3, label='L3', color="#a4165f")
     plt.title(f'Utilization rate of charging points')
     plt.grid()
     plt.legend()
@@ -273,11 +284,38 @@ if __name__ == '__main__':
     plt.ylabel("%")
     
     plt.tight_layout()
-    plt.savefig('C:/Nohora/UniValle_project/pasto_case/results_netherlands/UR_5.jpg')
+    plt.savefig('C:/Nohora/UniValle_project/pasto_case/results_netherlands/UR_case1.jpg')
+    plt.close()
 
-    discounted_accumulated_cost()
+    ec_cs = calcule_plot_evCP(scenario_selected_v, cL1, cL2, cL3, 'case1')
+    df_chargers.to_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/cs_projections_case1.csv')
+    plot_charger_bar(df_electricity, cL1, cL2, cL3, 'C:/Nohora/UniValle_project/pasto_case/results_netherlands/cs_projections_bar_case1.jpg')
+    plot_csv_data('C:/Nohora/UniValle_project/pasto_case/results_netherlands')
 
-    # ec_cs = calcule_plot_evCP(scenario_selected_v, cL1, cL2, cL3, 'base')
-    # df_chargers.to_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/cs_projections_base.csv')
-    # plot_charger_bar(df_electricity, cL1, cL2, cL3, 'C:/Nohora/UniValle_project/pasto_case/results_netherlands/cs_projections_base_bar5.jpg')
-    # plot_csv_data('C:/Nohora/UniValle_project/pasto_case/results_netherlands')
+    path = 'C:/Nohora/UniValle_project/pasto_case/results_netherlands/cs_projections_case1.csv'
+    initial_cost = 800  
+    maintenance_rate = 0.1  
+    retrofit_rate = 0.05  
+    discounted_accumulated_cost(years, initial_cost, maintenance_rate, retrofit_rate, path, 'L1')
+    initial_cost = 6500  
+    maintenance_rate = 0.1  
+    retrofit_rate = 0.5
+    discounted_accumulated_cost(years, initial_cost, maintenance_rate, retrofit_rate, path, 'L2')
+    initial_cost = 75000  
+    maintenance_rate = 0.1  
+    retrofit_rate = 0.5
+    discounted_accumulated_cost(years, initial_cost, maintenance_rate, retrofit_rate, path, 'L3')
+
+    file = pd.read_csv(path)
+    discountedAC_L1 = list(file['DAC L1'])
+    discountedAC_L2 = list(file['DAC L2'])
+    discountedAC_L3 = list(file['DAC L3'])
+    plt.plot(years, discountedAC_L1, label = 'L1', color="#bda5ad")
+    plt.plot(years, discountedAC_L2, label = 'L2', color="#00a099")
+    plt.plot(years, discountedAC_L3, label = 'L3', color="#a4165f")
+    plt.grid()
+    plt.xlabel('Year')
+    plt.ylabel('Cost [USD]')
+    plt.legend()
+    plt.savefig('C:/Nohora/UniValle_project/pasto_case/results_netherlands/discountAC_case1.jpg')
+    plt.close()
