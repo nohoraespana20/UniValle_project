@@ -16,7 +16,6 @@ import math
 import numpy as np
 import pandas as pd
 from pprint import pprint
-import pasto_case.cs_metrics as pr
 
 def parameters():
     """default_parameter"""
@@ -57,12 +56,10 @@ def parameters():
         parameter['tariff']['demand_coincident'] = 0.5 # $/kW for coincident
         parameter['tariff']['export'] = {0:0} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
     else:
-        # #LEVEL CHARGE : L1 & L2 & L3
-        parameter['tariff']['energy'] = {0:0.24, 1:0.36, 2:0.36} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
+        parameter['tariff']['energy'] = {0:0.15, 1:0.15, 2:0.22} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
         parameter['tariff']['demand'] = {0:0, 1:0, 2:0} # $/kW for periods 0-offpeak, 1-midpeak, 2-onpeak
         parameter['tariff']['demand_coincident'] = 0 # $/kW for coincident
         parameter['tariff']['export'] = {0:0.12} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
-
 
     parameter['site'] = {}
     parameter['site']['customer'] = 'Commercial' # Type of customer [commercial or none]; decides if demand charge
@@ -75,8 +72,8 @@ def parameters():
     parameter['site']['regulation_reserved'] = False # Flag to reserve site capacity for regulation
     parameter['site']['regulation_reserved_battery'] = False # Flag to reserve battery capacity for regulation
     parameter['site']['regulation_reserved_variable_battery'] = False # Flag to reserve battery capacity for regulation (variable ts)
-    parameter['site']['import_max'] = 230000 # kW
-    parameter['site']['export_max'] = 21000 # kW
+    parameter['site']['import_max'] = 500000 # kW
+    parameter['site']['export_max'] = 500000 # kW
     parameter['site']['demand_periods_prev'] = {0:0,1:0,2:0} # kW peak previously set for periods 0-offpeak, 1-midpeak, 2-onpeak
     parameter['site']['demand_coincident_prev'] = 0 # kW peak previously set for coincident
     parameter['site']['input_timezone'] = -5 # Timezone of inputs (in hourly offset from UTC)
@@ -210,7 +207,7 @@ def parameters():
             'load_id': 'pf_demand_node4',
             'ders': { 
                 'pv_id': 'pf_pv_node4',
-                'pv_maxS': 14000,
+                'pv_maxS': 700000,
                 'battery': 'pf_bat_node4', # node can contain multiple battery assets, so should be list
                 'genset': None,
                 'load_control': None # node likely to only contain single load_control asset, so should be str
@@ -229,7 +226,7 @@ def parameters():
             'load_id': 'pf_demand_node18',
             'ders': { 
                 'pv_id': 'pf_pv_node18',
-                'pv_maxS': 10000,
+                'pv_maxS': 500000,
                 'battery': 'pf_bat_node18', # node can contain multiple battery assets, so should be list
                 'genset': None,
                 'load_control': None # node likely to only contain single load_control asset, so should be str
@@ -248,7 +245,7 @@ def parameters():
             'load_id': 'pf_demand_node27',
             'ders': { 
                 'pv_id': 'pf_pv_node27',
-                'pv_maxS': 20000,
+                'pv_maxS': 1000000,
                 'battery': 'pf_bat_node27', # node can contain multiple battery assets, so should be list
                 'genset': None,
                 'load_control': None # node likely to only contain single load_control asset, so should be str
@@ -265,7 +262,7 @@ def parameters():
     parameter['network']['lines'] = [ # list of dicts define each cable/line properties
         {
             'line_id': 'L1',
-            'power_capacity': 6000, # line power capacity only used for simple power=exchange
+            'power_capacity': 160000, # line power capacity only used for simple power=exchange
             'length': 3362, # line length in meters
             'resistance': 4.64e-6, # line properties are all in pu, based on SBase/VBase defined above
             'inductance': 8.33e-7,
@@ -273,7 +270,7 @@ def parameters():
         },
         {
             'line_id': 'L2',
-            'power_capacity': 6000,
+            'power_capacity': 160000,
             'length': 4259,
             'resistance': 4.64e-6,
             'inductance': 8.33e-7,
@@ -281,7 +278,7 @@ def parameters():
         },
         {
             'line_id': 'L3',
-            'power_capacity': 6000,
+            'power_capacity': 160000,
             'length': 4259,
             'resistance': 4.64e-6,
             'inductance': 8.33e-7,
@@ -289,7 +286,7 @@ def parameters():
         },
         {
             'line_id': 'L4',
-            'power_capacity': 6000,
+            'power_capacity': 160000,
             'length': 1317,
             'resistance': 4.64e-6,
             'inductance': 8.33e-7,
@@ -297,7 +294,7 @@ def parameters():
         },
         {
             'line_id': 'L18',
-            'power_capacity': 6000,
+            'power_capacity': 160000,
             'length': 1673,
             'resistance': 4.64e-6,
             'inductance': 8.33e-7,
@@ -305,7 +302,7 @@ def parameters():
         },
         {
             'line_id': 'L27',
-            'power_capacity': 6000,
+            'power_capacity': 160000,
             'length': 696,
             'resistance': 4.64e-6,
             'inductance': 8.33e-7,
@@ -318,7 +315,7 @@ def parameters():
     parameter['batteries'] = [
         {
           'name':'pf_bat_node4',
-          'capacity': 15000,
+          'capacity': 72910 ,#15000, # 7291, #
           'degradation_endoflife': 80,
           'degradation_replacementcost': 28700.0,#6000.0, #28700#
           'efficiency_charging': 0.96,
@@ -328,8 +325,8 @@ def parameters():
           'maxS': 150,
           'power_discharge': 150,
           'self_discharging': 0.001,
-          'soc_final': 0.2,
-          'soc_initial': 0.2,
+          'soc_final': 0.8,
+          'soc_initial': 0.8,
           'soc_max': 0.8,
           'soc_min': 0.2,
           # 'temperature_initial': 22.0,
@@ -338,7 +335,7 @@ def parameters():
         },
         {
           'name':'pf_bat_node18',
-          'capacity': 11000,
+          'capacity': 530020, #11000, # 5302, #
           'degradation_endoflife': 80,
           'degradation_replacementcost': 12300.0,#6000.0, #12300
           'efficiency_charging': 0.96,
@@ -348,8 +345,8 @@ def parameters():
           'maxS': 350,
           'power_discharge': 350,
           'self_discharging': 0.001,
-          'soc_final': 0.2,
-          'soc_initial': 0.2,
+          'soc_final': 0.8,
+          'soc_initial': 0.8,
           'soc_max': 0.8,
           'soc_min': 0.2,
           # 'temperature_initial': 22.0,
@@ -358,7 +355,7 @@ def parameters():
         },
         {
           'name':'pf_bat_node27',
-          'capacity': 24000,
+          'capacity': 117660, #24000, #11766, #
           'degradation_endoflife': 80,
           'degradation_replacementcost': 24600.0,#6000.0,#24600
           'efficiency_charging': 0.96,
@@ -368,8 +365,8 @@ def parameters():
           'maxS': 350,
           'power_discharge': 350,
           'self_discharging': 0.001,
-          'soc_final': 0.2,
-          'soc_initial': 0.2,
+          'soc_final': 0.8,
+          'soc_initial': 0.8,
           'soc_max': 0.8,
           'soc_min': 0.2,
           # 'temperature_initial': 22.0,
@@ -396,10 +393,7 @@ def ts_inputs(parameter={}, load='Flexlab', scale_load=4, scale_pv=4):
         data['load_demand'] = data['load_demand']/data['load_demand'].max()
     elif load =='B90':
         data = pd.DataFrame(index=pd.date_range(start='2019-01-01 00:00', end='2019-01-01 23:50', freq='h'))
-        data['load_demand'] = [0.5, 0.45, 0.32, 0.25, 0.12, 0.05, 0.15, 0.29, 0.38, 0.47, 0.58, 0.675, 0.74, 0.812, 0.92, 0.835, 0.751, 0.69, 0.57, 0.42, 0.37, 0.26, 0.25, 0.24] # curva L1 at home
-        # data['load_demand'] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.35, 0.5, 0.69, 0.8, 0.87, 0.8, 0.75, 0.4, 0.3, 0.15, 0.05, 0.01, 0,0,0,0,0,0,0] # curva L1 workplace
-        # data['load_demand'] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.03, 0.05, 0.25, 0.35, 0.5, 0.59, 0.52, 0.4, 0.35, 0.4, 0.6, 0.69, 0.8, 0.87, 0.75, 0.4, 0.1, 0.0]#curva L2 shopping mall
-        # data['load_demand'] = [0.05, 0.07, 0.08, 0.09, 0.150, 0.261, 0.273, 0.315, 0.425, 0.535, 0.55, 0.59, 0.52, 0.4, 0.35, 0.4, 0.6, 0.79, 0.9, 1, 0.85, 0.4, 0.1, 0.05]#curva L3 CHARGING STATION
+        data['load_demand'] = [0.12, 0.11, 0.06, 0.03, 0.0, 0.17, 0.1, 0.44, 0.68, 0.84, 0.93, 1.0, 0.82, 0.7, 0.64, 0.61, 0.73, 0.81, 0.86, 0.87, 0.73, 0.34, 0.08, 0.01]
         data['load_demand'] = data['load_demand']/data['load_demand'].max()
     # Scale Load data
     data['load_demand'] = data['load_demand'] * scale_load
@@ -407,13 +401,8 @@ def ts_inputs(parameter={}, load='Flexlab', scale_load=4, scale_pv=4):
     data['oat'] = np.sin(data.index.view(np.int64)/(1e12*np.pi*4))*3 + 15 
     # Makeup Tariff
     data['tariff_energy_map'] = 0
-    # data['tariff_energy_map'] = data['tariff_energy_map'].mask((data.index.hour>=8) & (data.index.hour<22), 1)
-    # data['tariff_energy_map'] = data['tariff_energy_map'].mask((data.index.hour>=12) & (data.index.hour<18), 2)
     data['tariff_energy_map'] = data['tariff_energy_map'].mask((data.index.hour>=6) & (data.index.hour<9), 1)
     data['tariff_energy_map'] = data['tariff_energy_map'].mask((data.index.hour>=17) & (data.index.hour<20), 2)
-    # data['tariff_energy_map'] = data['tariff_energy_map'].mask((data.index.hour>=6) & (data.index.hour<8), 1)
-    # data['tariff_energy_map'] = data['tariff_energy_map'].mask((data.index.hour>=11) & (data.index.hour<13), 1)
-    # data['tariff_energy_map'] = data['tariff_energy_map'].mask((data.index.hour>=18) & (data.index.hour<20), 2)
     data['tariff_power_map'] = data['tariff_energy_map'] # Apply same periods to demand charge
     data['tariff_energy_export_map'] = 0
     
@@ -431,19 +420,13 @@ def ts_inputs(parameter={}, load='Flexlab', scale_load=4, scale_pv=4):
                 data[c] = data[c].ffill()
         data = data.loc['2019-01-01 00:00:00':'2019-01-02 00:00:00']
     else:
-        data = data.loc['2019-01-01 00:00:00':'2019-01-02 00:00:00']
-    
+        data = data.loc['2019-01-01 00:00:00':'2019-01-02 00:00:00'] 
     var = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/pv_norm_pasto.csv') * scale_pv
-    
     var_single_column = var.iloc[5:282, 0]
-    
     data['generation_pv'] = var_single_column.values
-    
     # input timeseries indicating grid availability
     data['grid_available'] = 1
     data['fuel_available'] = 0
-
     # input timeseries indicating grid availability
-    # data['grid_co2_intensity'] = 0.202 #kg/kWh
     data['grid_co2_intensity'] = 0.16438 #kg/kWh
     return data
