@@ -16,6 +16,7 @@ import math
 import numpy as np
 import pandas as pd
 from pprint import pprint
+import matplotlib.pyplot as plt
 
 def parameters():
     """default_parameter"""
@@ -56,7 +57,7 @@ def parameters():
         parameter['tariff']['demand_coincident'] = 0.5 # $/kW for coincident
         parameter['tariff']['export'] = {0:0} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
     else:
-        parameter['tariff']['energy'] = {0:0.15, 1:0.15, 2:0.22} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
+        parameter['tariff']['energy'] = {0:0.15, 1:0.22, 2:0.22} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
         parameter['tariff']['demand'] = {0:0, 1:0, 2:0} # $/kW for periods 0-offpeak, 1-midpeak, 2-onpeak
         parameter['tariff']['demand_coincident'] = 0 # $/kW for coincident
         parameter['tariff']['export'] = {0:0.12} # $/kWh for periods 0-offpeak, 1-midpeak, 2-onpeak
@@ -207,7 +208,7 @@ def parameters():
             'load_id': 'pf_demand_node4',
             'ders': { 
                 'pv_id': 'pf_pv_node4',
-                'pv_maxS': 700000,
+                'pv_maxS': 14000,
                 'battery': 'pf_bat_node4', # node can contain multiple battery assets, so should be list
                 'genset': None,
                 'load_control': None # node likely to only contain single load_control asset, so should be str
@@ -226,7 +227,7 @@ def parameters():
             'load_id': 'pf_demand_node18',
             'ders': { 
                 'pv_id': 'pf_pv_node18',
-                'pv_maxS': 500000,
+                'pv_maxS': 10000,
                 'battery': 'pf_bat_node18', # node can contain multiple battery assets, so should be list
                 'genset': None,
                 'load_control': None # node likely to only contain single load_control asset, so should be str
@@ -245,7 +246,7 @@ def parameters():
             'load_id': 'pf_demand_node27',
             'ders': { 
                 'pv_id': 'pf_pv_node27',
-                'pv_maxS': 1000000,
+                'pv_maxS': 20000,
                 'battery': 'pf_bat_node27', # node can contain multiple battery assets, so should be list
                 'genset': None,
                 'load_control': None # node likely to only contain single load_control asset, so should be str
@@ -315,7 +316,7 @@ def parameters():
     parameter['batteries'] = [
         {
           'name':'pf_bat_node4',
-          'capacity': 72910 ,#15000, # 7291, #
+          'capacity': 7500,
           'degradation_endoflife': 80,
           'degradation_replacementcost': 28700.0,#6000.0, #28700#
           'efficiency_charging': 0.96,
@@ -335,7 +336,7 @@ def parameters():
         },
         {
           'name':'pf_bat_node18',
-          'capacity': 530020, #11000, # 5302, #
+          'capacity': 5500,
           'degradation_endoflife': 80,
           'degradation_replacementcost': 12300.0,#6000.0, #12300
           'efficiency_charging': 0.96,
@@ -355,7 +356,7 @@ def parameters():
         },
         {
           'name':'pf_bat_node27',
-          'capacity': 117660, #24000, #11766, #
+          'capacity': 12000,
           'degradation_endoflife': 80,
           'degradation_replacementcost': 24600.0,#6000.0,#24600
           'efficiency_charging': 0.96,
@@ -395,8 +396,10 @@ def ts_inputs(parameter={}, load='Flexlab', scale_load=4, scale_pv=4):
         data = pd.DataFrame(index=pd.date_range(start='2019-01-01 00:00', end='2019-01-01 23:50', freq='h'))
         data['load_demand'] = [0.12, 0.11, 0.06, 0.03, 0.0, 0.17, 0.1, 0.44, 0.68, 0.84, 0.93, 1.0, 0.82, 0.7, 0.64, 0.61, 0.73, 0.81, 0.86, 0.87, 0.73, 0.34, 0.08, 0.01]
         data['load_demand'] = data['load_demand']/data['load_demand'].max()
+        
     # Scale Load data
     data['load_demand'] = data['load_demand'] * scale_load
+
     # Mode of OAT
     data['oat'] = np.sin(data.index.view(np.int64)/(1e12*np.pi*4))*3 + 15 
     # Makeup Tariff
@@ -421,6 +424,7 @@ def ts_inputs(parameter={}, load='Flexlab', scale_load=4, scale_pv=4):
         data = data.loc['2019-01-01 00:00:00':'2019-01-02 00:00:00']
     else:
         data = data.loc['2019-01-01 00:00:00':'2019-01-02 00:00:00'] 
+    
     var = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/pv_norm_pasto.csv') * scale_pv
     var_single_column = var.iloc[5:282, 0]
     data['generation_pv'] = var_single_column.values

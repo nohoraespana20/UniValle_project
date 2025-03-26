@@ -1,4 +1,6 @@
 import gc
+import re
+import os
 from pyomo.environ import Objective, minimize
 from doper import DOPER, standard_report
 from doper.models.basemodel import base_model, default_output_list
@@ -22,10 +24,18 @@ def control_model(inputs, parameter):
     model.objective = Objective(rule=objective_function, sense=minimize, doc='objective function')
     return model
 
-def data_multinode(parameter, demand):
-    data4  = ts_inputs(parameter, load='B90', scale_load=demand*0.30, scale_pv=6124)
-    data5  = ts_inputs(parameter, load='B90', scale_load=demand*0.22, scale_pv=4455)
-    data6  = ts_inputs(parameter, load='B90', scale_load=demand*0.48, scale_pv=9882)
+def pv_value(valor_inicial, incremento, elementos):
+    lista_valores = [valor_inicial * (1 + incremento) ** i for i in range(elementos)]
+    return lista_valores
+
+def data_multinode(parameter, demand, i):
+    p1 = pv_value(valor_inicial = 6121, incremento = 0.10, elementos = 31)
+    p2 = pv_value(valor_inicial = 4455, incremento = 0.10, elementos = 31)
+    p3 = pv_value(valor_inicial = 9882, incremento = 0.10, elementos = 31)
+
+    data4  = ts_inputs(parameter, load='B90', scale_load=demand*0.30, scale_pv=p1[i])
+    data5  = ts_inputs(parameter, load='B90', scale_load=demand*0.22, scale_pv=p2[i])
+    data6  = ts_inputs(parameter, load='B90', scale_load=demand*0.48, scale_pv=p3[i])
     # use data1 as starting point for multinode df
     data = data5.copy()
     # drop load and pv from multinode df
@@ -59,11 +69,30 @@ def save_results_solver(df, i):
   df.to_csv(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/doper/doperRes{i}.csv', index=False)
 
 def show_results_solver(df, i):
-    plt.plot(df[['Import Power [kW]','PV Power [kW]', 'Load Power [kW]']])
+    colors = {'Import Power [kW]': '#00bae1', 'PV Power [kW]': '#ff9800',  'Load Power [kW]': '#000000'}
+    plt.plot(df['Import Power [kW]'], color=colors['Import Power [kW]'], label='Import Power [kW]')
+    plt.plot(df['PV Power [kW]'], color=colors['PV Power [kW]'], label='PV Power [kW]')
+    plt.plot(df['Load Power [kW]'], color=colors['Load Power [kW]'], label='Load Power [kW]')
     plt.title('Power flow at PCC')
     plt.legend(['Import Power [kW]','PV Power [kW]', 'Load Power [kW]'])
     plt.savefig(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/doper/Fig1_{i}.jpg')
+    plt.close()
     plot_dynamic(df, parameter, plotFile = f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/doper/Fig2_{i}.jpg', plot_reg=False)
+
+def extract_values(file_path):
+    cost_value = None
+    objective_value = None
+    with open(file_path, 'r') as file:
+        for line in file:
+            if "Objective [$]" in line:
+                match = re.search(r'Objective \[\$\]\s+(\d+\.\d+)', line)
+                if match:
+                    objective_value = float(match.group(1))
+            if "Cost [$]" in line:
+                match = re.search(r'Cost \[\$\]\s+(\d+\.\d+)', line)
+                if match:
+                    cost_value = float(match.group(1))
+    return objective_value, cost_value
 
 if __name__ == '__main__':  
     parameter = parameters()
@@ -71,35 +100,57 @@ if __name__ == '__main__':
     scenario = 'Scenario 3'
     scenario_selected = df_demand.loc[df_demand.loc[:, 'Scenario'] == scenario]
     demand = list(scenario_selected["Electricity [kWh]"])
-
+  
     # data_frames = []
-    # i=0
-    # print('Demand = ', demand[i], 'Position = ', i)
-    # data = data_multinode(parameter, demand[i])
-    # df, res = execute_solver(parameter, data)
-    # data_frames.append(df)
-    # save_results_solver(df, i)
-    # show_results_solver(df, i)
-    # plt.close('all')
-    # print(standard_report(res))
-    # with open(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/doper/terminalRes{i}.txt', 'w') as k:
-    #     k.write(standard_report(res))
+    # for i in range(len(demand)):
+    #     print('Demand = ', demand[i], 'Position = ', i)  
+    #     try:
+    #         data = data_multinode(parameter, demand[i], i)
+    #         df, res = execute_solver(parameter, data)
+    #         data_frames.append(df)
+    #         save_results_solver(df, i)
+    #         show_results_solver(df, i)
+    #         plt.close('all')
+    #         print(standard_report(res))
+    #         with open(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/doper/terminalRes{i}.txt', 'w') as k:
+    #             k.write(standard_report(res))
+    #         del data, df, res
+    #         gc.collect()
+    #     except:
+    #         print(f'Error in solver {i}')
 
-    data_frames = []
-    for i in range(len(demand)):
-        print('Demand = ', demand[i], 'Position = ', i)
-        try:
-            data = data_multinode(parameter, demand[i])
-
-            df, res = execute_solver(parameter, data)
-            data_frames.append(df)
-            save_results_solver(df, i)
-            show_results_solver(df, i)
-            plt.close('all')
-            print(standard_report(res))
-            with open(f'C:/Nohora/UniValle_project/pasto_case/results/results_netherlands/doper/terminalRes{i}.txt', 'w') as k:
-                k.write(standard_report(res))
-            del data, df, res
-            gc.collect()
-        except:
-            print(f'Error in solver {i}')
+    folder_path1 = "C:/Nohora/UniValle_project/pasto_case/results_netherlands/doper"
+    files1 = sorted([f for f in os.listdir(folder_path1) if f.startswith("terminalRes") and f.endswith(".txt")],
+                    key=lambda x: int(re.search(r'\d+', x).group()))
+    # folder_path2 = "C:/Nohora/UniValle_project/pasto_case/results_netherlands/doper_withBatteries"
+    # files2 = sorted([f for f in os.listdir(folder_path2) if f.startswith("terminalRes") and f.endswith(".txt")],
+    #                 key=lambda x: int(re.search(r'\d+', x).group()))
+    # folder_path3 = "C:/Nohora/UniValle_project/pasto_case/results_netherlands/doper_batteries_duplicate"
+    # files3 = sorted([f for f in os.listdir(folder_path3) if f.startswith("terminalRes") and f.endswith(".txt")],
+    #                 key=lambda x: int(re.search(r'\d+', x).group()))
+    data1_ob, data1_co, data2_ob, data2_co, data3_ob, data3_co = [], [], [], [], [], []
+    for file in files1:
+        file_path = os.path.join(folder_path1, file)
+        objective_value, cost_value = extract_values(file_path)
+        data1_ob.append(objective_value)
+        data1_co.append(cost_value)
+    # for file in files2:
+    #     file_path = os.path.join(folder_path2, file)
+    #     objective_value, cost_value = extract_values(file_path)
+    #     data2_ob.append(objective_value)
+    #     data2_co.append(cost_value)
+    # for file in files3:
+    #     file_path = os.path.join(folder_path3, file)
+    #     objective_value, cost_value = extract_values(file_path)
+    #     data3_ob.append(objective_value)
+    #     data3_co.append(cost_value)
+    years = list(scenario_selected["Year"])
+    df_compareCost= pd.DataFrame({'Year': years,
+                                  'PV Cost [$]': data1_ob,
+                                  'Energy Cost [$]': data1_co})#,
+                                #   'PV Cost [$] with Bat': data2_ob,
+                                #   'Energy Cost [$] with Bat': data2_co,
+                                #   'PV Cost [$] Bat duplicate': data3_ob,
+                                #   'Energy Cost [$] Bat duplicate': data3_co})
+    df_compareCost.fillna(0, inplace=True)
+    df_compareCost.to_csv(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/costEnergyCompare.csv')
