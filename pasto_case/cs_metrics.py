@@ -33,11 +33,15 @@ def cp_technical_metrics(demand, BL1, BL2, BL3, P, T):
     chargersLow, chargersSemifast, chargersFast = [], [], []
     utilization_low, utilization_semifast, utilization_fast = [], [], []
     emission_low, emission_semifast, emission_fast = [], [], []
+    demand_L1, demand_L2, demand_L3 = [], [], []
     gwp = [82.52, 91.58, 111.02]
     for i in range(len(BL1)):
-        low     = (demand * BL1[i]) / (P[0] * T[0])
-        semifast= (demand * BL2[i]) / (P[1] * T[1])
-        fast    = (demand * BL3[i]) / (P[2] * T[2])
+        low     = math.ceil((demand * BL1[i]) / (P[0] * T[0]))
+        demand_L1.append(low)
+        semifast= math.ceil((demand * BL2[i]) / (P[1] * T[1]))
+        demand_L2.append(semifast)
+        fast    = math.ceil((demand * BL3[i]) / (P[2] * T[2]))
+        demand_L3.append(fast)
         if low < 1:
             low = 1
         if semifast < 1:
@@ -63,7 +67,7 @@ def cp_technical_metrics(demand, BL1, BL2, BL3, P, T):
         emission_low.append(math.ceil(e_low))
         emission_semifast.append(math.ceil(e_semifast))
         emission_fast.append(math.ceil(e_fast))
-    return chargersLow, chargersSemifast, chargersFast, utilization_low, utilization_semifast, utilization_fast, emission_low, emission_semifast, emission_fast
+    return chargersLow, chargersSemifast, chargersFast, utilization_low, utilization_semifast, utilization_fast, emission_low, emission_semifast, emission_fast, demand_L1, demand_L2, demand_L3
 
 def ev_per_CP(scenario_selected_v, cL1, cL2, cL3):
     ev_cs = [[],[],[]]
@@ -84,13 +88,13 @@ def get_real_discount_rate(year):
         return 0.035  # 3.5% después de 25 años
 
 def discounted_accumulated_cost(years, initial_cost, maintenance_rate, retrofit_rate, charger_points):
-    annualInvestment = [initial_cost]
-    annualMaintenance = [0]
-    annualRetrofit = [0]
-
-    numberCSnew = [charger_points[0] / 2]
-    maintenance = [0]
-    retrofit = [0]
+    #Values for year = 0
+    numberCSnew = charger_points[0] / 2
+    maintenance = 0
+    retrofit = 0
+    annualMaintenance = initial_cost * maintenance_rate
+    annualRetrofit = initial_cost * retrofit_rate
+    
     annual = [initial_cost]
     discountedAccumulatedCost = [initial_cost]
     AccumulatedCost = [initial_cost]
@@ -98,18 +102,42 @@ def discounted_accumulated_cost(years, initial_cost, maintenance_rate, retrofit_
     for i in range(1, len(years)):
         discount_rate = get_real_discount_rate(i)
 
-        annualInvestment.append(initial_cost)
-        annualMaintenance.append(initial_cost * maintenance_rate)
-        annualRetrofit.append(initial_cost * retrofit_rate)
-
-        numberCSnew.append((charger_points[i] - charger_points[i-1]) / 2)
-        maintenance.append(annualMaintenance[i-1] * numberCSnew[i-1])
-        retrofit.append(annualRetrofit[i-1] * numberCSnew[i-1])
+        numberCSnew = (charger_points[i] - charger_points[i-1]) / 2
+        maintenance = annualMaintenance * numberCSnew
+        retrofit = annualRetrofit * numberCSnew
 
         if i == 10 or i == 20 or i == 30:
-            annual.append(math.ceil(maintenance[i] + retrofit[i]))
+            annual.append(math.ceil(maintenance + retrofit))
         else:
-            annual.append(math.ceil(maintenance[i]))
+            annual.append(math.ceil(maintenance))
+
+        discountedAccumulatedCost.append(math.ceil(discountedAccumulatedCost[i-1] + (annual[i] / ((1 + discount_rate) ** i))))
+        AccumulatedCost.append(math.ceil(AccumulatedCost[i-1] + annual[i]))
+    return discountedAccumulatedCost, AccumulatedCost, annual
+
+def discounted_accumulated_cost2(years, initial_cost, maintenance_rate, retrofit_rate, charger_points, energy_cost):
+    #Values for year = 0
+    numberCSnew = charger_points[0] / 2
+    maintenance = 0
+    retrofit = 0
+    annualMaintenance = initial_cost * maintenance_rate
+    annualRetrofit = initial_cost * retrofit_rate
+    
+    annual = [initial_cost + energy_cost[0]]
+    discountedAccumulatedCost = [initial_cost + energy_cost[0]]
+    AccumulatedCost = [initial_cost + energy_cost[0]]
+
+    for i in range(1, len(years)):
+        discount_rate = get_real_discount_rate(i)
+
+        numberCSnew = (charger_points[i] - charger_points[i-1]) / 2
+        maintenance = annualMaintenance * numberCSnew
+        retrofit = annualRetrofit * numberCSnew
+
+        if i == 10 or i == 20 or i == 30:
+            annual.append(math.ceil(maintenance + retrofit + energy_cost[i]))
+        else:
+            annual.append(math.ceil(maintenance + energy_cost[i]))
 
         discountedAccumulatedCost.append(math.ceil(discountedAccumulatedCost[i-1] + (annual[i] / ((1 + discount_rate) ** i))))
         AccumulatedCost.append(math.ceil(AccumulatedCost[i-1] + annual[i]))
@@ -146,6 +174,7 @@ def plot_ev_metrics(years, df_chargers, case):
     plt.legend()
     plt.grid(True, linestyle="--", alpha=0.7)
     plt.savefig(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/figures/chargers_{case}.jpg')
+    plt.close()
     
     plt.figure(figsize=(10, 6))
     plt.plot(years, df_chargers['Utilization L1'], color=colors[0], label='L1')
@@ -156,6 +185,7 @@ def plot_ev_metrics(years, df_chargers, case):
     plt.legend()
     plt.grid(True, linestyle="--", alpha=0.7)
     plt.savefig(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/figures/utilization_{case}.jpg')
+    plt.close()
     
     plt.figure(figsize=(10, 6))
     plt.plot(years, df_chargers['Emission L1'], color=colors[0], label='L1')
@@ -166,6 +196,7 @@ def plot_ev_metrics(years, df_chargers, case):
     plt.grid(True, linestyle="--", alpha=0.7)
     plt.legend()
     plt.savefig(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/figures/emissions_{case}.jpg')
+    plt.close()
     
     plt.figure(figsize=(10, 6))
     plt.plot(years, df_chargers['EV/CP L1'], color=colors[0], label='L1')
@@ -176,16 +207,18 @@ def plot_ev_metrics(years, df_chargers, case):
     plt.grid(True, linestyle="--", alpha=0.7)
     plt.legend()
     plt.savefig(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/figures/EVcp_{case}.jpg')
+    plt.close()
 
     plt.figure(figsize=(10, 6))
-    plt.plot(years, df_chargers['DAC L1'], color=colors[0], label='L1')
-    plt.plot(years, df_chargers['DAC L2'], color=colors[1], label='L2')
-    plt.plot(years, df_chargers['DAC L3'], color=colors[2], label='L3')
+    plt.plot(years, df_chargers['DAC L1 case1'], color=colors[0], label='L1')
+    plt.plot(years, df_chargers['DAC L2 case1'], color=colors[1], label='L2')
+    plt.plot(years, df_chargers['DAC L3 case1'], color=colors[2], label='L3')
     plt.xlabel('Year')
     plt.ylabel('Discounted accumulated cost [USD]')
     plt.grid(True, linestyle="--", alpha=0.7)
     plt.legend()
     plt.savefig(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/figures/discountedCost_{case}.jpg')
+    plt.close()
 
     plt.figure(figsize=(10, 6))
     plt.plot(years, df_chargers['Area L1'], color=colors[0], label='L1')
@@ -196,6 +229,7 @@ def plot_ev_metrics(years, df_chargers, case):
     plt.grid(True, linestyle="--", alpha=0.7)
     plt.legend()
     plt.savefig(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/figures/area_{case}.jpg')
+    plt.close()
 
     plt.figure(figsize=(10, 6))
     plt.plot(years, df_chargers['Jobs'])
@@ -203,6 +237,7 @@ def plot_ev_metrics(years, df_chargers, case):
     plt.ylabel('Jobs generated')
     plt.grid(True, linestyle="--", alpha=0.7)
     plt.savefig(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/figures/jobs_{case}.jpg')
+    plt.close()
 
 def plot_comparative(years, df_case1, df_case2, df_case3, df_case4, df_case5):   
     sns.set_style("whitegrid")
@@ -239,6 +274,7 @@ def plot_comparative(years, df_case1, df_case2, df_case3, df_case4, df_case5):
     axes[2].legend()
     plt.tight_layout()
     plt.savefig('C:/Nohora/UniValle_project/pasto_case/results_netherlands/figures/chargingPorts_comparative.jpg')
+    plt.close()
 
     fig, axes = plt.subplots(1, 3, figsize=(15, 5))
     axes[0].plot(years, df_case1['Utilization L1'], label="Case 1", color="black")
@@ -273,6 +309,7 @@ def plot_comparative(years, df_case1, df_case2, df_case3, df_case4, df_case5):
     axes[2].legend()
     plt.tight_layout()
     plt.savefig('C:/Nohora/UniValle_project/pasto_case/results_netherlands/figures/utilization_comparative.jpg')
+    plt.close()
 
     fig, axes = plt.subplots(1, 3, figsize=(15, 5))
     axes[0].plot(years, df_case1['EV/CP L1'], label="Case 1", color="black")
@@ -307,6 +344,7 @@ def plot_comparative(years, df_case1, df_case2, df_case3, df_case4, df_case5):
     axes[2].legend()
     plt.tight_layout()
     plt.savefig('C:/Nohora/UniValle_project/pasto_case/results_netherlands/figures/ev_cp_comparative.jpg')
+    plt.close()
 
     fig, axes = plt.subplots(1, 3, figsize=(15, 5))
     axes[0].plot(years, df_case1['DAC L1'], label="Case 1", color="black")
@@ -341,6 +379,7 @@ def plot_comparative(years, df_case1, df_case2, df_case3, df_case4, df_case5):
     axes[2].legend()
     plt.tight_layout()
     plt.savefig('C:/Nohora/UniValle_project/pasto_case/results_netherlands/figures/dac_comparative.jpg')
+    plt.close()
 
     fig, axes = plt.subplots(1, 3, figsize=(15, 5))
     axes[0].plot(years, df_case1['Area L1'], label="Case 1", color="black")
@@ -375,6 +414,7 @@ def plot_comparative(years, df_case1, df_case2, df_case3, df_case4, df_case5):
     axes[2].legend()
     plt.tight_layout()
     plt.savefig('C:/Nohora/UniValle_project/pasto_case/results_netherlands/figures/area_comparative.jpg')
+    plt.close()
 
 def plot_comparative_preference(years, df_case10, df_case20, df_case30, df_case40, df_case50, df_case60, df_case70, df_case80, df_case90):   
     sns.set_style("whitegrid")
@@ -423,6 +463,7 @@ def plot_comparative_preference(years, df_case10, df_case20, df_case30, df_case4
     axes[2].legend()
     plt.tight_layout()
     plt.savefig('C:/Nohora/UniValle_project/pasto_case/results_netherlands/change_percentage_preference/chargingPorts_comparative.jpg')
+    plt.close()
 
     fig, axes = plt.subplots(1, 3, figsize=(15, 5))
     axes[0].plot(years, df_case10['Utilization L1'], label="10%")
@@ -469,6 +510,7 @@ def plot_comparative_preference(years, df_case10, df_case20, df_case30, df_case4
     axes[2].legend()
     plt.tight_layout()
     plt.savefig('C:/Nohora/UniValle_project/pasto_case/results_netherlands/change_percentage_preference/utilization_comparative.jpg')
+    plt.close()
 
     fig, axes = plt.subplots(1, 3, figsize=(15, 5))
     axes[0].plot(years, df_case10['EV/CP L1'], label="10%")
@@ -515,6 +557,7 @@ def plot_comparative_preference(years, df_case10, df_case20, df_case30, df_case4
     axes[2].legend()
     plt.tight_layout()
     plt.savefig('C:/Nohora/UniValle_project/pasto_case/results_netherlands/change_percentage_preference/ev_cp_comparative.jpg')
+    plt.close()
 
     fig, axes = plt.subplots(1, 3, figsize=(15, 5))
     axes[0].plot(years, df_case10['DAC L1'], label="10%")
@@ -561,6 +604,7 @@ def plot_comparative_preference(years, df_case10, df_case20, df_case30, df_case4
     axes[2].legend()
     plt.tight_layout()
     plt.savefig('C:/Nohora/UniValle_project/pasto_case/results_netherlands/change_percentage_preference/dac_comparative.jpg')
+    plt.close()
 
     fig, axes = plt.subplots(1, 3, figsize=(15, 5))
     axes[0].plot(years, df_case10['Area L1'], label="10%")
@@ -607,6 +651,7 @@ def plot_comparative_preference(years, df_case10, df_case20, df_case30, df_case4
     axes[2].legend()
     plt.tight_layout()
     plt.savefig('C:/Nohora/UniValle_project/pasto_case/results_netherlands/change_percentage_preference/area_comparative.jpg')
+    plt.close()
 
 if __name__ == '__main__':
     fuel_demand = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/fuel_demand.csv')
@@ -616,14 +661,13 @@ if __name__ == '__main__':
     df_vehicles = projections[["Year", "Scenario", "EV", "PHEV"]]
 
     P = [7, 20, 60] # charge speed
-    T = [24, 8, 12] # time available
-    case = 'Case1_90'
     E100km = 11.03 # EV's performance (kwh/100km)
     dailyDistance = 175 # EV's daily distance (km)
     C = (E100km / 100) * 175 # electric demand daily per vehicle
     initial_cost = [800, 6500, 75000]
     maintenance_rate = [0.1, 0.1, 0.1]
     retrofit_rate = [0.05, 0.5, 0.5]
+    energy_cost = 0.22 #USD/kWh extract to CEDENAR march 2025 - kWh cost for comecial in tension 2
     portsPerCH = 2
     parkingArea = [0, 0, 14]
 
@@ -632,28 +676,51 @@ if __name__ == '__main__':
     scenario_selected_e = df_electricity.loc[df_electricity.loc[:, 'Scenario'] == scenario]
     years = list(scenario_selected_v['Year'])
 
-    bL1, bL2, bL3 = percentage_preference_type_charger(scenario_selected_v)
-    cL1, cL2, cL3, uL1, uL2, uL3, eL1, eL2, eL3 = cp_technical_metrics(C, bL1, bL2, bL3, P, T)
-    totalChargerPoints = [cL1, cL2, cL3]
-    ev_cs = ev_per_CP(scenario_selected_v, cL1, cL2, cL3)
-    discountedAC_L1, accumulatedC_L1, annualC_L1 = discounted_accumulated_cost(years, initial_cost[0], maintenance_rate[0], retrofit_rate[0], cL1)
-    discountedAC_L2, accumulatedC_L2, annualC_L2 = discounted_accumulated_cost(years, initial_cost[1], maintenance_rate[1], retrofit_rate[1], cL2)
-    discountedAC_L3, accumulatedC_L3, annualC_L3 = discounted_accumulated_cost(years, initial_cost[2], maintenance_rate[2], retrofit_rate[2], cL3)
-    jobs = job_charging_station(portsPerCH, totalChargerPoints)
-    landArea = land_area_metric(totalChargerPoints, parkingArea)
+    T_cases = [[24, 8, 12], [24, 24, 24], [24, 8, 8], [24, 12, 12], [24, 12, 24]] # time available
+    list_cases = ['case1', 'case2', 'case3', 'case4', 'case5']
 
-    df_chargers = pd.DataFrame()
-    df = pd.DataFrame({'L1': cL1, 'L2': cL2, 'L3': cL3,
-                       'Utilization L1': uL1, 'Utilization L2': uL2, 'Utilization L3': uL3,
-                       'Emission L1': eL1, 'Emission L2': eL2, 'Emission L3': eL3,
-                       'EV/CP L1': ev_cs[0], 'EV/CP L2': ev_cs[1], 'EV/CP L3': ev_cs[2],
-                       'DAC L1': discountedAC_L1, 'DAC L2': discountedAC_L2, 'DAC L3': discountedAC_L3,
-                       'Area L1': landArea[0], 'Area L2': landArea[1], 'Area L3': landArea[2],
-                       'Jobs': jobs})
+    energy_cost_file = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/costEnergyCompare.csv')
+    energy_cost2 = list(energy_cost_file['Energy Cost [$]'])
+    energy_cost3 = list(energy_cost_file['PV Cost [$]'])
 
-    df_chargers = pd.concat([df_chargers, df])
-    # df_chargers.to_csv(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/change_percentage_preference/cs_projections_{case}.csv')
-    # plot_ev_metrics(years, df_chargers, f'{case}')
+    for j in range(len(list_cases)):
+        T = T_cases[j]
+        case = list_cases[j]
+
+        bL1, bL2, bL3 = percentage_preference_type_charger(scenario_selected_v)
+        cL1, cL2, cL3, uL1, uL2, uL3, eL1, eL2, eL3, demand_L1, demand_L2, demand_L3 = cp_technical_metrics(C, bL1, bL2, bL3, P, T)
+        totalChargerPoints = [cL1, cL2, cL3]
+        ev_cs = ev_per_CP(scenario_selected_v, cL1, cL2, cL3)
+        discountedAC_L1_1, accumulatedC_L1_1, annualC_L1_1 = discounted_accumulated_cost(years, initial_cost[0], maintenance_rate[0], retrofit_rate[0], cL1)
+        discountedAC_L2_1, accumulatedC_L2_1, annualC_L2_1 = discounted_accumulated_cost(years, initial_cost[1], maintenance_rate[1], retrofit_rate[1], cL2)
+        discountedAC_L3_1, accumulatedC_L3_1, annualC_L3_1 = discounted_accumulated_cost(years, initial_cost[2], maintenance_rate[2], retrofit_rate[2], cL3)
+
+        discountedAC_L1_2, accumulatedC_L1_2, annualC_L1_2 = discounted_accumulated_cost2(years, initial_cost[0], maintenance_rate[0], retrofit_rate[0], cL1, energy_cost2)
+        discountedAC_L2_2, accumulatedC_L2_2, annualC_L2_2 = discounted_accumulated_cost2(years, initial_cost[1], maintenance_rate[1], retrofit_rate[1], cL2, energy_cost2)
+        discountedAC_L3_2, accumulatedC_L3_2, annualC_L3_2 = discounted_accumulated_cost2(years, initial_cost[2], maintenance_rate[2], retrofit_rate[2], cL3, energy_cost2)
+
+        discountedAC_L1_3, accumulatedC_L1_3, annualC_L1_3 = discounted_accumulated_cost2(years, initial_cost[0], maintenance_rate[0], retrofit_rate[0], cL1, energy_cost3)
+        discountedAC_L2_3, accumulatedC_L2_3, annualC_L2_3 = discounted_accumulated_cost2(years, initial_cost[1], maintenance_rate[1], retrofit_rate[1], cL2, energy_cost3)
+        discountedAC_L3_3, accumulatedC_L3_3, annualC_L3_3 = discounted_accumulated_cost2(years, initial_cost[2], maintenance_rate[2], retrofit_rate[2], cL3, energy_cost3)
+
+        jobs = job_charging_station(portsPerCH, totalChargerPoints)
+        landArea = land_area_metric(totalChargerPoints, parkingArea)
+
+        df_chargers = pd.DataFrame()
+        df = pd.DataFrame({'Year': years,
+                        'L1': cL1, 'L2': cL2, 'L3': cL3,
+                        'Utilization L1': uL1, 'Utilization L2': uL2, 'Utilization L3': uL3,
+                        'Emission L1': eL1, 'Emission L2': eL2, 'Emission L3': eL3,
+                        'EV/CP L1': ev_cs[0], 'EV/CP L2': ev_cs[1], 'EV/CP L3': ev_cs[2],
+                        'Area L1': landArea[0], 'Area L2': landArea[1], 'Area L3': landArea[2],
+                        'Jobs': jobs,
+                        'DAC L1 case1': discountedAC_L1_1, 'DAC L2 case1': discountedAC_L2_1, 'DAC L3 case1': discountedAC_L3_1,
+                        'DAC L1 case2': discountedAC_L1_2, 'DAC L2 case2': discountedAC_L2_2, 'DAC L3 case2': discountedAC_L3_2,
+                        'DAC L1 case3': discountedAC_L1_3, 'DAC L2 case3': discountedAC_L2_3, 'DAC L3 case3': discountedAC_L3_3})
+
+        df_chargers = pd.concat([df_chargers, df])
+        df_chargers.to_csv(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/cs_projections_{case}.csv')
+        plot_ev_metrics(years, df_chargers, f'{case}')
 
     # df_case1 = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/cs_projections_Case1.csv')
     # df_case2 = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/cs_projections_Case2.csv')
@@ -662,14 +729,14 @@ if __name__ == '__main__':
     # df_case5 = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/cs_projections_Case5.csv')
     # plot_comparative(years, df_case1, df_case2, df_case3, df_case4, df_case5)
 
-    df_case10 = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/change_percentage_preference/cs_projections_Case1_10.csv')
-    df_case20 = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/change_percentage_preference/cs_projections_Case1_20.csv')
-    df_case30 = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/change_percentage_preference/cs_projections_Case1_30.csv')
-    df_case40 = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/change_percentage_preference/cs_projections_Case1_40.csv')
-    df_case50 = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/change_percentage_preference/cs_projections_Case1_50.csv')
-    df_case60 = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/change_percentage_preference/cs_projections_Case1_60.csv')
-    df_case70 = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/change_percentage_preference/cs_projections_Case1_70.csv')
-    df_case80 = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/change_percentage_preference/cs_projections_Case1_80.csv')
-    df_case90 = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/change_percentage_preference/cs_projections_Case1_90.csv')
+    # df_case10 = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/change_percentage_preference/cs_projections_Case1_10.csv')
+    # df_case20 = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/change_percentage_preference/cs_projections_Case1_20.csv')
+    # df_case30 = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/change_percentage_preference/cs_projections_Case1_30.csv')
+    # df_case40 = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/change_percentage_preference/cs_projections_Case1_40.csv')
+    # df_case50 = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/change_percentage_preference/cs_projections_Case1_50.csv')
+    # df_case60 = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/change_percentage_preference/cs_projections_Case1_60.csv')
+    # df_case70 = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/change_percentage_preference/cs_projections_Case1_70.csv')
+    # df_case80 = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/change_percentage_preference/cs_projections_Case1_80.csv')
+    # df_case90 = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/change_percentage_preference/cs_projections_Case1_90.csv')
 
-    plot_comparative_preference(years, df_case10, df_case20, df_case30, df_case40, df_case50, df_case60, df_case70, df_case80, df_case90)
+    # plot_comparative_preference(years, df_case10, df_case20, df_case30, df_case40, df_case50, df_case60, df_case70, df_case80, df_case90)
