@@ -29,7 +29,7 @@ def percentage_preference_type_charger(df):
         BL3_sum.append(sum(BL3))
     return BL1_sum, BL2_sum, BL3_sum
 
-def cp_technical_metrics(demand, BL1, BL2, BL3, P, T):
+def cp_technical_metrics(demand, BL1, BL2, BL3, P, T, importPower):
     chargersLow, chargersSemifast, chargersFast = [], [], []
     utilization_low, utilization_semifast, utilization_fast = [], [], []
     emission_low, emission_semifast, emission_fast = [], [], []
@@ -55,9 +55,15 @@ def cp_technical_metrics(demand, BL1, BL2, BL3, P, T):
         u_low =         ((demand * BL1[i]) / P[0] ) * 100 / (low * T[0])
         u_semifast =    ((demand * BL2[i]) / P[1] ) * 100 / (semifast * T[1])
         u_fast =        ((demand * BL3[i]) / P[2] ) * 100 / (fast * T[2])
-        e_low =     (demand * BL1[i]) * gwp[0] /1000
-        e_semifast = (demand * BL2[i]) * gwp[1] /1000
-        e_fast =    (demand * BL3[i]) * gwp[2] /1000
+        if not importPower:
+            e_low =      demand * BL1[i] * (gwp[0] + 164.38)  /1000
+            e_semifast = demand * BL2[i] * (gwp[1] + 164.38)  /1000
+            e_fast =     demand * BL3[i] * (gwp[2] + 164.38)  /1000
+        else:
+            e_low =      importPower[i] * BL1[i] * (gwp[0] + 164.38)  /1000
+            e_semifast = importPower[i] * BL2[i] * (gwp[1] + 164.38)  /1000
+            e_fast =     importPower[i] * BL3[i] * (gwp[2] + 164.38)  /1000
+
         chargersLow.append(math.ceil(low))
         chargersSemifast.append(math.ceil(semifast))
         chargersFast.append(math.ceil(fast))
@@ -123,9 +129,9 @@ def discounted_accumulated_cost2(years, initial_cost, maintenance_rate, retrofit
     annualMaintenance = initial_cost * maintenance_rate
     annualRetrofit = initial_cost * retrofit_rate
     
-    annual = [initial_cost + energy_cost[0]]
-    discountedAccumulatedCost = [initial_cost + energy_cost[0]]
-    AccumulatedCost = [initial_cost + energy_cost[0]]
+    annual = [initial_cost + (energy_cost[0] * 365)]
+    discountedAccumulatedCost = [initial_cost + (energy_cost[0] * 365)]
+    AccumulatedCost = [initial_cost + (energy_cost[0] * 365)]
 
     for i in range(1, len(years)):
         discount_rate = get_real_discount_rate(i)
@@ -135,9 +141,9 @@ def discounted_accumulated_cost2(years, initial_cost, maintenance_rate, retrofit
         retrofit = annualRetrofit * numberCSnew
 
         if i == 10 or i == 20 or i == 30:
-            annual.append(math.ceil(maintenance + retrofit + energy_cost[i]))
+            annual.append(math.ceil(maintenance + retrofit + (energy_cost[i] * 365)))
         else:
-            annual.append(math.ceil(maintenance + energy_cost[i]))
+            annual.append(math.ceil(maintenance + (energy_cost[i] * 365)))
 
         discountedAccumulatedCost.append(math.ceil(discountedAccumulatedCost[i-1] + (annual[i] / ((1 + discount_rate) ** i))))
         AccumulatedCost.append(math.ceil(AccumulatedCost[i-1] + annual[i]))
@@ -195,7 +201,7 @@ def plot_ev_metrics(years, df_chargers, case):
     plt.ylabel('kg CO2')
     plt.grid(True, linestyle="--", alpha=0.7)
     plt.legend()
-    plt.savefig(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/figures/emissions_{case}.jpg')
+    plt.savefig(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/figures/emissions_{case}_withPV.jpg')
     plt.close()
     
     plt.figure(figsize=(10, 6))
@@ -239,6 +245,18 @@ def plot_ev_metrics(years, df_chargers, case):
     plt.savefig(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/figures/jobs_{case}.jpg')
     plt.close()
 
+def extract_import_power_doper(folder_path):
+    all_data = []
+    csv_files = sorted([f for f in os.listdir(folder_path) if f.startswith("doperRes") and f.endswith(".csv")],
+                        key=lambda x: int(x.replace("doperRes", "").replace(".csv", "")))
+    for file in csv_files:
+        file_path = os.path.join(folder_path, file)
+        df = pd.read_csv(file_path) 
+        all_data.append(list(df['Import Power [kW]']))
+    importPower = []
+    for i in range(len(all_data)):
+        importPower.append(math.ceil(0.0833 * sum(all_data[i])))
+    return importPower
 
 if __name__ == '__main__':
     fuel_demand = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/fuel_demand.csv')
@@ -270,13 +288,27 @@ if __name__ == '__main__':
     energy_cost2 = list(energy_cost_file['Energy Cost [$]'])
     energy_cost3 = list(energy_cost_file['PV Cost [$]'])
 
+    doper_results_directory = "C:/Nohora/UniValle_project/pasto_case/results_netherlands/doper"
+    import_power_with_pv = [0]
+    import_power = extract_import_power_doper(doper_results_directory)
+    v = []
+    for i in range(len(list(scenario_selected_v['EV']))):
+        v.append(list(scenario_selected_v['EV'])[i]+list(scenario_selected_v['PHEV'])[i])
+    
+    for i in range(1, len(import_power)):
+        import_power_with_pv.append(math.ceil(import_power[i] / (v[i])) ) 
+    print('C = ', C)
+    print('import power =' ,  import_power)
+    print('vehiculos = ', v)
+    print('import power with pv =' , import_power_with_pv)
+
     for j in range(len(list_cases)):
     # for j in range(1):
         T = T_cases[j]
         case = list_cases[j]
 
         bL1, bL2, bL3 = percentage_preference_type_charger(scenario_selected_v)
-        cL1, cL2, cL3, uL1, uL2, uL3, eL1, eL2, eL3, demand_L1, demand_L2, demand_L3 = cp_technical_metrics(C, bL1, bL2, bL3, P, T)
+        cL1, cL2, cL3, uL1, uL2, uL3, eL1, eL2, eL3, demand_L1, demand_L2, demand_L3 = cp_technical_metrics(C, bL1, bL2, bL3, P, T, import_power_with_pv)
         totalChargerPoints = [cL1, cL2, cL3]
         ev_cs = ev_per_CP(scenario_selected_v, cL1, cL2, cL3)
         discountedAC_L1_1, accumulatedC_L1_1, annualC_L1_1 = discounted_accumulated_cost(years, initial_cost[0], maintenance_rate[0], retrofit_rate[0], cL1)
@@ -307,7 +339,7 @@ if __name__ == '__main__':
                         'DAC L1 case3': discountedAC_L1_3, 'DAC L2 case3': discountedAC_L2_3, 'DAC L3 case3': discountedAC_L3_3})
 
         df_chargers = pd.concat([df_chargers, df])
-        df_chargers.to_csv(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/cs_projections_{case}.csv')
+        df_chargers.to_csv(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/cs_projections_{case}_withPV.csv')
         plot_ev_metrics(years, df_chargers, f'{case}')
 
     
