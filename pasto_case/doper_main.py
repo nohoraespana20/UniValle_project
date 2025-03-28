@@ -29,9 +29,13 @@ def pv_value(valor_inicial, incremento, elementos):
     return lista_valores
 
 def data_multinode(parameter, demand, i):
-    p1 = pv_value(valor_inicial = 6121, incremento = 0.10, elementos = 31)
-    p2 = pv_value(valor_inicial = 4455, incremento = 0.10, elementos = 31)
-    p3 = pv_value(valor_inicial = 9882, incremento = 0.10, elementos = 31)
+    # p1 = pv_value(valor_inicial = 6121, incremento = 0.10, elementos = 31)
+    # p2 = pv_value(valor_inicial = 4455, incremento = 0.10, elementos = 31)
+    # p3 = pv_value(valor_inicial = 9882, incremento = 0.10, elementos = 31)
+
+    p1 = pv_value(valor_inicial = 1048, incremento = 0.01, elementos = 31)
+    p2 = pv_value(valor_inicial = 873, incremento = 0.01, elementos = 31)
+    p3 = pv_value(valor_inicial = 4833, incremento = 0.01, elementos = 31)
 
     data4  = ts_inputs(parameter, load='B90', scale_load=demand*0.30, scale_pv=p1[i])
     data5  = ts_inputs(parameter, load='B90', scale_load=demand*0.22, scale_pv=p2[i])
@@ -61,8 +65,6 @@ def execute_solver(parameter, data):
                      output_list=output_list)
     res = smartDER.do_optimization(data)
     duration, objective, df, model, result, termination, parameter = res
-    # print(type(res))
-    # print(standard_report(res))
     return df, res
 
 def save_results_solver(df, i):
@@ -101,56 +103,38 @@ if __name__ == '__main__':
     scenario_selected = df_demand.loc[df_demand.loc[:, 'Scenario'] == scenario]
     demand = list(scenario_selected["Electricity [kWh]"])
   
-    # data_frames = []
-    # for i in range(len(demand)):
-    #     print('Demand = ', demand[i], 'Position = ', i)  
-    #     try:
-    #         data = data_multinode(parameter, demand[i], i)
-    #         df, res = execute_solver(parameter, data)
-    #         data_frames.append(df)
-    #         save_results_solver(df, i)
-    #         show_results_solver(df, i)
-    #         plt.close('all')
-    #         print(standard_report(res))
-    #         with open(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/doper/terminalRes{i}.txt', 'w') as k:
-    #             k.write(standard_report(res))
-    #         del data, df, res
-    #         gc.collect()
-    #     except:
-    #         print(f'Error in solver {i}')
+    data_frames = []
+    for i in range(len(demand)):
+        print('Demand = ', demand[i], 'Position = ', i)  
+        try:
+            data = data_multinode(parameter, demand[i]/24, i)
+            df, res = execute_solver(parameter, data)
+            data_frames.append(df)
+            save_results_solver(df, i)
+            show_results_solver(df, i)
+            plt.close('all')
+            print(standard_report(res))
+            with open(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/doper/terminalRes{i}.txt', 'w') as k:
+                k.write(standard_report(res))
+            del data, df, res
+            gc.collect()
+        except:
+            print(f'Error in solver {i}')
 
     folder_path1 = "C:/Nohora/UniValle_project/pasto_case/results_netherlands/doper"
     files1 = sorted([f for f in os.listdir(folder_path1) if f.startswith("terminalRes") and f.endswith(".txt")],
                     key=lambda x: int(re.search(r'\d+', x).group()))
-    # folder_path2 = "C:/Nohora/UniValle_project/pasto_case/results_netherlands/doper_withBatteries"
-    # files2 = sorted([f for f in os.listdir(folder_path2) if f.startswith("terminalRes") and f.endswith(".txt")],
-    #                 key=lambda x: int(re.search(r'\d+', x).group()))
-    # folder_path3 = "C:/Nohora/UniValle_project/pasto_case/results_netherlands/doper_batteries_duplicate"
-    # files3 = sorted([f for f in os.listdir(folder_path3) if f.startswith("terminalRes") and f.endswith(".txt")],
-    #                 key=lambda x: int(re.search(r'\d+', x).group()))
+
     data1_ob, data1_co, data2_ob, data2_co, data3_ob, data3_co = [], [], [], [], [], []
     for file in files1:
         file_path = os.path.join(folder_path1, file)
         objective_value, cost_value = extract_values(file_path)
         data1_ob.append(objective_value)
         data1_co.append(cost_value)
-    # for file in files2:
-    #     file_path = os.path.join(folder_path2, file)
-    #     objective_value, cost_value = extract_values(file_path)
-    #     data2_ob.append(objective_value)
-    #     data2_co.append(cost_value)
-    # for file in files3:
-    #     file_path = os.path.join(folder_path3, file)
-    #     objective_value, cost_value = extract_values(file_path)
-    #     data3_ob.append(objective_value)
-    #     data3_co.append(cost_value)
+
     years = list(scenario_selected["Year"])
     df_compareCost= pd.DataFrame({'Year': years,
                                   'PV Cost [$]': data1_ob,
-                                  'Energy Cost [$]': data1_co})#,
-                                #   'PV Cost [$] with Bat': data2_ob,
-                                #   'Energy Cost [$] with Bat': data2_co,
-                                #   'PV Cost [$] Bat duplicate': data3_ob,
-                                #   'Energy Cost [$] Bat duplicate': data3_co})
+                                  'Energy Cost [$]': data1_co})
     df_compareCost.fillna(0, inplace=True)
     df_compareCost.to_csv(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/costEnergyCompare.csv')
