@@ -7,27 +7,28 @@ import seaborn as sns
 
 def percentage_preference_type_charger(df):
     annualVehicles = [list(df["EV"])[i] + list(df["PHEV"])[i] for i in range(len(list(df["EV"])))]
-    BL1 = []
-    BL2 = []
-    BL3 = []
-    BL1_sum = []
-    BL2_sum = []
-    BL3_sum = []
+    beta, lx2, lx3 = [], [], []
+    BL1, BL2, BL3 = [], [], []
+    BL1_sum, BL2_sum, BL3_sum = [], [], []
     for i in range(len(annualVehicles)):
         np.random.seed(0)
-        B = np.random.random((1,annualVehicles[i]))
-        # B = [[0.9]*annualVehicles[i]]
-        L2 = np.random.random((1,annualVehicles[i]))
+        # B = np.random.random((1,annualVehicles[i]))
+        B = [[0.5]*annualVehicles[i]]
+        beta.append(B)
+        # L2 = np.random.random((1,annualVehicles[i]))
+        L2 = [[0.5]*annualVehicles[i]]
+        lx2.append(L2)
         L3 = []
         for j in range(len(B[0])):
             L3.append(1 - L2[0][j])
             BL1.append(1-B[0][j])
             BL2.append(B[0][j] * L2[0][j])
             BL3.append(B[0][j] * L3[j])
+        lx3.append(L3)
         BL1_sum.append(sum(BL1))
         BL2_sum.append(sum(BL2))
         BL3_sum.append(sum(BL3))
-    return BL1_sum, BL2_sum, BL3_sum
+    return BL1_sum, BL2_sum, BL3_sum, beta, lx2, lx3
 
 def cp_technical_metrics(demand, BL1, BL2, BL3, P, T, importPower):
     chargersLow, chargersSemifast, chargersFast = [], [], []
@@ -176,7 +177,7 @@ def plot_ev_metrics(years, df_chargers, case):
     plt.bar(years, df_chargers['L2'], bottom=df_chargers['L1'], color=colors[1], label='L2')
     plt.bar(years, df_chargers['L3'], bottom=df_chargers['L1'] + df_chargers['L2'], color=colors[2], label='L3')
     plt.xlabel('Year')
-    plt.ylabel('Number charger points')
+    plt.ylabel('Number Charger Ports')
     plt.legend()
     plt.grid(True, linestyle="--", alpha=0.7)
     plt.savefig(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/figures/chargers_{case}.jpg')
@@ -209,7 +210,7 @@ def plot_ev_metrics(years, df_chargers, case):
     plt.plot(years, df_chargers['EV/CP L2'], color=colors[1], label='L2')
     plt.plot(years, df_chargers['EV/CP L3'], color=colors[2], label='L3')
     plt.xlabel('Year')
-    plt.ylabel('EV per Charging Point')
+    plt.ylabel('EV per Charging Port')
     plt.grid(True, linestyle="--", alpha=0.7)
     plt.legend()
     plt.savefig(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/figures/EVcp_{case}.jpg')
@@ -220,7 +221,7 @@ def plot_ev_metrics(years, df_chargers, case):
     plt.plot(years, df_chargers['DAC L2 case1'], color=colors[1], label='L2')
     plt.plot(years, df_chargers['DAC L3 case1'], color=colors[2], label='L3')
     plt.xlabel('Year')
-    plt.ylabel('Discounted accumulated cost [USD]')
+    plt.ylabel('Discounted Accumulated Cost [USD]')
     plt.grid(True, linestyle="--", alpha=0.7)
     plt.legend()
     plt.savefig(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/figures/discountedCost_{case}.jpg')
@@ -231,7 +232,7 @@ def plot_ev_metrics(years, df_chargers, case):
     plt.plot(years, df_chargers['Area L2'], color=colors[1], label='L2')
     plt.plot(years, df_chargers['Area L3'], color=colors[2], label='L3')
     plt.xlabel('Year')
-    plt.ylabel('Land area required $m^2$')
+    plt.ylabel('Land Area Required $m^2$')
     plt.grid(True, linestyle="--", alpha=0.7)
     plt.legend()
     plt.savefig(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/figures/area_{case}.jpg')
@@ -243,6 +244,102 @@ def plot_ev_metrics(years, df_chargers, case):
     plt.ylabel('Jobs generated')
     plt.grid(True, linestyle="--", alpha=0.7)
     plt.savefig(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/figures/jobs_{case}.jpg')
+    plt.close()
+
+def subplot_ev_metrics(years, df_chargers, case):
+    colors = ["#bda5ad", "#00a099", "#a4165f"]
+    fig, axs = plt.subplots(4, 2, figsize=(16, 16))
+    axs = axs.flatten()
+
+    # 1. Charger ports (stacked bar)
+    axs[0].bar(years, df_chargers['L1'], color=colors[0], label='L1')
+    axs[0].bar(years, df_chargers['L2'], bottom=df_chargers['L1'], color=colors[1], label='L2')
+    axs[0].bar(years, df_chargers['L3'], bottom=df_chargers['L1'] + df_chargers['L2'], color=colors[2], label='L3')
+    axs[0].set_ylabel('Number Public Charging Ports')
+    axs[0].set_title('Public Charging Ports')
+    axs[0].legend()
+    axs[0].grid(True, linestyle="--", alpha=0.7)
+
+    # 4. EV per Charging Port
+    axs[1].plot(years, df_chargers['EV/CP L1'], color=colors[0], label='L1')
+    axs[1].plot(years, df_chargers['EV/CP L2'], color=colors[1], label='L2')
+    axs[1].plot(years, df_chargers['EV/CP L3'], color=colors[2], label='L3')
+    axs[1].set_ylabel('EV per Charging Port')
+    axs[1].set_title('Vehicles per Charging Point ')
+    axs[1].legend()
+    axs[1].grid(True, linestyle="--", alpha=0.7)
+
+    # 2. Utilization
+    axs[2].plot(years, df_chargers['Utilization L1'], color=colors[0], label='L1')
+    axs[2].plot(years, df_chargers['Utilization L2'], color=colors[1], label='L2')
+    axs[2].plot(years, df_chargers['Utilization L3'], color=colors[2], label='L3')
+    axs[2].set_ylabel('Utilization Rate (%)')
+    axs[2].set_title('Charging Station Utilization Rate ')
+    axs[2].legend()
+    axs[2].grid(True, linestyle="--", alpha=0.7)
+
+    # 5. Discounted Cost
+    axs[3].plot(years, df_chargers['DAC L1 case1'], color=colors[0], label='L1')
+    axs[3].plot(years, df_chargers['DAC L2 case1'], color=colors[1], label='L2')
+    axs[3].plot(years, df_chargers['DAC L3 case1'], color=colors[2], label='L3')
+    axs[3].set_ylabel('Cost [USD]')
+    axs[3].set_title('Discounted Accumulated Cost')
+    axs[3].legend()
+    axs[3].grid(True, linestyle="--", alpha=0.7)
+
+    # 6. Land Area
+    axs[4].plot(years, df_chargers['Area L1'], color=colors[0], label='L1')
+    axs[4].plot(years, df_chargers['Area L2'], color=colors[1], label='L2')
+    axs[4].plot(years, df_chargers['Area L3'], color=colors[2], label='L3')
+    axs[4].set_ylabel('Land Area ($m^2$)')
+    axs[4].set_title('Land Area Required')
+    axs[4].legend()
+    axs[4].grid(True, linestyle="--", alpha=0.7)
+
+    # 3. Emissions
+    axs[5].plot(years, df_chargers['Emission L1'], color=colors[0], label='L1')
+    axs[5].plot(years, df_chargers['Emission L2'], color=colors[1], label='L2')
+    axs[5].plot(years, df_chargers['Emission L3'], color=colors[2], label='L3')
+    axs[5].set_ylabel('kg CO2')
+    axs[5].set_title('Environmental Factor')
+    axs[5].legend()
+    axs[5].grid(True, linestyle="--", alpha=0.7)
+
+    # 7. Jobs
+    axs[6].plot(years, df_chargers['Jobs'], color='gray')
+    axs[6].set_ylabel('Number of jobs')
+    axs[6].set_title('Job creation ')
+    axs[6].grid(True, linestyle="--", alpha=0.7)
+
+    # 8. Turn off unused subplot
+    data = {
+    "": ["Number Ports", "EV per CS", "Utilization rate [%]", "Cost [USD]", "Land Area [$m^3]$ ", "kg $CO_2$", "Number jobs"],
+    "Low charging": [2485, 2, 100, 37261, 0, 26691, ""],
+    "Semi fast charging": [1299, 4, 100, 261315, 130, 13775, 2210],
+    "Fast charging": [442, 11, 100, 1064709, 139, 15111, ""]
+    }
+
+    table_df = pd.DataFrame(data)
+
+    # Remove axis and add table
+    axs[7].axis('off')
+    table = axs[7].table(cellText=table_df.values,
+                        colLabels=table_df.columns,
+                        cellLoc='center',
+                        loc='center')
+
+    table.scale(1, 1.5)  # optional: increase row height
+    table.auto_set_font_size(False)
+    table.set_fontsize(10)
+
+    axs[7].set_title("Summary of results for the last year in the projection horizon")
+
+    # Set common X label
+    for ax in axs:
+        ax.set_xlabel('Year')
+
+    plt.tight_layout()
+    plt.savefig(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/figures/all_metrics_{case}.jpg')
     plt.close()
 
 def extract_import_power_doper(folder_path):
@@ -272,7 +369,7 @@ if __name__ == '__main__':
     initial_cost = [800, 6500, 75000]
     maintenance_rate = [0.1, 0.1, 0.1]
     retrofit_rate = [0.05, 0.5, 0.5]
-    energy_cost = 0.22 #USD/kWh extract to CEDENAR march 2025 - kWh cost for comecial in tension 2
+    energy_cost = 0.22 #USD/kWh extract to CEDENAR march 2025 - kWh cost for comercial in tension 2
     portsPerCH = 2
     parkingArea = [0, 0, 14]
 
@@ -288,7 +385,7 @@ if __name__ == '__main__':
     energy_cost2 = list(energy_cost_file['Energy Cost [$]'])
     energy_cost3 = list(energy_cost_file['PV Cost [$]'])
 
-    doper_results_directory = "C:/Nohora/UniValle_project/pasto_case/results_netherlands/doper"
+    doper_results_directory = "C:/Nohora/UniValle_project/pasto_case/results_netherlands/doper_withoutIncrease"
     import_power_with_pv = [0]
     import_power = extract_import_power_doper(doper_results_directory)
     v = []
@@ -297,17 +394,34 @@ if __name__ == '__main__':
     
     for i in range(1, len(import_power)):
         import_power_with_pv.append(math.ceil(import_power[i] / (v[i])) ) 
-    print('C = ', C)
-    print('import power =' ,  import_power)
-    print('vehiculos = ', v)
-    print('import power with pv =' , import_power_with_pv)
+    # print('C = ', C)
+    # print('import power =' ,  import_power)
+    # print('vehiculos = ', v)
+    # print('import power with pv =' , import_power_with_pv)
 
     for j in range(len(list_cases)):
     # for j in range(1):
         T = T_cases[j]
         case = list_cases[j]
 
-        bL1, bL2, bL3 = percentage_preference_type_charger(scenario_selected_v)
+        bL1, bL2, bL3, beta, lx2, lx3 = percentage_preference_type_charger(scenario_selected_v)
+
+        # year_index = 30
+        # beta_year = np.array(beta[year_index][0])
+        # lx2_year = np.array(lx2[year_index][0])
+        # lx3_year = np.array(lx3[year_index])
+        # vehicles = np.arange(len(beta_year))  # Eje x: índice de vehículos
+        # fig, axs = plt.subplots(1, 2, figsize=(10, 4), sharex=True)
+        # axs[0].bar(vehicles, beta_year, color='#a4165f', width=0.5)
+        # axs[0].set_title(f'β distribution')
+        # axs[0].set_xlabel('Vehicle')
+        # axs[1].bar(vehicles, lx2_year, label='L2', color='#c0fcf7', width=0.5)
+        # axs[1].bar(vehicles, lx3_year, bottom=lx2_year, label='L3', color='#005ecc', width=0.5)
+        # axs[1].set_xlabel('Vehicle')
+        # axs[1].set_title('$\\alpha^{L_2}$ and $\\alpha^{L_3}$ distribution')
+        # axs[1].legend()
+        # plt.show()
+
         cL1, cL2, cL3, uL1, uL2, uL3, eL1, eL2, eL3, demand_L1, demand_L2, demand_L3 = cp_technical_metrics(C, bL1, bL2, bL3, P, T, import_power_with_pv)
         totalChargerPoints = [cL1, cL2, cL3]
         ev_cs = ev_per_CP(scenario_selected_v, cL1, cL2, cL3)
@@ -339,7 +453,8 @@ if __name__ == '__main__':
                         'DAC L1 case3': discountedAC_L1_3, 'DAC L2 case3': discountedAC_L2_3, 'DAC L3 case3': discountedAC_L3_3})
 
         df_chargers = pd.concat([df_chargers, df])
-        df_chargers.to_csv(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/cs_projections_{case}_withPV.csv')
+        df_chargers.to_csv(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/figures/cs_projections_{case}_withPV.csv')
         plot_ev_metrics(years, df_chargers, f'{case}')
+        subplot_ev_metrics(years, df_chargers, f'{case}')
 
     

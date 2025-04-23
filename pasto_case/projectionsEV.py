@@ -65,7 +65,7 @@ def plot_escenario(df, title, ax):
     ax.set_ylabel("Number of vehicles")
     ax.set_title(title)
     ax.legend()
-    ax.grid()
+    ax.grid(True, linestyle='--', alpha=0.7)
     if ax != axes[-1]:
         ax.set_xticklabels([])  
     else:
@@ -97,7 +97,7 @@ def plot_daily_demand(years, fuel_data, save_path):
     plt.figure(figsize=(10, 6))
 
     colors = ['#ff7900', '#00c6ce', '#00bc45']  
-    labels = ['Petrol [l]', 'CNG [l]', 'Electricity [kWh]']
+    labels = ['Gasoline [l]', 'CNG [l]', 'Electricity [kWh]']
 
     for fuel, linestyle, label_prefix in fuel_data:
         for i in range(3): 
@@ -110,6 +110,31 @@ def plot_daily_demand(years, fuel_data, save_path):
     plt.legend()
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.savefig(save_path)
+
+def plot_daily_demand_scenario3(years, fuel_3, save_path):
+    """
+    Genera una gráfica de la demanda diaria de energía solo para Scenario 3.
+    
+    Parámetros:
+    - years: Lista de años.
+    - fuel_3: Lista con los valores de combustibles [Petrol, CNG, Electricity].
+    - save_path: Ruta donde se guardará la imagen.
+    """
+    plt.figure(figsize=(10, 6))
+
+    colors = ['#ff7900', '#00c6ce', '#00bc45']  
+    labels = ['Gasoline [l]', 'CNG [l]', 'Electricity [kWh]']
+
+    for i in range(3): 
+        plt.plot(years, fuel_3[i], linestyle='-', color=colors[i],
+                 label=f"{labels[i]} ")
+
+    plt.xlabel('Year')
+    plt.ylabel('Daily demand')
+    plt.legend()
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.savefig(save_path)
+    plt.close()
 
 if __name__ == '__main__':
     df_1 = escenario_1()
@@ -140,9 +165,10 @@ if __name__ == '__main__':
     df_fuel = pd.DataFrame({
             "Year": df_1["Year"].tolist() * 3,  # Repite los años para los 3 escenarios
             "Scenario": ["Scenario 1"] * len(df_1) + ["Scenario 2"] * len(df_2) + ["Scenario 3"] * len(df_3),
-            "Petrol [l]": list(fuel_1[0]) + list(fuel_2[0]) + list(fuel_3[0]),
+            "Gasoline [l]": list(fuel_1[0]) + list(fuel_2[0]) + list(fuel_3[0]),
             "CNG [l]": list(fuel_1[1]) + list(fuel_2[1]) + list(fuel_3[1]),
             "Electricity [kWh]": list(fuel_1[2]) + list(fuel_2[2]) + list(fuel_3[2])})
 
     plot_daily_demand(df_1["Year"], fuel_data, 'C:/Nohora/UniValle_project/pasto_case/results_netherlands/fuel_demand.jpg')
+    plot_daily_demand_scenario3(df_1["Year"], fuel_3, 'C:/Nohora/UniValle_project/pasto_case/results_netherlands/fuel_demand_3.jpg')
     df_fuel.to_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/fuel_demand.csv') 

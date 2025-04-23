@@ -432,5 +432,5 @@ def ts_inputs(parameter={}, load='Flexlab', scale_load=4, scale_pv=4):
     data['grid_available'] = 1
     data['fuel_available'] = 0
     # input timeseries indicating grid availability
-    data['grid_co2_intensity'] = 0.16438 #kg/kWh
+    data['py'] = 0.16438 #kg/kWh
     return data
