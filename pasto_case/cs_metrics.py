@@ -12,11 +12,11 @@ def percentage_preference_type_charger(df):
     BL1_sum, BL2_sum, BL3_sum = [], [], []
     for i in range(len(annualVehicles)):
         np.random.seed(0)
-        # B = np.random.random((1,annualVehicles[i]))
-        B = [[0.5]*annualVehicles[i]]
+        B = np.random.random((1,annualVehicles[i]))
+        # B = [[0.9]*annualVehicles[i]]
         beta.append(B)
-        # L2 = np.random.random((1,annualVehicles[i]))
-        L2 = [[0.5]*annualVehicles[i]]
+        L2 = np.random.random((1,annualVehicles[i]))
+        # L2 = [[0.5]*annualVehicles[i]]
         lx2.append(L2)
         L3 = []
         for j in range(len(B[0])):
@@ -37,11 +37,11 @@ def cp_technical_metrics(demand, BL1, BL2, BL3, P, T, importPower):
     demand_L1, demand_L2, demand_L3 = [], [], []
     gwp = [82.52, 91.58, 111.02]
     for i in range(len(BL1)):
-        low     = math.ceil((demand * BL1[i]) / (P[0] * T[0]))
+        low     = ((demand * BL1[i]) / (P[0] * T[0]))
         demand_L1.append(low)
-        semifast= math.ceil((demand * BL2[i]) / (P[1] * T[1]))
+        semifast= ((demand * BL2[i]) / (P[1] * T[1]))
         demand_L2.append(semifast)
-        fast    = math.ceil((demand * BL3[i]) / (P[2] * T[2]))
+        fast    = ((demand * BL3[i]) / (P[2] * T[2]))
         demand_L3.append(fast)
         if low < 1:
             low = 1
@@ -53,6 +53,7 @@ def cp_technical_metrics(demand, BL1, BL2, BL3, P, T, importPower):
             low      = max(low, chargersLow[i-1])
             semifast = max(semifast, chargersSemifast[i-1])
             fast     = max(fast, chargersFast[i-1])
+        
         u_low =         ((demand * BL1[i]) / P[0] ) * 100 / (low * T[0])
         u_semifast =    ((demand * BL2[i]) / P[1] ) * 100 / (semifast * T[1])
         u_fast =        ((demand * BL3[i]) / P[2] ) * 100 / (fast * T[2])
@@ -65,24 +66,24 @@ def cp_technical_metrics(demand, BL1, BL2, BL3, P, T, importPower):
             e_semifast = importPower[i] * BL2[i] * (gwp[1] + 164.38)  /1000
             e_fast =     importPower[i] * BL3[i] * (gwp[2] + 164.38)  /1000
 
-        chargersLow.append(math.ceil(low))
-        chargersSemifast.append(math.ceil(semifast))
-        chargersFast.append(math.ceil(fast))
-        utilization_low.append(math.ceil(u_low))
-        utilization_semifast.append(math.ceil(u_semifast))
-        utilization_fast.append(math.ceil(u_fast))
-        emission_low.append(math.ceil(e_low))
-        emission_semifast.append(math.ceil(e_semifast))
-        emission_fast.append(math.ceil(e_fast))
+        chargersLow.append((low))
+        chargersSemifast.append((semifast))
+        chargersFast.append((fast))
+        utilization_low.append( (u_low))
+        utilization_semifast.append( (u_semifast))
+        utilization_fast.append( (u_fast))
+        emission_low.append( (e_low))
+        emission_semifast.append( (e_semifast))
+        emission_fast.append( (e_fast))
     return chargersLow, chargersSemifast, chargersFast, utilization_low, utilization_semifast, utilization_fast, emission_low, emission_semifast, emission_fast, demand_L1, demand_L2, demand_L3
 
 def ev_per_CP(scenario_selected_v, cL1, cL2, cL3):
     ev_cs = [[],[],[]]
     annualVehicles = [list(scenario_selected_v["EV"])[i] + list(scenario_selected_v["PHEV"])[i] for i in range(len(list(scenario_selected_v["EV"])))]
     for i in range(len(annualVehicles)):
-        ev_cs[0].append(math.ceil(annualVehicles[i] / cL1[i]))
-        ev_cs[1].append(math.ceil(annualVehicles[i] / cL2[i]))
-        ev_cs[2].append(math.ceil(annualVehicles[i] / cL3[i]))
+        ev_cs[0].append( (annualVehicles[i] / cL1[i]))
+        ev_cs[1].append( (annualVehicles[i] / cL2[i]))
+        ev_cs[2].append( (annualVehicles[i] / cL3[i]))
     return ev_cs
 
 def get_real_discount_rate(year):
@@ -114,12 +115,12 @@ def discounted_accumulated_cost(years, initial_cost, maintenance_rate, retrofit_
         retrofit = annualRetrofit * numberCSnew
 
         if i == 10 or i == 20 or i == 30:
-            annual.append(math.ceil(maintenance + retrofit))
+            annual.append( (maintenance + retrofit))
         else:
-            annual.append(math.ceil(maintenance))
+            annual.append( (maintenance))
 
-        discountedAccumulatedCost.append(math.ceil(discountedAccumulatedCost[i-1] + (annual[i] / ((1 + discount_rate) ** i))))
-        AccumulatedCost.append(math.ceil(AccumulatedCost[i-1] + annual[i]))
+        discountedAccumulatedCost.append( (discountedAccumulatedCost[i-1] + (annual[i] / ((1 + discount_rate) ** i))))
+        AccumulatedCost.append( (AccumulatedCost[i-1] + annual[i]))
     return discountedAccumulatedCost, AccumulatedCost, annual
 
 def discounted_accumulated_cost2(years, initial_cost, maintenance_rate, retrofit_rate, charger_points, energy_cost):
@@ -142,19 +143,19 @@ def discounted_accumulated_cost2(years, initial_cost, maintenance_rate, retrofit
         retrofit = annualRetrofit * numberCSnew
 
         if i == 10 or i == 20 or i == 30:
-            annual.append(math.ceil(maintenance + retrofit + (energy_cost[i] * 365)))
+            annual.append( (maintenance + retrofit + (energy_cost[i] * 365)))
         else:
-            annual.append(math.ceil(maintenance + (energy_cost[i] * 365)))
+            annual.append( (maintenance + (energy_cost[i] * 365)))
 
-        discountedAccumulatedCost.append(math.ceil(discountedAccumulatedCost[i-1] + (annual[i] / ((1 + discount_rate) ** i))))
-        AccumulatedCost.append(math.ceil(AccumulatedCost[i-1] + annual[i]))
+        discountedAccumulatedCost.append( (discountedAccumulatedCost[i-1] + (annual[i] / ((1 + discount_rate) ** i))))
+        AccumulatedCost.append( (AccumulatedCost[i-1] + annual[i]))
     return discountedAccumulatedCost, AccumulatedCost, annual
 
 def job_charging_station(portsPerCH, totalChargerPoints):
     jobsPerCS = 5
     jobs_CS = []
     for i in range(len(totalChargerPoints[0])):
-        jobs_CS.append(math.ceil(((totalChargerPoints[2][i] + totalChargerPoints[2][i]) * jobsPerCS / portsPerCH)))
+        jobs_CS.append( (((totalChargerPoints[2][i] + totalChargerPoints[2][i]) * jobsPerCS / portsPerCH)))
     return jobs_CS
 
 def land_area_metric(cL, parkingArea):
@@ -314,9 +315,9 @@ def subplot_ev_metrics(years, df_chargers, case):
     # 8. Turn off unused subplot
     data = {
     "": ["Number Ports", "EV per CS", "Utilization rate [%]", "Cost [USD]", "Land Area [$m^3]$ ", "kg $CO_2$", "Number jobs"],
-    "Low charging": [2485, 2, 100, 37261, 0, 26691, ""],
-    "Semi fast charging": [1299, 4, 100, 261315, 130, 13775, 2210],
-    "Fast charging": [442, 11, 100, 1064709, 139, 15111, ""]
+    "Low charging": ['2,485', '2', '100', '37,230', '0', '26,691', ""],
+    "Semi fast charging": ['1,299', '4', '100', '260,857', '130', '13,775', '2,210'],
+    "Fast charging": ['442', '11', '100', '1,064,471', '139', '15,111', ""]
     }
 
     table_df = pd.DataFrame(data)
@@ -352,7 +353,7 @@ def extract_import_power_doper(folder_path):
         all_data.append(list(df['Import Power [kW]']))
     importPower = []
     for i in range(len(all_data)):
-        importPower.append(math.ceil(0.0833 * sum(all_data[i])))
+        importPower.append( (0.0833 * sum(all_data[i])))
     return importPower
 
 if __name__ == '__main__':
@@ -393,7 +394,7 @@ if __name__ == '__main__':
         v.append(list(scenario_selected_v['EV'])[i]+list(scenario_selected_v['PHEV'])[i])
     
     for i in range(1, len(import_power)):
-        import_power_with_pv.append(math.ceil(import_power[i] / (v[i])) ) 
+        import_power_with_pv.append( (import_power[i] / (v[i])) ) 
     # print('C = ', C)
     # print('import power =' ,  import_power)
     # print('vehiculos = ', v)
@@ -453,7 +454,7 @@ if __name__ == '__main__':
                         'DAC L1 case3': discountedAC_L1_3, 'DAC L2 case3': discountedAC_L2_3, 'DAC L3 case3': discountedAC_L3_3})
 
         df_chargers = pd.concat([df_chargers, df])
-        df_chargers.to_csv(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/figures/cs_projections_{case}_withPV.csv')
+        df_chargers.to_csv(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/change_percentage_preference/cs_projections_{case}_withPV.csv')
         plot_ev_metrics(years, df_chargers, f'{case}')
         subplot_ev_metrics(years, df_chargers, f'{case}')
 
