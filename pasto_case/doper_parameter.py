@@ -209,7 +209,7 @@ def parameters():
             'ders': { 
                 'pv_id': 'pf_pv_node4',
                 'pv_maxS': 14000,
-                'battery': None,#'pf_bat_node4', # node can contain multiple battery assets, so should be list
+                'battery': 'pf_bat_node4', # node can contain multiple battery assets, so should be list
                 'genset': None,
                 'load_control': None # node likely to only contain single load_control asset, so should be str
             },
@@ -228,7 +228,7 @@ def parameters():
             'ders': { 
                 'pv_id': 'pf_pv_node18',
                 'pv_maxS': 10000,
-                'battery': None,#'pf_bat_node18', # node can contain multiple battery assets, so should be list
+                'battery': 'pf_bat_node18', # node can contain multiple battery assets, so should be list
                 'genset': None,
                 'load_control': None # node likely to only contain single load_control asset, so should be str
             },
@@ -247,7 +247,7 @@ def parameters():
             'ders': { 
                 'pv_id': 'pf_pv_node27',
                 'pv_maxS': 20000,
-                'battery': None,#'pf_bat_node27', # node can contain multiple battery assets, so should be list
+                'battery': 'pf_bat_node27', # node can contain multiple battery assets, so should be list
                 'genset': None,#
                 'load_control': None # node likely to only contain single load_control asset, so should be str
             },

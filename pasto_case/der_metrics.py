@@ -36,7 +36,7 @@ def process_data_files(input_folder, output_folder, graph_folder):
                 df['Battery Utilization Rate (%)'] = (df['Battery Discharging Power [kW]'] / 
                                      (df['Import Power [kW]'] + df['PV Power [kW]'] + 
                                       df['Battery Discharging Power [kW]'])) * 100
-                df['Profit surplus energy - annual [USD]']  = df['Export Power [kW]'] * 0.12 * 365
+                df['Profit surplus energy - [USD]']  = df['Export Power [kW]'] * 0.12
                 df.to_csv(output_path, index=False)
                 print(f"Procesado: {file_name} -> {output_path}")
 
@@ -65,7 +65,6 @@ def generate_figures_technical(df, file_name, graph_folder, metric_name):
     plt.ylabel(f'{metric_name}')
     plt.title(f'{file_name}')
     plt.grid(True)
-    plt.legend(['Home', 'Workplace', 'Shopping Mall', 'Fast CS'])
     step = max(1, total_rows // 10)
     plt.xticks(ticks=np.arange(0, total_rows, step), labels=time_intervals[::step], rotation=0)
     plt.savefig(graph_path)
@@ -89,164 +88,230 @@ def generate_figures_economic(df, years, file_name, graph_folder, metric_name):
     plt.ylabel(f'{metric_name}')
     plt.title(f'{file_name}')
     plt.grid(True)
-    plt.legend(['Home', 'Workplace', 'Shopping Mall', 'Fast CS'])
     step = max(1, years // 10)
     plt.xticks(ticks=np.arange(0, years, step), labels=year[::step], rotation=0)
     plt.savefig(graph_path)
     plt.close()
 
-def generate_figures_economic2(df, years, file_name, graph_folder, metric_name):
+def generate_figures_economic2(data_list, years, file_name, graph_folder, metric_name):
     graph_path = os.path.join(graph_folder, f"bar_{os.path.splitext(file_name)[0]}.png")
     year = list(range(years))
-    categories = df.columns  # Asume que las columnas del DataFrame son 'Home', 'Workplace', etc.
-    bar_width = 0.2  # Ancho de cada grupo de barras
 
-    # Configurar el tamaño de la figura
     plt.figure(figsize=(12, 6))
-
-    # Graficar cada categoría con un desplazamiento
-    for i, category in enumerate(categories):
-        plt.bar(
-            np.array(year) + i * bar_width,
-            df[category],
-            width=bar_width,
-            label=category
-        )
-
-    # Configurar etiquetas y título
+    plt.bar(year, data_list, color='skyblue')
     plt.xlabel('Year')
     plt.ylabel(f'{metric_name}')
     plt.title(f'{file_name}')
-    plt.xticks(
-        ticks=np.arange(years) + bar_width * (len(categories) - 1) / 2,
-        labels=year,
-        rotation=0
-    )
-    plt.legend()
+    plt.xticks(ticks=np.arange(years), labels=year, rotation=0)
     plt.grid(axis='y', linestyle='--', alpha=0.7)
-
-    # Guardar la gráfica y cerrar la figura
     plt.savefig(graph_path)
     plt.close()
 
-def calculate_accumulated_cost(I_PV, I_bat, years, profit_energy):
+def calculate_accumulated_cost(I_PV_base, I_bat_base, years, rate_new, energy_import_cost_list):
     """
-    Calcula el costo acumulado (AC) basado en los costos iniciales, de mantenimiento y retrofit.
+    Calcula costos anuales y acumulados considerando inversión, mantenimiento, retrofit y costo de energía.
 
     Args:
-        I_PV (float): Costo inicial de los paneles solares (equipos e instalación).
-        I_bat (float): Costo inicial de las baterías (equipos e instalación).
-        years (int): Número total de años para considerar el análisis.
+        I_PV_base (float): Inversión base del 100% inicial de paneles solares.
+        I_bat_base (float): Inversión base del 100% inicial de baterías.
+        years (int): Número de años del análisis.
+        energy_import_cost_list (list): Lista con costo de energía importada por año (en miles de USD).
 
     Returns:
-        list: Costo acumulado (accumulated_cost).
-        list: Costo anual (annual_cost)
+        list: Costos anuales (sin descuento).
+        list: Costos acumulados.
+        float: NPC total.
     """
-    maintenance_rate = 0.01  # 1% de los costos iniciales anuales
-    retrofit_rate = 0.1     # 50% de los costos iniciales cada 10 años
-    ipc = 0.0457 # Average value of IPC in Colombia
+    maintenance_rate = 0.1
+    retrofit_rate = 0.5
+    annual_cost = []
+    accumulated_cost = []
+    npc = []
 
-    initial_cost = (I_PV + I_bat) / 1000
-    maintenance_cost = initial_cost * maintenance_rate
-    annual_cost = [round(initial_cost)]  # Incluye los costos iniciales en y=0
-    accumulated_cost = [round(initial_cost)]
-    for year in range(1, years ):
-        investment = initial_cost * (1 + ipc)
-        maintenance_cost = investment * maintenance_rate
-        profit_energy = profit_energy * (1 + ipc)
-        if year % 10 == 0:
-            retrofit_cost = investment * retrofit_rate
-            annual_cost.append(round((retrofit_cost + maintenance_cost - profit_energy)))
-            accumulated_cost.append(round((accumulated_cost[-1] + retrofit_cost + maintenance_cost - profit_energy)))
-        else: 
-            annual_cost.append(round(maintenance_cost - profit_energy))
-            accumulated_cost.append(round((accumulated_cost[-1] + maintenance_cost - profit_energy)))
+    # Variables acumuladas para mantenimiento
+    cumulative_pv = I_PV_base
+    cumulative_bat = I_bat_base
 
-    return annual_cost, accumulated_cost
+    for year in range(years):
+        if year == 0:
+            investment = (I_PV_base + I_bat_base) / 1000
+            maintenance = investment * maintenance_rate
+            retrofit = 0
+        else:
+            # Nueva inversión del 10% de la base
+            new_pv = I_PV_base * rate_new
+            new_bat = I_bat_base * rate_new
+            new_investment = (new_pv + new_bat) / 1000
+
+            # Actualizar acumulado
+            cumulative_pv += new_pv
+            cumulative_bat += new_bat
+
+            # Mantenimiento sobre la capacidad total acumulada
+            maintenance = ((cumulative_pv + cumulative_bat) / 1000) * maintenance_rate
+
+            # Retrofit si aplica
+            total_investment_to_date = (cumulative_pv + cumulative_bat) / 1000
+            retrofit = total_investment_to_date * retrofit_rate if year % 10 == 0 else 0
+
+            investment = new_investment
+
+        # Costo de energía importada (ya en miles de USD)
+        energy_cost = energy_import_cost_list[year]
+
+        total_cost = investment + maintenance + retrofit + energy_cost
+
+        # Tasa de descuento variable
+        discount_rate = 0.09
+
+        discounted = total_cost / ((1 + discount_rate) ** year)
+
+        annual_cost.append(round(discounted))
+        accumulated_cost.append(round(sum(annual_cost)))
+        npc.append(discounted)
+
+    return annual_cost, accumulated_cost, round(sum(npc))
+
+def calculate_discounted_profits(profit_energy_list):
+    discounted_profits = []
+    for year, profit in enumerate(profit_energy_list):
+        discount_rate = 0.09
+        discounted = profit / ((1 + discount_rate) ** year)
+        discounted_profits.append(round(discounted))
+    return discounted_profits
+
+def generate_income_vs_cost_bar_chart(profits, costs, years, graph_folder, file_name='Income_vs_Cost'):
+    graph_path = os.path.join(graph_folder, f"{file_name}.png")
+    x = np.arange(years)
+    width = 0.6
+
+    plt.figure(figsize=(14, 7))
+    plt.bar(x, profits, width, label='Profit from the sale of surplus energy', color='green')
+    plt.bar(x, [-c for c in costs], width, label='New infrastructure, maintenance, retrofit costs', color='red')  # Costos como negativos
+
+    plt.axhline(0, color='black', linewidth=0.8)
+    plt.xlabel('Year')
+    plt.ylabel('Thousand of USD')
+    plt.legend()
+    plt.xticks(ticks=x, labels=x)
+    plt.grid(True, axis='y', linestyle='--', alpha=0.7)
+    plt.savefig(graph_path)
+    plt.close()
+
+def generate_technical_comparison(input_folder1, input_folder2, input_folder3, graph_folder, metric_col, graph_name):
+    """
+    Genera una gráfica comparativa del promedio anual de una métrica técnica específica.
+
+    Args:
+        input_folder (str): Carpeta donde están los archivos doperRes*.csv.
+        graph_folder (str): Carpeta donde guardar la gráfica.
+        metric_col (str): Nombre de la columna a analizar (e.g., 'PV/Import Power (%)').
+        graph_name (str): Nombre para el archivo de salida.
+    """
+    years = []
+    averages1 = []
+    averages2 = []
+    averages3 = []
+
+    for year in range(1, 31):
+        file_path1 = os.path.join(input_folder1, f"doperRes{year}.csv")
+        file_path2 = os.path.join(input_folder2, f"doperRes{year}.csv")
+        file_path3 = os.path.join(input_folder3, f"doperRes{year}.csv")
+        try:
+            df1 = pd.read_csv(file_path1)
+            df2 = pd.read_csv(file_path2)
+            df3 = pd.read_csv(file_path3)
+            if metric_col in df1.columns:
+                mean_val1 = df1[metric_col].mean()
+                years.append(year)
+                averages1.append(mean_val1)
+            else:
+                print(f"Columna {metric_col} no encontrada en {file_path}.")
+            if metric_col in df2.columns:
+                mean_val2 = df2[metric_col].mean()
+                averages2.append(mean_val2)
+            else:
+                print(f"Columna {metric_col} no encontrada en {file_path}.")
+            if metric_col in df3.columns:
+                mean_val3 = df3[metric_col].mean()
+                averages3.append(mean_val3)
+            else:
+                print(f"Columna {metric_col} no encontrada en {file_path}.")
+        except Exception as e:
+            print(f"Error al leer {file_path}: {e}")
+
+    # Graficar
+    graph_path = os.path.join(graph_folder, f"{graph_name}.png")
+    plt.figure(figsize=(10, 6))
+    plt.plot(years, averages1, marker='o', linestyle='-', color='blue')
+    plt.plot(years, averages2, marker='o', linestyle='-', color='red')
+    plt.plot(years, averages3, marker='o', linestyle='-', color='green')
+    plt.legend(['PV system without growth','PV system with growth 10\%','PV system with growth 50\%'])
+    plt.xlabel("Año")
+    plt.ylabel(f"{metric_col}")
+    plt.title(f"Evolución Anual de {metric_col}")
+    plt.grid(True)
+    plt.savefig(graph_path)
+    plt.close()
 
 if __name__ == '__main__':
-    input_folder = "C:/Users/noluc/OneDrive/Escritorio/resultados_conbateria_08-08/L2"
-    output_folder = "C:/Users/noluc/OneDrive/Escritorio/DERMetrics"
-    graph_folder = os.path.join(output_folder, "graficas")
+    input_folder = "C:/Nohora/UniValle_project/pasto_case/results_DOPER_case3"
+    output_folder = "C:/Nohora/UniValle_project/pasto_case/results_DER_case3"
+    # graph_folder = os.path.join(output_folder, "graficas")
+    graph_folder = "C:/Nohora/UniValle_project/pasto_case/results_DER_case3"
 
     #####Technical metrics####
     # process_data_files(input_folder, output_folder, graph_folder)
-
-    df1 = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L1_home\\doperRes29.csv")
-    df2 = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L1_work\\doperRes29.csv")
-    df3 = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L2\\doperRes29.csv")
-    df4 = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L3\\doperRes30.csv")
-
-    df_SRG = pd.DataFrame({'Home' : []})
-    df_SRG['Home'] = df1['PV/Import Power (%)']
-    df_SRG['Work'] = df2['PV/Import Power (%)']
-    df_SRG['Shopping'] = df3['PV/Import Power (%)']
-    df_SRG['Fast'] = df4['PV/Import Power (%)']
-    generate_figures_technical(df_SRG,'Shared Renewable Generation 29',graph_folder, 'SGR [%]')
     
-    df_BUR = pd.DataFrame({'Home' : []})
-    df_BUR['Home'] = df1['Battery Utilization Rate (%)']
-    df_BUR['Work'] = df2['Battery Utilization Rate (%)']
-    df_BUR['Shopping'] = df3['Battery Utilization Rate (%)']
-    df_BUR['Fast'] = df4['Battery Utilization Rate (%)']
-    generate_figures_technical(df_BUR,'Battery Utilization Rate 29',graph_folder, 'BUR [%]')
-
-
-     ####Economis metrics #####
-    kW_pv =  20461 # PV total
-    kW_bat = 11537 # Bat total
-    I_pv = (609 * 1.071) * kW_pv  # USD (compra e instalación)
-    I_bat = 67.4 * kW_bat  # USD (compra) 
     years = 30  # Número de años
-
-    df_home = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L1_home\\doperRes29.csv")
-    profit_energy_home =  round(df_home['Profit surplus energy - annual [USD]'].sum() / 1000)
-    max_demand_home = round(df_home['Load Power [kW]'].max()) 
-    annual_cost_home, accumulated_cost_home = calculate_accumulated_cost(I_pv, I_bat, years, profit_energy_home)
-
-    df_work = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L1_work\\doperRes29.csv")
-    profit_energy_work =  round(df_work['Profit surplus energy - annual [USD]'].sum() / 1000)
-    max_demand_work = round(df_work['Load Power [kW]'].max()) 
-    annual_cost_work, accumulated_cost_work = calculate_accumulated_cost(I_pv, I_bat, years, profit_energy_work)
-
-    df_shop = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L2\\doperRes29.csv")
-    profit_energy_shop =  round(df_shop['Profit surplus energy - annual [USD]'].sum() / 1000)
-    max_demand_shop = round(df_shop['Load Power [kW]'].max()) 
-    annual_cost_shop, accumulated_cost_shop = calculate_accumulated_cost(I_pv, I_bat, years, profit_energy_shop)
-
-    df_fast = pd.read_csv(f"C:\\Users\\noluc\\OneDrive\\Escritorio\\DERMetrics\\L3\\doperRes30.csv")
-    profit_energy_fast =  round(df_fast['Profit surplus energy - annual [USD]'].sum() / 1000)
-    max_demand_fast = round(df_fast['Load Power [kW]'].max()) 
-    annual_cost_fast, accumulated_cost_fast = calculate_accumulated_cost(I_pv, I_bat, years, profit_energy_fast)
-
-    df_accum = pd.DataFrame({'Home' : []})
-    df_accum['Home'] = accumulated_cost_home
-    df_accum['Work'] = accumulated_cost_work
-    df_accum['Shopping'] = accumulated_cost_shop
-    df_accum['Fast'] = accumulated_cost_fast
-    generate_figures_economic(df_accum, years, 'Accumulated Cost 29', graph_folder, 'Thousand of USD')
-
-    df_annual = pd.DataFrame({'Home' : []})
-    df_annual['Home'] = annual_cost_home
-    df_annual['Work'] = annual_cost_work
-    df_annual['Shopping'] = annual_cost_shop
-    df_annual['Fast'] = annual_cost_fast
-    generate_figures_economic2(df_annual, years, 'Annual Cost 29', graph_folder, 'Thousand of USD')
+    profit_energy_list = []
+    for year in range(1, years + 1):
+        file_path = output_folder+f"/doperRes{year}.csv"
+        df_year = pd.read_csv(file_path)
+        profit = df_year['Profit surplus energy - [USD]'].sum() * 365 / 1000
+        profit_energy_list.append(profit)
     
-    interestRate = 0.1125
-    npc_home = []
-    npc_work = []
-    npc_shop = []
-    npc_fast = []
-    for i in range(years-1):
-        npc_home.append(annual_cost_home[i] / ((1 + interestRate)**i))
-        npc_work.append(annual_cost_work[i] / ((1 + interestRate)**i))
-        npc_shop.append(annual_cost_shop[i] / ((1 + interestRate)**i))
-        npc_fast.append(annual_cost_fast[i] / ((1 + interestRate)**i))
-    npc_home_total = math.ceil(sum(npc_home))
-    npc_work_total = math.ceil(sum(npc_work))
-    npc_shop_total = math.ceil(sum(npc_shop))
-    npc_fast_total = math.ceil(sum(npc_fast))
+    energy_import_cost_list = []
+    for year in range(1, years + 1):
+        file_path = output_folder+f"/doperRes{year}.csv"
+        df = pd.read_csv(file_path)
+        import_energy_cost = df["Import Power [kW]"].sum() * 0.22 * 365 / 1000  # En miles de USD
+        energy_import_cost_list.append(import_energy_cost)
+
+    # Recalcular inversiones base
+    kW_pv = 4833
+    kW_bat = 5754
+    I_pv_base = (609 * 1.071) * kW_pv
+    I_bat_base = 67.4 * kW_bat
+    rate_new = 0.1 #0.1
     
-    print('NPC home = ', npc_home_total, '\nNPC workplace = ', npc_work_total, 
-          '\nNPC shopping mall = ', npc_shop_total, '\nNPC fast CS = ', npc_fast_total)  
+    # #  Calcular métricas económicas
+    annual_cost, accumulated_cost, npc_total = calculate_accumulated_cost(I_pv_base, I_bat_base, years, rate_new, energy_import_cost_list)
+    # Ingresos con descuento
+    discounted_profits = calculate_discounted_profits(profit_energy_list)
+
+    # # Gráficas
+    generate_figures_economic(accumulated_cost, years, 'Accumulated Cost', graph_folder, 'Thousand of USD')
+    generate_figures_economic2(annual_cost, years, 'Annual Cost', graph_folder, 'Thousand of USD')
+    generate_income_vs_cost_bar_chart(discounted_profits, annual_cost, years, graph_folder)
+
+    print('NPC =', npc_total)
+    print('Valor presente neto de ingresos:', sum(discounted_profits))
+
+    generate_technical_comparison(
+        input_folder1="C:/Nohora/UniValle_project/pasto_case/results_DER_case1",
+        input_folder2="C:/Nohora/UniValle_project/pasto_case/results_DER_case2",
+        input_folder3="C:/Nohora/UniValle_project/pasto_case/results_DER_case3",
+        graph_folder=graph_folder,
+        metric_col='PV/Import Power (%)',
+        graph_name='PV_Import_Power_Evolution'
+    )
+
+    generate_technical_comparison(
+        input_folder1="C:/Nohora/UniValle_project/pasto_case/results_DER_case1",
+        input_folder2="C:/Nohora/UniValle_project/pasto_case/results_DER_case2",
+        input_folder3="C:/Nohora/UniValle_project/pasto_case/results_DER_case3",
+        graph_folder=graph_folder,
+        metric_col='Battery Utilization Rate (%)',
+        graph_name='Battery_Utilization_Evolution'
+    )

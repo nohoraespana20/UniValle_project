@@ -29,13 +29,9 @@ def pv_value(valor_inicial, incremento, elementos):
     return lista_valores
 
 def data_multinode(parameter, demand, i):
-    # p1 = pv_value(valor_inicial = 6121, incremento = 0.10, elementos = 31)
-    # p2 = pv_value(valor_inicial = 4455, incremento = 0.10, elementos = 31)
-    # p3 = pv_value(valor_inicial = 9882, incremento = 0.10, elementos = 31)
-
-    p1 = pv_value(valor_inicial = 1048, incremento = 0.01, elementos = 31)
-    p2 = pv_value(valor_inicial = 873, incremento = 0.01, elementos = 31)
-    p3 = pv_value(valor_inicial = 4833, incremento = 0.01, elementos = 31)
+    p1 = pv_value(valor_inicial = 1048, incremento = 0.2, elementos = 31)
+    p2 = pv_value(valor_inicial = 873, incremento = 0.2, elementos = 31)
+    p3 = pv_value(valor_inicial = 4833, incremento = 0.2, elementos = 31)
 
     data4  = ts_inputs(parameter, load='B90', scale_load=demand*0.30, scale_pv=p1[i])
     data5  = ts_inputs(parameter, load='B90', scale_load=demand*0.22, scale_pv=p2[i])
@@ -68,7 +64,7 @@ def execute_solver(parameter, data):
     return df, res
 
 def save_results_solver(df, i):
-  df.to_csv(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/doper/doperRes{i}.csv', index=False)
+  df.to_csv(f'C:/Nohora/UniValle_project/pasto_case/results_DOPER_case3/doperRes{i}.csv', index=False)
 
 def show_results_solver(df, i):
     colors = {'Import Power [kW]': '#00bae1', 'PV Power [kW]': '#ff9800',  'Load Power [kW]': '#000000'}
@@ -77,9 +73,9 @@ def show_results_solver(df, i):
     plt.plot(df['Load Power [kW]'], color=colors['Load Power [kW]'], label='Load Power [kW]')
     plt.title('Power flow at PCC')
     plt.legend(['Import Power [kW]','PV Power [kW]', 'Load Power [kW]'])
-    plt.savefig(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/doper/Fig1_{i}.jpg')
+    plt.savefig(f'C:/Nohora/UniValle_project/pasto_case/results_DOPER_case3/Fig1_{i}.jpg')
     plt.close()
-    plot_dynamic(df, parameter, plotFile = f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/doper/Fig2_{i}.jpg', plot_reg=False)
+    plot_dynamic(df, parameter, plotFile = f'C:/Nohora/UniValle_project/pasto_case/results_DOPER_case3/Fig2_{i}.jpg', plot_reg=False)
 
 def extract_values(file_path):
     cost_value = None
@@ -98,7 +94,7 @@ def extract_values(file_path):
 
 if __name__ == '__main__':  
     parameter = parameters()
-    df_demand = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/fuel_demand.csv')
+    df_demand = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/fuel_demand.csv')
     scenario = 'Scenario 3'
     scenario_selected = df_demand.loc[df_demand.loc[:, 'Scenario'] == scenario]
     demand = list(scenario_selected["Electricity [kWh]"])
@@ -107,21 +103,21 @@ if __name__ == '__main__':
     for i in range(len(demand)):
         print('Demand = ', demand[i], 'Position = ', i)  
         try:
-            data = data_multinode(parameter, demand[i]/24, i)
+            data = data_multinode(parameter, demand[i], i)
             df, res = execute_solver(parameter, data)
             data_frames.append(df)
             save_results_solver(df, i)
             show_results_solver(df, i)
             plt.close('all')
             print(standard_report(res))
-            with open(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/doper/terminalRes{i}.txt', 'w') as k:
+            with open(f'C:/Nohora/UniValle_project/pasto_case/results_DOPER_case3/terminalRes{i}.txt', 'w') as k:
                 k.write(standard_report(res))
             del data, df, res
             gc.collect()
         except:
             print(f'Error in solver {i}')
 
-    folder_path1 = "C:/Nohora/UniValle_project/pasto_case/results_netherlands/doper"
+    folder_path1 = "C:/Nohora/UniValle_project/pasto_case/results_DOPER_case3"
     files1 = sorted([f for f in os.listdir(folder_path1) if f.startswith("terminalRes") and f.endswith(".txt")],
                     key=lambda x: int(re.search(r'\d+', x).group()))
 
@@ -137,4 +133,4 @@ if __name__ == '__main__':
                                   'PV Cost [$]': data1_ob,
                                   'Energy Cost [$]': data1_co})
     df_compareCost.fillna(0, inplace=True)
-    df_compareCost.to_csv(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/costEnergyCompare.csv')
+    df_compareCost.to_csv(f'C:/Nohora/UniValle_project/pasto_case/results_DOPER_case3/costEnergyCompare.csv')
