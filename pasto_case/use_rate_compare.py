@@ -175,57 +175,53 @@ def generate_figures_areas(data_frames, file_name, graph_folder, name, metric_na
 
 if __name__ == '__main__':
     input_folders = [
-        "C:/Users/noluc/OneDrive/Escritorio/resultados_configuracionesPV/caso1",
-        "C:/Users/noluc/OneDrive/Escritorio/resultados_configuracionesPV/caso2",
-        "C:/Users/noluc/OneDrive/Escritorio/resultados_configuracionesPV/caso3",
-        "C:/Users/noluc/OneDrive/Escritorio/resultados_configuracionesPV/caso4",
-        "C:/Users/noluc/OneDrive/Escritorio/resultados_configuracionesPV/caso5"
+        "C:/Nohora/UniValle_project/pasto_case/results_DOPER_case1",
+        "C:/Nohora/UniValle_project/pasto_case/results_DOPER_case2",
+        "C:/Nohora/UniValle_project/pasto_case/results_DOPER_case3"
     ]
     output_folders = [
-        "C:/Users/noluc/OneDrive/Escritorio/resultados_configuracionesPV/Processed/caso1",
-        "C:/Users/noluc/OneDrive/Escritorio/resultados_configuracionesPV/Processed/caso2",
-        "C:/Users/noluc/OneDrive/Escritorio/resultados_configuracionesPV/Processed/caso3",
-        "C:/Users/noluc/OneDrive/Escritorio/resultados_configuracionesPV/Processed/caso4",
-        "C:/Users/noluc/OneDrive/Escritorio/resultados_configuracionesPV/Processed/caso5"
+        "C:/Nohora/UniValle_project/pasto_case/results_grid/results_DER_case1",
+        "C:/Nohora/UniValle_project/pasto_case/results_grid/results_DER_case2",
+        "C:/Nohora/UniValle_project/pasto_case/results_grid/results_DER_case3"
     ]
     graph_folder = "C:/Users/noluc/OneDrive/Escritorio/resultados_configuracionesPV/Processed/"
 
     # # Procesar archivos CSV
-    # for i in range(len(input_folders)):
-    #     process_data_files(input_folders[i], output_folders[i])
+    for i in range(len(input_folders)):
+        process_data_files(input_folders[i], output_folders[i])
 
-    # Generar datos para gráficas comparativas
-    df_SRG_list = []
-    df_BUR_list = []
-    df_GUR_list = []
+    # # Generar datos para gráficas comparativas
+    # df_SRG_list = []
+    # df_BUR_list = []
+    # df_GUR_list = []
 
-    for folder in output_folders:
-        SRG_values = []
-        BUR_values = []
-        GUR_values = []
-        for year in range(30):
-            file_path = f"{folder}/doperRes{year}.csv"
-            if os.path.exists(file_path):
-                df = pd.read_csv(file_path)
-                SRG_values.append(df['PV/Import Power (%)'][0])
-                BUR_values.append(df['Battery Utilization Rate (%)'][0])
-                GUR_values.append(df['Grid Utilization rate (%)'][0])
-        df_SRG_list.append(SRG_values)
-        df_BUR_list.append(BUR_values)
-        df_GUR_list.append(GUR_values)
+    # for folder in output_folders:
+    #     SRG_values = []
+    #     BUR_values = []
+    #     GUR_values = []
+    #     for year in range(30):
+    #         file_path = f"{folder}/doperRes{year}.csv"
+    #         if os.path.exists(file_path):
+    #             df = pd.read_csv(file_path)
+    #             SRG_values.append(df['PV/Import Power (%)'][0])
+    #             BUR_values.append(df['Battery Utilization Rate (%)'][0])
+    #             GUR_values.append(df['Grid Utilization rate (%)'][0])
+    #     df_SRG_list.append(SRG_values)
+    #     df_BUR_list.append(BUR_values)
+    #     df_GUR_list.append(GUR_values)
 
-    # Graficar comparaciones
+    # # Graficar comparaciones
 
-    generate_figures_comparison(df_SRG_list, f'Shared Renewable Generation ', graph_folder,'line', 'SGR [%]')
-    generate_figures_comparison(df_BUR_list, f'Battery Utilization Rate ', graph_folder,'line', 'BUR [%]')
-    generate_figures_comparison(df_GUR_list, f'Grid Utilization rate ', graph_folder,'line', 'GUR [%]')
+    # generate_figures_comparison(df_SRG_list, f'Shared Renewable Generation ', graph_folder,'line', 'SGR [%]')
+    # generate_figures_comparison(df_BUR_list, f'Battery Utilization Rate ', graph_folder,'line', 'BUR [%]')
+    # generate_figures_comparison(df_GUR_list, f'Grid Utilization rate ', graph_folder,'line', 'GUR [%]')
 
-    generate_subplots_comparison(df_SRG_list, f'Shared Renewable Generation ', graph_folder,'subplot', 'SGR [%]')
-    generate_subplots_comparison(df_BUR_list, f'Battery Utilization Rate ', graph_folder,'subplot', 'BUR [%]')
-    generate_subplots_comparison(df_GUR_list, f'Grid Utilization rate  ', graph_folder,'subplot', 'GUR [%]')
+    # generate_subplots_comparison(df_SRG_list, f'Shared Renewable Generation ', graph_folder,'subplot', 'SGR [%]')
+    # generate_subplots_comparison(df_BUR_list, f'Battery Utilization Rate ', graph_folder,'subplot', 'BUR [%]')
+    # generate_subplots_comparison(df_GUR_list, f'Grid Utilization rate  ', graph_folder,'subplot', 'GUR [%]')
 
-    generate_figures_indexes(df_SRG_list, df_BUR_list, df_GUR_list, graph_folder, f' ')
+    # generate_figures_indexes(df_SRG_list, df_BUR_list, df_GUR_list, graph_folder, f' ')
 
-    generate_figures_areas(df_SRG_list, f'Shared Renewable Generation  ', graph_folder,'areas', 'SGR [%]')
-    generate_figures_areas(df_BUR_list, f'Battery Utilization Rate ', graph_folder,'areas', 'BUR [%]')
-    generate_figures_areas(df_GUR_list, f'Grid Utilization rate  ', graph_folder,'areas{', 'GUR [%]')
+    # generate_figures_areas(df_SRG_list, f'Shared Renewable Generation  ', graph_folder,'areas', 'SGR [%]')
+    # generate_figures_areas(df_BUR_list, f'Battery Utilization Rate ', graph_folder,'areas', 'BUR [%]')
+    # generate_figures_areas(df_GUR_list, f'Grid Utilization rate  ', graph_folder,'areas{', 'GUR [%]')
