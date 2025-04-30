@@ -227,6 +227,15 @@ def generate_income_vs_cost_bar_chart(profits, costs, years, graph_folder, file_
     plt.savefig(graph_path)
     plt.close()
 
+    csv_path = os.path.join(graph_folder, f"{file_name}_datos.csv")
+    df = pd.DataFrame({
+        'Año': x,
+        'Utilidades (miles de dólares)': profits,
+        'Costos (miles de dólares)': costs
+    })
+    df.to_csv(csv_path, index=False)
+    
+
 def generate_technical_comparison(input_folder1, input_folder2, input_folder3, graph_folder, metric_col, graph_name):
     """
     Genera una gráfica comparativa del promedio anual de una métrica técnica específica.
