@@ -5,8 +5,8 @@ import pandas as pd
 import os
 import seaborn as sns
 
-def percentage_preference_type_charger(df):
-    annualVehicles = [list(df["EV"])[i] + list(df["PHEV"])[i] for i in range(len(list(df["EV"])))]
+def percentage_preference_type_charger(annualVehicles):
+    # annualVehicles = [list(df["EV"])[i] + list(df["PHEV"])[i] for i in range(len(list(df["EV"])))] #arreglar para PHEV, se tiene en cuenta la carga total de un EV
     beta, lx2, lx3 = [], [], []
     BL1, BL2, BL3 = [], [], []
     BL1_sum, BL2_sum, BL3_sum = [], [], []
@@ -30,18 +30,18 @@ def percentage_preference_type_charger(df):
         BL3_sum.append(sum(BL3))
     return BL1_sum, BL2_sum, BL3_sum, beta, lx2, lx3
 
-def cp_technical_metrics(demand, BL1, BL2, BL3, P, T, importPower):
+def cp_technical_metrics(Cev, Cphev, BL1ev, BL1phev, BL2ev, BL2phev, BL3ev, BL3phev, P, T, importPower):
     chargersLow, chargersSemifast, chargersFast = [], [], []
     utilization_low, utilization_semifast, utilization_fast = [], [], []
     emission_low, emission_semifast, emission_fast = [], [], []
     demand_L1, demand_L2, demand_L3 = [], [], []
     gwp = [82.52, 91.58, 111.02]
-    for i in range(len(BL1)):
-        low     = ((demand * BL1[i]) / (P[0] * T[0]))
+    for i in range(len(BL1ev)):
+        low     = (((Cev * BL1ev[i]) + (Cphev * BL1phev[i])) / (P[0] * T[0]))
         demand_L1.append(low)
-        semifast= ((demand * BL2[i]) / (P[1] * T[1]))
+        semifast= (((Cev * BL2ev[i]) + (Cphev * BL2phev[i])) / (P[1] * T[1]))
         demand_L2.append(semifast)
-        fast    = ((demand * BL3[i]) / (P[2] * T[2]))
+        fast    = (((Cev * BL3ev[i]) + (Cphev * BL3phev[i])) / (P[2] * T[2]))
         demand_L3.append(fast)
         if low < 1:
             low = 1
@@ -54,17 +54,17 @@ def cp_technical_metrics(demand, BL1, BL2, BL3, P, T, importPower):
             semifast = max(semifast, chargersSemifast[i-1])
             fast     = max(fast, chargersFast[i-1])
         
-        u_low =         ((demand * BL1[i]) / P[0] ) * 100 / (low * T[0])
-        u_semifast =    ((demand * BL2[i]) / P[1] ) * 100 / (semifast * T[1])
-        u_fast =        ((demand * BL3[i]) / P[2] ) * 100 / (fast * T[2])
+        u_low =         (((Cev * BL1ev[i]) + (Cphev * BL1phev[i])) / P[0] ) * 100 / (low * T[0])
+        u_semifast =    (((Cev * BL2ev[i]) + (Cphev * BL2phev[i])) / P[1] ) * 100 / (semifast * T[1])
+        u_fast =        (((Cev * BL3ev[i]) + (Cphev * BL3phev[i])) / P[2] ) * 100 / (fast * T[2])
         if not importPower:
-            e_low =      demand * BL1[i] * (gwp[0] + 164.38)  /1000
-            e_semifast = demand * BL2[i] * (gwp[1] + 164.38)  /1000
-            e_fast =     demand * BL3[i] * (gwp[2] + 164.38)  /1000
+            e_low =      ((Cev * BL1ev[i]) + (Cphev * BL1phev[i])) * (gwp[0] + 164.38)  /1000
+            e_semifast = ((Cev * BL2ev[i]) + (Cphev * BL2phev[i])) * (gwp[1] + 164.38)  /1000
+            e_fast =     ((Cev * BL3ev[i]) + (Cphev * BL3phev[i])) * (gwp[2] + 164.38)  /1000
         else:
-            e_low =      importPower[i] * BL1[i] * (gwp[0] + 164.38)  /1000
-            e_semifast = importPower[i] * BL2[i] * (gwp[1] + 164.38)  /1000
-            e_fast =     importPower[i] * BL3[i] * (gwp[2] + 164.38)  /1000
+            e_low =      importPower[i] * (BL1ev[i] + BL1phev[i]) * (gwp[0] + 164.38)  /1000
+            e_semifast = importPower[i] * (BL2ev[i] + BL2phev[i]) * (gwp[1] + 164.38)  /1000
+            e_fast =     importPower[i] * (BL2ev[i] + BL2phev[i]) * (gwp[2] + 164.38)  /1000
 
         chargersLow.append((low))
         chargersSemifast.append((semifast))
@@ -353,7 +353,8 @@ def extract_import_power_doper(folder_path):
         all_data.append(list(df['Import Power [kW]']))
     importPower = []
     for i in range(len(all_data)):
-        importPower.append( (0.0833 * sum(all_data[i])))
+        # importPower.append( (0.0833 * sum(all_data[i])))
+        importPower.append( (sum(all_data[i])))
     return importPower
 
 if __name__ == '__main__':
@@ -366,7 +367,8 @@ if __name__ == '__main__':
     P = [7, 20, 60] # charge speed
     E100km = 11.03 # EV's performance (kwh/100km)
     dailyDistance = 175 # EV's daily distance (km)
-    C = (E100km / 100) * 175 # electric demand daily per vehicle
+    Cev = (E100km / 100) * 175 # electric demand daily per vehicle
+    Cphev = (E100km / 100) * 175 * 0.7 # electric demand daily per vehicle
     initial_cost = [800, 6500, 75000]
     maintenance_rate = [0.1, 0.1, 0.1]
     retrofit_rate = [0.05, 0.5, 0.5]
@@ -391,7 +393,7 @@ if __name__ == '__main__':
     import_power = extract_import_power_doper(doper_results_directory)
     v = []
     for i in range(len(list(scenario_selected_v['EV']))):
-        v.append(list(scenario_selected_v['EV'])[i]+list(scenario_selected_v['PHEV'])[i])
+        v.append(list(scenario_selected_v['EV'])[i]+(list(scenario_selected_v['PHEV'])[i] * 0.7))
     
     for i in range(1, len(import_power)):
         import_power_with_pv.append( (import_power[i] / (v[i])) ) 
@@ -404,8 +406,10 @@ if __name__ == '__main__':
     # for j in range(1):
         T = T_cases[j]
         case = list_cases[j]
-
-        bL1, bL2, bL3, beta, lx2, lx3 = percentage_preference_type_charger(scenario_selected_v)
+        ev = list(scenario_selected_v["EV"])
+        bL1ev, bL2ev, bL3ev, betaev, lx2ev, lx3ev = percentage_preference_type_charger(ev)
+        phev = list(scenario_selected_v["PHEV"])
+        bL1phev, bL2phev, bL3phev, betaphev, lx2phev, lx3ephv = percentage_preference_type_charger(phev)
 
         # year_index = 30
         # beta_year = np.array(beta[year_index][0])
@@ -423,7 +427,7 @@ if __name__ == '__main__':
         # axs[1].legend()
         # plt.show()
 
-        cL1, cL2, cL3, uL1, uL2, uL3, eL1, eL2, eL3, demand_L1, demand_L2, demand_L3 = cp_technical_metrics(C, bL1, bL2, bL3, P, T, import_power_with_pv)
+        cL1, cL2, cL3, uL1, uL2, uL3, eL1, eL2, eL3, demand_L1, demand_L2, demand_L3 = cp_technical_metrics(Cev, Cphev, bL1ev, bL1phev, bL2ev, bL2phev, bL3ev, bL3phev, P, T, import_power_with_pv)
         totalChargerPoints = [cL1, cL2, cL3]
         ev_cs = ev_per_CP(scenario_selected_v, cL1, cL2, cL3)
         discountedAC_L1_1, accumulatedC_L1_1, annualC_L1_1 = discounted_accumulated_cost(years, initial_cost[0], maintenance_rate[0], retrofit_rate[0], cL1)
