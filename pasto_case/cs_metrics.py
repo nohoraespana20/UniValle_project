@@ -6,12 +6,11 @@ import os
 import seaborn as sns
 
 def percentage_preference_type_charger(annualVehicles):
-    # annualVehicles = [list(df["EV"])[i] + list(df["PHEV"])[i] for i in range(len(list(df["EV"])))] #arreglar para PHEV, se tiene en cuenta la carga total de un EV
+    # annualVehicles = [list(df["EV"])[i] + list(df["PHEV"])[i] for i in range(len(list(df["EV"])))] 
     beta, lx2, lx3 = [], [], []
-    BL1, BL2, BL3 = [], [], []
     BL1_sum, BL2_sum, BL3_sum = [], [], []
+    np.random.seed(0)
     for i in range(len(annualVehicles)):
-        np.random.seed(0)
         B = np.random.random((1,annualVehicles[i]))
         # B = [[0.9]*annualVehicles[i]]
         beta.append(B)
@@ -19,6 +18,7 @@ def percentage_preference_type_charger(annualVehicles):
         # L2 = [[0.5]*annualVehicles[i]]
         lx2.append(L2)
         L3 = []
+        BL1, BL2, BL3 = [], [], []
         for j in range(len(B[0])):
             L3.append(1 - L2[0][j])
             BL1.append(1-B[0][j])
@@ -155,7 +155,7 @@ def job_charging_station(portsPerCH, totalChargerPoints):
     jobsPerCS = 5
     jobs_CS = []
     for i in range(len(totalChargerPoints[0])):
-        jobs_CS.append( (((totalChargerPoints[2][i] + totalChargerPoints[2][i]) * jobsPerCS / portsPerCH)))
+        jobs_CS.append( (((totalChargerPoints[1][i] + totalChargerPoints[2][i]) * jobsPerCS / portsPerCH)))
     return jobs_CS
 
 def land_area_metric(cL, parkingArea):
@@ -367,8 +367,8 @@ if __name__ == '__main__':
     P = [7, 20, 60] # charge speed
     E100km = 11.03 # EV's performance (kwh/100km)
     dailyDistance = 175 # EV's daily distance (km)
-    Cev = (E100km / 100) * 175 # electric demand daily per vehicle
-    Cphev = (E100km / 100) * 175 * 0.7 # electric demand daily per vehicle
+    Cev = (E100km / 100) * dailyDistance # electric demand daily per vehicle
+    Cphev = (E100km / 100) * dailyDistance * 0.7 # electric demand daily per vehicle
     initial_cost = [800, 6500, 75000]
     maintenance_rate = [0.1, 0.1, 0.1]
     retrofit_rate = [0.05, 0.5, 0.5]

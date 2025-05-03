@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
 import numpy as np
 import matplotlib.dates as mdates
 import math
@@ -158,122 +159,23 @@ def calculate_and_plot_P_carga(output_folders, data, graph_folder, scale_load, i
     plt.savefig(os.path.join(graph_folder, 'Promedio_Pcarga_anual.png'))
     plt.close()
 
-def calculate_chargeability(input_folders, S_max_initial, factor_demanda, cargabilidad_min, graph_folder):
-    promedio_FP = []
-    promedio_Smax = []
-    promedio_Sactual = []
+def to_percent(y, _):
+    return f'{y * 100:.0f}%'
 
-    for folder in input_folders:
-        case_name = os.path.basename(folder)
-        case_aditional = './cargabilidad_S_var'
-        csv_output_dir = os.path.join(graph_folder, case_aditional, case_name)
-        os.makedirs(csv_output_dir, exist_ok=True)
-
-        chargeability_annual = []
-        s_max_annual = []
-        s_max_actual = []
-        S_max = S_max_initial
-        for year in range(30):
-            file_path = os.path.join(folder, f"variables_{year}.csv")
-            if os.path.exists(file_path):
-                df = pd.read_csv(file_path)
-                S_max = S_max_initial * (1 + 0.08) ** year
-                # S_max = S_max_initial
-                P_carga = df['P_carga [kW]']
-                chargeability = P_carga * factor_demanda / S_max
-                s_max_calculated = P_carga * factor_demanda / cargabilidad_min
-
-                chargeability_annual.append(chargeability.max())
-                s_max_actual.append(S_max)
-                s_max_annual.append(s_max_calculated.max())
-
-                # Crear índice de tiempo
-                time_index = pd.date_range(start='2025-01-01 00:00', periods=len(P_carga), freq='5min')
-                df_variables = pd.DataFrame({
-                    'Hora': time_index,
-                    'P_carga [kW]': P_carga,
-                    'FC red': chargeability,
-                    'S max need': s_max_calculated
-                })
-                df_variables.to_csv(os.path.join(csv_output_dir, f'cargabilidad_{year}.csv'), index=False)
-
-                # Graficar años seleccionados
-                if year in [0, 5, 10, 20, 29]:
-                    fig, axs = plt.subplots(3, 1, figsize=(12, 10), sharex=True)
-                    date_formatter = mdates.DateFormatter('%H:%M')
-
-                    axs[0].plot(time_index, P_carga, color='black')
-                    axs[0].set_ylabel('P_carga [kW]')
-                    axs[0].set_title(f'Año {year} - {case_name}')
-                    axs[0].grid(True)
-                    axs[0].xaxis.set_major_formatter(date_formatter)
-
-                    axs[1].plot(time_index, chargeability, color='blue', label='Factor de cargabilidad')
-                    axs[1].axhline(y=1, color='red', linestyle='--', linewidth=2, label='Factor de cargabilidad máximo')
-                    axs[1].set_ylabel('Cargabilidad')
-                    axs[1].legend()
-                    axs[1].grid(True)
-                    axs[1].xaxis.set_major_formatter(date_formatter)
-
-                    axs[2].plot(time_index, s_max_calculated, color='green', label='Smax necesario')
-                    axs[2].set_ylabel('S max necesario')
-                    axs[2].axhline(y=S_max, color='red', linestyle='--', linewidth=2, label='Smax actual')
-                    axs[2].legend()
-                    axs[2].grid(True)
-                    axs[2].xaxis.set_major_formatter(date_formatter)
-
-                    plt.tight_layout()
-                    plt.savefig(os.path.join(csv_output_dir, f'Grafica_Cargabilidad_{year}.png'))
-                    plt.close()
-
-        promedio_FP.append(chargeability_annual)
-        promedio_Smax.append(s_max_annual)
-        promedio_Sactual.append(s_max_actual)
-
-    # Gráfico final: promedio anual
-    plt.figure(figsize=(10, 6))
-    labels = ['Sistema FV sin crecimiento', 'Sistema FV con crecimiento 10%', 'Sistema FV con crecimiento 20%']
-    colors = ['#a4165f', '#8f459c', '#0088d1']
-    years = np.arange(2025, 2025 + 30)  # Años desde 2025 hasta 2054
-
-    for i, data_case in enumerate(promedio_FP):
-        plt.plot(years, data_case, label=labels[i], color=colors[i])
-    plt.axhline(y=1, color='red', linestyle='--', linewidth=2, label='Factor de cargabilidad máximo')
-    plt.xlabel('Año')
-    plt.ylabel('Promedio Cargabilidad')
-    plt.title('Promedio anual de Factor de Cargabilidad')
-    plt.grid(True)
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig(os.path.join(graph_folder+case_aditional, 'Promedio_cargabilidad.png'))
-    plt.close()
-
-    plt.figure(figsize=(10, 6))
-    labels = ['Sistema FV sin crecimiento', 'Sistema FV con crecimiento 10%', 'Sistema FV con crecimiento 20%']
-    colors = ['#a4165f', '#8f459c', '#0088d1']
-    years = np.arange(2025, 2025 + 30)  # Años desde 2025 hasta 2054
-    for i, data_case in enumerate(promedio_Smax):
-        plt.plot(years, data_case, label=labels[i], color=colors[i])
-    for i, data_case in enumerate(promedio_Sactual):
-        plt.plot(years, data_case, linestyle='--', color='black')
-    plt.xlabel('Año')
-    plt.ylabel('Promedio Smax')
-    plt.title('Promedio anual de Smax necesario')
-    plt.grid(True)
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig(os.path.join(graph_folder+case_aditional, 'Promedio_smax.png'))
-    plt.close()
-
-def calculate_reinforcement(input_folders, graph_folder, S_max):
+def calculate_reinforcement(input_folders, graph_folder, P_base, P_max):
     os.makedirs(graph_folder, exist_ok=True)
     promedio_anual_Stotal = []
     promedio_anual_Srefor = []
     costo_anual_refor = []
 
+    FP_red = 0.9
     FP_VE = 0.9
     FP_DER = 0.95
-    costo_por_unidad_S = 60  # USD/kVA
+    costo_por_unidad_S = 50  # USD/kVA
+
+    S_base = np.sqrt((P_base**2) + ((P_base * math.tan(math.acos(FP_red)))**2))
+    S_max = np.sqrt((P_max**2) + ((P_max * math.tan(math.acos(FP_red)))**2))
+    f_utilizacion = 0.9
 
     for folder in input_folders:
         case_name = os.path.basename(folder)
@@ -288,26 +190,29 @@ def calculate_reinforcement(input_folders, graph_folder, S_max):
             file_path = os.path.join(folder, f"variables_{year}.csv")
             if os.path.exists(file_path):
                 df = pd.read_csv(file_path)
-
+                
                 P_VE = df['P_VE [kW]'].values
                 P_DER = df['P_DER [kW]'].values
                 delta_P = P_VE - P_DER
                 delta_Q = (P_VE * math.tan(math.acos(FP_VE))) - (P_DER * math.tan(math.acos(FP_DER)))
                 S_total = np.sqrt(delta_P**2 + delta_Q**2)
-                S_refor = np.maximum(S_total, 0)  
+                S_refor = (((S_base + S_total) / (f_utilizacion)) - S_max  ) 
+                S_refor_percentage = S_refor / S_max
                 S_refor_avg = np.mean(S_refor)
+                S_refor_avg_percentage = np.mean(S_refor_percentage)
+                
                 costo_refor = S_refor_avg * costo_por_unidad_S / 1000
 
                 Stotal_annual.append(np.mean(S_total))
-                Srefor_annual.append(S_refor_avg)
+                Srefor_annual.append(S_refor_avg_percentage)
                 costo_annual.append(costo_refor)
 
-        promedio_anual_Stotal.append(Stotal_annual)
+        promedio_anual_Stotal.append(Stotal_annual) 
         promedio_anual_Srefor.append(Srefor_annual)
         costo_anual_refor.append(costo_annual)
 
     plt.figure(figsize=(10, 6))
-    labels = ['Escenario 1', 'Escenario 2', 'Escenario 3']
+    labels = ['Sistema FV sin crecimiento', 'Sistema FV con crecimiento 10%', 'Sistema FV con crecimiento 20%']
     colors = ['#a4165f', '#8f459c', '#0088d1']
     years = np.arange(2025, 2025 + 30)
 
@@ -315,14 +220,15 @@ def calculate_reinforcement(input_folders, graph_folder, S_max):
         label = labels[i] if i < len(labels) else f'Escenario {i+1}'
         color = colors[i] if i < len(colors) else None
         plt.plot(years, data_case, label=label, color=color)
-
+    
     plt.xlabel('Año')
-    plt.ylabel('Promedio S de reforzamiento [kVA]')
+    plt.ylabel('Reforzamiento')
     plt.title('Promedio anual de potencia de reforzamiento')
+    plt.gca().yaxis.set_major_formatter(FuncFormatter(to_percent)) 
     plt.grid(True)
     plt.legend()
     plt.tight_layout()
-    plt.savefig(os.path.join(graph_folder, 'Promedio_reforzamiento.png'))
+    plt.savefig(os.path.join(graph_folder, 'Promedio_reforzamiento_version2.png'))
     plt.close()
 
     # Gráfica de costos
@@ -341,67 +247,13 @@ def calculate_reinforcement(input_folders, graph_folder, S_max):
     plt.savefig(os.path.join(graph_folder, 'Costo_reforzamiento.png'))
     plt.close()
 
-def calculate_reinforcement2(input_folders, graph_folder, S_max):
-    os.makedirs(graph_folder, exist_ok=True)
-    labels = ['Escenario 1', 'Escenario 2', 'Escenario 3']
-    colors = ['#a4165f', '#8f459c', '#0088d1']
-
-    FP_VE = 0.9
-    FP_DER = 0.95
-    costo_por_unidad_S = 60  # USD/kVA
-    tasa_descuento = 0.09
-    year_final = 29  # Último año del horizonte (0 a 29)
-
-    refuerzo_final = []
-    costo_valor_presente = []
-
-    for folder in input_folders:
-        print(folder)
-        case_name = os.path.basename(folder)
-        csv_output_dir = os.path.join(graph_folder, case_name)
-        os.makedirs(csv_output_dir, exist_ok=True)
-
-        file_path = os.path.join(folder, f"variables_{year_final}.csv")
-        if os.path.exists(file_path):
-            df = pd.read_csv(file_path)
-
-            P_VE = df['P_VE [kW]'].values
-            P_DER = df['P_DER [kW]'].values
-            delta_P = P_VE - P_DER
-            delta_Q = (P_VE * math.tan(math.acos(FP_VE))) - (P_DER * math.tan(math.acos(FP_DER)))
-            S_total = np.sqrt(delta_P**2 + delta_Q**2)
-            S_refor = np.maximum(S_total, 0)
-            S_refor_avg = np.mean(S_refor)
-
-            # Costo de reforzamiento en el año final
-            costo_final = S_refor_avg * costo_por_unidad_S / 1000  # en miles de USD
-
-            # Traer a valor presente
-            vp_costo = costo_final / ((1 + tasa_descuento) ** year_final)
-
-            refuerzo_final.append(S_refor_avg)
-            costo_valor_presente.append(vp_costo)
-        else:
-            refuerzo_final.append(0)
-            costo_valor_presente.append(0)
-
-    # Imprimir o guardar resultados
+    print("\nResumen de resultados:")
     for i in range(len(input_folders)):
-        label = labels[i] if i < len(labels) else f'Escenario {i+1}'
-        print(f"{label}:")
-        print(f"  Refuerzo promedio en año final [kVA]: {refuerzo_final[i]:.2f}")
-        print(f"  Costo en valor presente [mil USD]: {costo_valor_presente[i]:.2f}")
-
-    # Graficar resultados
-    x_labels = labels[:len(input_folders)]
-
-    plt.figure(figsize=(8, 5))
-    plt.bar(x_labels, costo_valor_presente, color=colors[:len(input_folders)])
-    plt.ylabel('Costo en valor presente [mil USD]')
-    plt.title('Costo único de reforzamiento (VP) en el año inicial')
-    plt.tight_layout()
-    plt.savefig(os.path.join(graph_folder, 'Costo_valor_presente_reforzamiento.png'))
-    plt.close()
+        refuerzo_final = promedio_anual_Srefor[i][-1]  # último año
+        costo_final_milUSD = costo_anual_refor[i][-1]      # último año
+        print(f"Escenario {i+1}:")
+        print(f"  Refuerzo promedio en año final [%]: {refuerzo_final:.2f}")
+        print(f"  Costo en valor presente [mil USD]: {costo_final_milUSD:.2f}")
 
 def calcular_y_graficar_iip(income_files, potencia_dirs, graph_folder, nombres_casos=None):
     plt.figure(figsize=(10, 6))
@@ -485,7 +337,8 @@ if __name__ == '__main__':
 
     # calculate_and_plot_P_carga(output_folders, data, graph_folder, scale_load, incremento_pico=0.10)
 
-    S_max = 104000
+    P_max = 104000 
+    P_base = 100000
     factor_demanda = 0.8
     cargabilidad_min = 0.9
     input_folders = [
@@ -495,10 +348,8 @@ if __name__ == '__main__':
     ]
     graph_folder = "C:/Nohora/UniValle_project/pasto_case/results_grid/1_conDER"
 
-    # calculate_chargeability(input_folders, S_max, factor_demanda, cargabilidad_min, graph_folder)
+    calculate_reinforcement(input_folders, graph_folder, P_base, P_max)
 
-    calculate_reinforcement(input_folders, graph_folder, S_max)
-    calculate_reinforcement2(input_folders, graph_folder, S_max)
 
     income_folders = [
         "C:/Nohora/UniValle_project/pasto_case/results_DER_case1/Income_vs_Cost_datos.csv",
