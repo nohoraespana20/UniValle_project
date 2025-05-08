@@ -69,13 +69,19 @@ def sizing_battery_system(powerPlantPV):
     num_batteries = batCapacity / Cbat
     return round(batCapacity)
 
-def calculate_reinforcement(P_VE, P_DER):
+def calculate_reinforcement(P_base, P_max, P_VE, P_DER):
+    FP_red = 0.9
     FP_VE = 0.9
     FP_DER = 0.95
+    S_base = np.sqrt((P_base**2) + ((P_base * math.tan(math.acos(FP_red)))**2))
+    S_max = np.sqrt((P_max**2) + ((P_max * math.tan(math.acos(FP_red)))**2))
+    f_utilizacion = 0.9
     delta_P = P_VE - P_DER
     delta_Q = (P_VE * math.tan(math.acos(FP_VE))) - (P_DER * math.tan(math.acos(FP_DER)))
-    S_refor = np.sqrt(delta_P**2 + delta_Q**2)
-    return S_refor
+    S_total = np.sqrt(delta_P**2 + delta_Q**2)
+    S_refor = (((S_base + S_total) / (f_utilizacion)) - S_max  ) 
+    S_refor_percentage = S_refor / S_max
+    return S_refor_percentage
 
 def job_charging_station(totalChargerPoints):
     jobsPerCS = 5
@@ -188,7 +194,7 @@ class EVChargingYearlyProblem(ElementwiseProblem):
             n_obj=7,
             n_constr=0,
             xl=np.array([8, 8, min_area]),
-            xu=np.array([24, 24, 100000])
+            xu=np.array([24, 24, 40000])
         )
         self.ev = ev
         self.phev = phev
@@ -215,57 +221,79 @@ class EVChargingYearlyProblem(ElementwiseProblem):
         capacidades = [P_bat*0.15, P_bat*0.13, P_bat*0.72]  # Nuevos valores de capacidad por nodo
         P_red, E_export, E_pv = run_doper_model(demand_scale=demand, pv_scale=P_pv, battery_capacities=capacidades)
         emisiones = calcular_emisiones_CO2(P_pv, P_red)
-        S_refor = calculate_reinforcement(demand, P_pv)
+        S_refor = calculate_reinforcement(100000, 104000, demand, P_pv)
         jobs = -job_charging_station([cpl1, cpl2, cpl3])
 
         ipp = -calculate_iip(E_export, self.year, E_pv)
         out["F"] = [math.ceil(cpl1), math.ceil(cpl2), math.ceil(cpl3), round(S_refor,2), math.ceil(jobs), round(emisiones,2), round(ipp,2)]
 
-# Ejecutar optimización para cada año
-resultados = []
-initial_cp = [0,0,0]
+# Crear carpeta de salida si no existe
+carpeta_salida = "C:/Nohora/UniValle_project/pasto_case/"
+os.makedirs(carpeta_salida, exist_ok=True)
+
+initial_cp = [0, 0, 0]
 min_area = 11000
+
+# Inicializar listas de resultados por solución
+archivos_csv = [os.path.join(carpeta_salida, f"solucion_{i+1}.csv") for i in range(5)]
+
+# Crear encabezados en los archivos si no existen
+columnas = [
+    "Año", "EV", "PHEV", "tL2", "tL3", "area",
+    "cpl1", "cpl2", "cpl3", "S_refor", "jobs", "emisiones", "incentivos"
+]
+for ruta in archivos_csv:
+    if not os.path.exists(ruta):
+        pd.DataFrame(columns=columnas).to_csv(ruta, index=False)
+
+# Ejecutar optimización por año
 for year, (ev, phev) in enumerate(zip(ev_list, phev_list), start=1):
-    problem = EVChargingYearlyProblem(ev, phev, initial_cp, min_area, year)
-    algorithm = NSGA2(
-        pop_size=20,
-        sampling=FloatRandomSampling(),
-        crossover=SBX(prob=0.9, eta=15),
-        mutation=PM(eta=20),
-        eliminate_duplicates=True
-    )
+    if year == 10 or year == 20 or year == 31:
+        print(f"Año {year}")
+        problem = EVChargingYearlyProblem(ev, phev, initial_cp, min_area, year)
 
-    res = minimize(problem, algorithm, ("n_gen", 50), seed=1, verbose=False)
+        algorithm = NSGA2(
+            pop_size=20,
+            sampling=FloatRandomSampling(),
+            crossover=SBX(prob=0.9, eta=15),
+            mutation=PM(eta=20),
+            eliminate_duplicates=True
+        )
 
-    if res.X is not None:
-        x = res.X[0]
-        f = res.F[0]
-        initial_cp = f
-        min_area = x[2]
-        resultados.append({
-            "Año": year,
-            "EV": ev,
-            "PHEV": phev,
-            "tL2": round(x[0],1),
-            "tL3": round(x[1],1),
-            "area": round(x[2],1),
-            "cpl1": f[0],
-            "cpl2": f[1],
-            "cpl3": f[2],
-            "S_refor": f[3],
-            "jobs": -f[4],
-            "emisiones": f[5],
-            "incentivos": -f[6]
-        })
-    else:
-        print(f"No se encontraron soluciones factibles para el año {year}.")
-    print(f"Año {year} completado")
+        res = minimize(problem, algorithm, ("n_gen", 50), seed=1, verbose=False)
 
-    if year == 1:
-        break
+        if res.X is not None:
+            # Asegurar que hay al menos 5 soluciones
+            n_sols = min(5, len(res.X))
 
-# Guardar todos los resultados en un único archivo
-df_resultados = pd.DataFrame(resultados)
-ruta_salida = "C:/Nohora/UniValle_project/pasto_case/soluciones_todos_los_anios.csv"
-df_resultados.to_csv(ruta_salida, index=False)
-print(f"\nTodas las soluciones fueron guardadas en: {ruta_salida}")
+            for i in range(n_sols):
+                x = res.X[i]
+                f = res.F[i]
+
+                if i == 0:
+                    # Solo actualizar si es la mejor solución
+                    initial_cp = f
+                    min_area = x[2]
+
+                fila = {
+                    "Año": year,
+                    "EV": ev,
+                    "PHEV": phev,
+                    "tL2": round(x[0], 1),
+                    "tL3": round(x[1], 1),
+                    "area": round(x[2], 1),
+                    "cpl1": f[0],
+                    "cpl2": f[1],
+                    "cpl3": f[2],
+                    "S_refor": f[3],
+                    "jobs": -f[4],
+                    "emisiones": f[5],
+                    "incentivos": -f[6]
+                }
+
+                df_fila = pd.DataFrame([fila])
+                df_fila.to_csv(archivos_csv[i], mode='a', header=False, index=False)
+        else:
+            print(f"No se encontraron soluciones factibles para el año {year}.")
+
+        print(f"Año {year} completado.")
