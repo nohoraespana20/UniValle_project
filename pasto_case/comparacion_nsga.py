@@ -5,11 +5,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 
-def get_last_row_aligned(df, columns_reference, name):
-    if name == '3':
-        last_row = df.iloc[[-1]]  # Esto mantiene el DataFrame con forma
-    else:
-        last_row = df.iloc[[-2]]
+def get_last_row_aligned(df, columns_reference):
+    last_row = df.iloc[[-1]]  # Esto mantiene el DataFrame con forma
+
     # Reindexar las columnas al esquema de df_problem3, llenando faltantes con 0
     return last_row.reindex(columns=columns_reference, fill_value=0)
 
@@ -67,9 +65,9 @@ df_problem2 = pd.read_csv(f"C:/Users/noluc/OneDrive/Escritorio/multiobjetivo/pro
 df_problem3 = pd.read_csv(f"C:/Users/noluc/OneDrive/Escritorio/multiobjetivo/problem3_solucion_1.csv")
 
 columns_reference = df_problem3.columns
-row1 = get_last_row_aligned(df_problem1, columns_reference, '1')
-row2 = get_last_row_aligned(df_problem2, columns_reference, '2')
-row3 = get_last_row_aligned(df_problem3, columns_reference, '3')
+row1 = get_last_row_aligned(df_problem1, columns_reference)
+row2 = get_last_row_aligned(df_problem2, columns_reference)
+row3 = get_last_row_aligned(df_problem3, columns_reference)
 
 path = 'C:/Users/noluc/OneDrive/Escritorio/multiobjetivo/radar1.jpg'
 df_resultado = pd.concat([row1, row2, row3], ignore_index=True)
