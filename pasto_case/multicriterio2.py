@@ -195,7 +195,16 @@ class EVChargingYearlyProblem(ElementwiseProblem):
             P, [24, x1, x2], self.initial_cp
         )
 
+<<<<<<< HEAD
         P_pv = power_generated(x3)  
+=======
+        P_pv = power_generated(x3)
+        P_bat = sizing_battery_system(P_pv)
+
+        capacidades = [P_bat*0.15, P_bat*0.13, P_bat*0.72]  # Nuevos valores de capacidad por nodo
+        P_red, E_export, E_pv = run_doper_model(demand_scale=demand, pv_scale=P_pv, battery_capacities=capacidades)
+        emisiones = calcular_emisiones_CO2(P_pv, P_red)
+>>>>>>> b8b32cc50ad6f78ef011230f5b1630d603c17d86
         S_refor = calculate_reinforcement(100000, 104000, demand, P_pv)
         jobs = -job_charging_station([cpl1, cpl2, cpl3])
         out["F"] = [math.ceil(cpl1), math.ceil(cpl2), math.ceil(cpl3), round(S_refor,2), math.ceil(jobs)]
@@ -210,14 +219,38 @@ for ruta in archivos_csv:
     if not os.path.exists(ruta):
         pd.DataFrame(columns=columnas).to_csv(ruta, index=False)
 
+<<<<<<< HEAD
+=======
+# Crear carpeta de salida si no existe
+carpeta_salida = "C:/Nohora/UniValle_project/pasto_case/"
+os.makedirs(carpeta_salida, exist_ok=True)
+>>>>>>> b8b32cc50ad6f78ef011230f5b1630d603c17d86
 
 initial_cp = [0, 0, 0]
 min_area = 11000
 
+<<<<<<< HEAD
 
 # Ejecutar optimización por año
 for year, (ev, phev) in enumerate(zip(ev_list, phev_list), start=1):
     # if year == 5 or year == 15 or year == 25 or year == 30:
+=======
+# Inicializar listas de resultados por solución
+archivos_csv = [os.path.join(carpeta_salida, f"solucion_{i+1}.csv") for i in range(5)]
+
+# Crear encabezados en los archivos si no existen
+columnas = [
+    "Año", "EV", "PHEV", "tL2", "tL3", "area",
+    "cpl1", "cpl2", "cpl3", "S_refor", "jobs", "emisiones", "incentivos"
+]
+for ruta in archivos_csv:
+    if not os.path.exists(ruta):
+        pd.DataFrame(columns=columnas).to_csv(ruta, index=False)
+
+# Ejecutar optimización por año
+for year, (ev, phev) in enumerate(zip(ev_list, phev_list), start=1):
+    if year == 10 or year == 20 or year == 31:
+>>>>>>> b8b32cc50ad6f78ef011230f5b1630d603c17d86
         print(f"Año {year}")
         problem = EVChargingYearlyProblem(ev, phev, initial_cp, min_area, year)
 
@@ -255,7 +288,13 @@ for year, (ev, phev) in enumerate(zip(ev_list, phev_list), start=1):
                     "cpl2": f[1],
                     "cpl3": f[2],
                     "S_refor": f[3],
+<<<<<<< HEAD
                     "jobs": -f[4]
+=======
+                    "jobs": -f[4],
+                    "emisiones": f[5],
+                    "incentivos": -f[6]
+>>>>>>> b8b32cc50ad6f78ef011230f5b1630d603c17d86
                 }
 
                 df_fila = pd.DataFrame([fila])

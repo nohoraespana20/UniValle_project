@@ -167,7 +167,7 @@ def calculate_accumulated_cost(I_PV_base, I_bat_base, years, rate_new, energy_im
         else:
             # Nueva inversión del 10% de la base
             new_pv = I_PV_base * rate_new
-            new_bat = I_bat_base * rate_new
+            new_bat = I_bat_base #* rate_new
             new_investment = (new_pv + new_bat) / 1000
 
             # Actualizar acumulado
@@ -186,7 +186,7 @@ def calculate_accumulated_cost(I_PV_base, I_bat_base, years, rate_new, energy_im
         # Costo de energía importada (ya en miles de USD)
         energy_cost = energy_import_cost_list[year]
 
-        total_cost = investment + maintenance + retrofit + energy_cost
+        total_cost = investment + maintenance + retrofit + (energy_cost*0)
 
         # Tasa de descuento variable
         discount_rate = 0.09
@@ -216,7 +216,7 @@ def generate_income_vs_cost_bar_chart(profits, costs, years, graph_folder, file_
 
     plt.figure(figsize=(14, 7))
     plt.bar(x, profits, width, label='Utilidades de la venta de excedentes de energía', color='green')
-    plt.bar(x, [-c for c in costs], width, label='Costos de nueva infraestructura, mantenimiento, actualización, electricidad', color='red')  # Costos como negativos
+    plt.bar(x, [-c for c in costs], width, label='Costos de nueva infraestructura, mantenimiento, actualización', color='red')  # Costos como negativos
 
     plt.axhline(0, color='black', linewidth=0.8)
     plt.xlabel('Año')
@@ -235,7 +235,6 @@ def generate_income_vs_cost_bar_chart(profits, costs, years, graph_folder, file_
     })
     df.to_csv(csv_path, index=False)
     
-
 def generate_technical_comparison(input_folder1, input_folder2, input_folder3, graph_folder, metric_col, graph_name):
     """
     Genera una gráfica comparativa del promedio anual de una métrica técnica específica.
@@ -279,7 +278,7 @@ def generate_technical_comparison(input_folder1, input_folder2, input_folder3, g
             print(f"Error al leer {file_path}: {e}")
 
     # Graficar
-    graph_path = os.path.join(graph_folder, f"{graph_name}.png")
+    graph_path = os.path.join(graph_folder, f"{graph_name}.jpg")
 
     start_year = 2025
     year = list(range(start_year, start_year + 30))
@@ -289,7 +288,7 @@ def generate_technical_comparison(input_folder1, input_folder2, input_folder3, g
     plt.plot(year, averages3, color='green')
     plt.legend(['Sistema FV sin crecimiento','Sistema FV con crecimiento 10%','Sistema FV con crecimiento 20%'])
     plt.xlabel("Año")
-    plt.ylabel(f"{graph_name} (%")
+    plt.ylabel(f"%")
     plt.title(f"Evolución anual de {graph_name}")
     plt.grid(True)
     plt.savefig(graph_path)
@@ -411,7 +410,7 @@ def calcular_emisiones_CO2(kW_pv_inicial, base_folder, graph_folder, graph_name)
                 CO2electricidad = 0
 
             # Emisiones totales
-            CO2total_anual = CO2paneles + CO2electricidad
+            CO2total_anual = CO2electricidad #CO2paneles #+ CO2electricidad
             co2_total.append(CO2total_anual / 1e6)  # Convertir a toneladas de CO2 eq (t CO2 eq)
 
         plt.plot(years, co2_total, label=nombre_caso)
@@ -432,7 +431,7 @@ if __name__ == '__main__':
     # process_data_files(input_folder, output_folder, graph_folder)
     
     output_folder = "C:/Nohora/UniValle_project/pasto_case/results_DER_case3"
-    graph_folder = "C:/Nohora/UniValle_project/pasto_case/results_DER_case3"
+    graph_folder = "C:/Users/noluc/OneDrive/Escritorio"
 
     kW_pv = 6754
     kW_bat = 5754
@@ -441,7 +440,7 @@ if __name__ == '__main__':
 
     ### COMPARISON ACCUMULATED COST 3 CASES
     output_folder = "C:/Nohora/UniValle_project/pasto_case/results_DER_case1"
-    graph_folder = "C:/Nohora/UniValle_project/pasto_case/results_DER_case1"   
+    graph_folder = "C:/Users/noluc/OneDrive/Escritorio/caso1"   
     years = 30  # Número de años
     profit_energy_list = []
     for year in range(1, years + 1):
@@ -457,7 +456,7 @@ if __name__ == '__main__':
         energy_import_cost_list.append(import_energy_cost)
     rate_new = 0.0 # 0% de crecimiento en PV
     annual_cost1, accumulated_cost1, npc_total1 = calculate_accumulated_cost(I_pv_base, I_bat_base, years, rate_new, energy_import_cost_list)
-    generate_figures_economic(accumulated_cost1, years, 'Costo acumulado descontado', graph_folder, 'Miles de dólares')
+    generate_figures_economic(accumulated_cost1, years, 'Costo acumulado descontado - Caso 1', graph_folder, 'Miles de dólares')
     generate_figures_economic2(annual_cost1, years, 'Costo anual', graph_folder, 'Miles de dólares')
     discounted_profits = calculate_discounted_profits(profit_energy_list)
     generate_income_vs_cost_bar_chart(discounted_profits, annual_cost1, years, graph_folder)
@@ -466,7 +465,7 @@ if __name__ == '__main__':
 
 
     output_folder = "C:/Nohora/UniValle_project/pasto_case/results_DER_case2"
-    graph_folder = "C:/Nohora/UniValle_project/pasto_case/results_DER_case2"   
+    graph_folder = "C:/Users/noluc/OneDrive/Escritorio/caso2"   
     years = 30  # Número de años
     profit_energy_list = []
     for year in range(1, years + 1):
@@ -482,7 +481,7 @@ if __name__ == '__main__':
         energy_import_cost_list.append(import_energy_cost)
     rate_new = 0.1 # 10% de crecimiento en PV
     annual_cost2, accumulated_cost2, npc_total2 = calculate_accumulated_cost(I_pv_base, I_bat_base, years, rate_new, energy_import_cost_list)
-    generate_figures_economic(accumulated_cost2, years, 'Costo acumulado descontado', graph_folder, 'Miles de dólares')
+    generate_figures_economic(accumulated_cost2, years, 'Costo acumulado descontado - Caso 2', graph_folder, 'Miles de dólares')
     generate_figures_economic2(annual_cost2, years, 'Costo anual', graph_folder, 'Miles de dólares')
     discounted_profits = calculate_discounted_profits(profit_energy_list)
     generate_income_vs_cost_bar_chart(discounted_profits, annual_cost2, years, graph_folder)
@@ -491,7 +490,7 @@ if __name__ == '__main__':
 
 
     output_folder = "C:/Nohora/UniValle_project/pasto_case/results_DER_case3"
-    graph_folder = "C:/Nohora/UniValle_project/pasto_case/results_DER_case3"   
+    graph_folder = "C:/Users/noluc/OneDrive/Escritorio/caso3"   
     years = 30  # Número de años
     profit_energy_list = []
     for year in range(1, years + 1):
@@ -507,7 +506,7 @@ if __name__ == '__main__':
         energy_import_cost_list.append(import_energy_cost)
     rate_new = 0.2 # 20% de crecimiento en PV
     annual_cost3, accumulated_cost3, npc_total3 = calculate_accumulated_cost(I_pv_base, I_bat_base, years, rate_new, energy_import_cost_list)
-    generate_figures_economic(accumulated_cost3, years, 'Costo acumulado descontado', graph_folder, 'Miles de dólares')
+    generate_figures_economic(accumulated_cost3, years, 'Costo acumulado descontado - Caso 3', graph_folder, 'Miles de dólares')
     generate_figures_economic2(annual_cost3, years, 'Costo anual', graph_folder, 'Miles de dólares')
     discounted_profits = calculate_discounted_profits(profit_energy_list)
     generate_income_vs_cost_bar_chart(discounted_profits, annual_cost3, years, graph_folder)
@@ -522,7 +521,7 @@ if __name__ == '__main__':
         input_folder3="C:/Nohora/UniValle_project/pasto_case/results_DER_case3",
         graph_folder=graph_folder,
         metric_col='PV/Import Power (%)',
-        graph_name='Comparación cuota de generación renovable'
+        graph_name='cuota de generación renovable'
     )
     generate_technical_comparison(
         input_folder1="C:/Nohora/UniValle_project/pasto_case/results_DER_case1",
@@ -530,23 +529,23 @@ if __name__ == '__main__':
         input_folder3="C:/Nohora/UniValle_project/pasto_case/results_DER_case3",
         graph_folder=graph_folder,
         metric_col='Battery Utilization Rate (%)',
-        graph_name='Comparación tasa de utilización de baterías'
+        graph_name='tasa de utilización de baterías'
     )
 
-    graph_folder = "C:/Nohora/UniValle_project/pasto_case/results_DER_case1"  
-    df = pd.read_csv("C:/Nohora/UniValle_project/pasto_case/results_DER_case1/doperRes30.csv")
-    generate_figures_technical(df['PV/Import Power (%)'],'Cuota de generación renovable',graph_folder, '%')
-    generate_figures_technical(df['Battery Utilization Rate (%)'],'Tasa de utilización de baterías',graph_folder, '%')
+    # graph_folder = "C:/Nohora/UniValle_project/pasto_case/results_DER_case1"  
+    # df = pd.read_csv("C:/Nohora/UniValle_project/pasto_case/results_DER_case1/doperRes30.csv")
+    # generate_figures_technical(df['PV/Import Power (%)'],'Cuota de generación renovable',graph_folder, '%')
+    # generate_figures_technical(df['Battery Utilization Rate (%)'],'Tasa de utilización de baterías',graph_folder, '%')
 
-    graph_folder = "C:/Nohora/UniValle_project/pasto_case/results_DER_case2"  
-    df = pd.read_csv("C:/Nohora/UniValle_project/pasto_case/results_DER_case2/doperRes30.csv")
-    generate_figures_technical(df['PV/Import Power (%)'],'Cuota de generación renovable',graph_folder, '%')
-    generate_figures_technical(df['Battery Utilization Rate (%)'],'Tasa de utilización de baterías',graph_folder, '%')
+    # graph_folder = "C:/Nohora/UniValle_project/pasto_case/results_DER_case2"  
+    # df = pd.read_csv("C:/Nohora/UniValle_project/pasto_case/results_DER_case2/doperRes30.csv")
+    # generate_figures_technical(df['PV/Import Power (%)'],'Cuota de generación renovable',graph_folder, '%')
+    # generate_figures_technical(df['Battery Utilization Rate (%)'],'Tasa de utilización de baterías',graph_folder, '%')
 
-    graph_folder = "C:/Nohora/UniValle_project/pasto_case/results_DER_case3"  
-    df = pd.read_csv("C:/Nohora/UniValle_project/pasto_case/results_DER_case3/doperRes30.csv")
-    generate_figures_technical(df['PV/Import Power (%)'],'Cuota de generación renovable',graph_folder, '%')
-    generate_figures_technical(df['Battery Utilization Rate (%)'],'Tasa de utilización de baterías',graph_folder, '%')
+    # graph_folder = "C:/Nohora/UniValle_project/pasto_case/results_DER_case3"  
+    # df = pd.read_csv("C:/Nohora/UniValle_project/pasto_case/results_DER_case3/doperRes30.csv")
+    # generate_figures_technical(df['PV/Import Power (%)'],'Cuota de generación renovable',graph_folder, '%')
+    # generate_figures_technical(df['Battery Utilization Rate (%)'],'Tasa de utilización de baterías',graph_folder, '%')
 
     calcular_area(kW_pv, graph_folder, 'area')
     calcular_trabajos(kW_pv, graph_folder, 'jobs')

@@ -12,7 +12,7 @@ def percentage_preference_type_charger(annualVehicles):
     np.random.seed(0)
     for i in range(len(annualVehicles)):
         B = np.random.random((1,annualVehicles[i]))
-        # B = [[0.9]*annualVehicles[i]]
+        # B = [[0.1]*annualVehicles[i]]
         beta.append(B)
         L2 = np.random.random((1,annualVehicles[i]))
         # L2 = [[0.5]*annualVehicles[i]]
@@ -79,7 +79,7 @@ def cp_technical_metrics(Cev, Cphev, BL1ev, BL1phev, BL2ev, BL2phev, BL3ev, BL3p
 
 def ev_per_CP(scenario_selected_v, cL1, cL2, cL3):
     ev_cs = [[],[],[]]
-    annualVehicles = [list(scenario_selected_v["EV"])[i] + list(scenario_selected_v["PHEV"])[i] for i in range(len(list(scenario_selected_v["EV"])))]
+    annualVehicles = [list(scenario_selected_v["EV"])[i] + (list(scenario_selected_v["PHEV"])[i]) for i in range(len(list(scenario_selected_v["EV"])))]
     for i in range(len(annualVehicles)):
         ev_cs[0].append( (annualVehicles[i] / cL1[i]))
         ev_cs[1].append( (annualVehicles[i] / cL2[i]))
@@ -314,10 +314,10 @@ def subplot_ev_metrics(years, df_chargers, case):
 
     # 8. Turn off unused subplot
     data = {
-    "": ["Number Ports", "EV per CS", "Utilization rate [%]", "Cost [USD]", "Land Area [$m^3]$ ", "kg $CO_2$", "Number jobs"],
-    "Low charging": ['2,485', '2', '100', '37,230', '0', '26,691', ""],
-    "Semi fast charging": ['1,299', '4', '100', '260,857', '130', '13,775', '2,210'],
-    "Fast charging": ['442', '11', '100', '1,064,471', '139', '15,111', ""]
+    "":          ["Number Ports", "EV per CS", "Utilization rate [%]", "Cost [USD]", "Land Area [$m^3]$ ", "kg $CO_2$", "Number jobs"],
+    "Low charging":       ['245',        '18', '100',                       '4,421',                  '0',    '27,695',   ""],
+    "Semi fast charging": ['132',        '34', '100',                      '32,674',                 '14',    '14,678', '438'],
+    "Fast charging":       ['44',       '102', '100',                     '166,421',                 '39',    '15,794',   ""]
     }
 
     table_df = pd.DataFrame(data)
@@ -340,7 +340,51 @@ def subplot_ev_metrics(years, df_chargers, case):
         ax.set_xlabel('Year')
 
     plt.tight_layout()
-    plt.savefig(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/figures/all_metrics_{case}.jpg')
+    plt.savefig(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/change_percentage_preference/all_metrics_{case}.jpg')
+    plt.close()
+
+def subplot_ev_metrics2(years, df_chargers, case):
+    colors = ["#bda5ad", "#00a099", "#a4165f"]
+    fig, axs = plt.subplots(1, 3, figsize=(16, 5))
+    axs = axs.flatten()
+
+    # 1. Charger ports (stacked bar)
+    axs[0].bar(years, df_chargers['L1'], color=colors[0], label='L1')
+    axs[0].bar(years, df_chargers['L2'], bottom=df_chargers['L1'], color=colors[1], label='L2')
+    axs[0].bar(years, df_chargers['L3'], bottom=df_chargers['L1'] + df_chargers['L2'], color=colors[2], label='L3')
+    axs[0].set_ylabel('Número de puertos públicos de carga')
+    # axs[0].set_title('Puertos públicos de carga')
+    axs[0].legend()
+    axs[0].grid(True, linestyle="--", alpha=0.7)
+
+    # 4. EV per Charging Port
+    axs[1].plot(years, df_chargers['EV/CP L1'], color=colors[0], label='L1')
+    axs[1].plot(years, df_chargers['EV/CP L2'], color=colors[1], label='L2')
+    axs[1].plot(years, df_chargers['EV/CP L3'], color=colors[2], label='L3')
+    axs[1].set_ylabel('VE por puerto de carga')
+    # axs[1].set_title('VE por puerto de carga ')
+    axs[1].legend()
+    axs[1].grid(True, linestyle="--", alpha=0.7)
+
+    # 2. Utilization
+    axs[2].plot(years, df_chargers['Utilization L1'], color=colors[0], label='L1')
+    axs[2].plot(years, df_chargers['Utilization L2'], color=colors[1], label='L2')
+    axs[2].plot(years, df_chargers['Utilization L3'], color=colors[2], label='L3')
+    axs[2].set_ylabel('Tasa de utilización(%)')
+    # axs[2].set_title('Tasa de utilización de puertos de carga')
+    axs[2].legend()
+    axs[2].grid(True, linestyle="--", alpha=0.7)
+
+    
+
+    # axs[2].set_title("Summary of results for the last year in the projection horizon")
+
+    # Set common X label
+    for ax in axs:
+        ax.set_xlabel('Año')
+
+    plt.tight_layout()
+    plt.savefig(f'C:/Users/noluc/OneDrive/Escritorio/tecnichal_CS_{case}.jpg')
     plt.close()
 
 def extract_import_power_doper(folder_path):
@@ -410,20 +454,20 @@ if __name__ == '__main__':
         bL1ev, bL2ev, bL3ev, betaev, lx2ev, lx3ev = percentage_preference_type_charger(ev)
         phev = list(scenario_selected_v["PHEV"])
         bL1phev, bL2phev, bL3phev, betaphev, lx2phev, lx3ephv = percentage_preference_type_charger(phev)
-
+    
         # year_index = 30
-        # beta_year = np.array(beta[year_index][0])
-        # lx2_year = np.array(lx2[year_index][0])
-        # lx3_year = np.array(lx3[year_index])
+        # beta_year = np.array(betaev[year_index][0])
+        # lx2_year = np.array(lx2ev[year_index][0])
+        # lx3_year = np.array(lx3ev[year_index])
         # vehicles = np.arange(len(beta_year))  # Eje x: índice de vehículos
         # fig, axs = plt.subplots(1, 2, figsize=(10, 4), sharex=True)
         # axs[0].bar(vehicles, beta_year, color='#a4165f', width=0.5)
-        # axs[0].set_title(f'β distribution')
-        # axs[0].set_xlabel('Vehicle')
+        # axs[0].set_title(f'Distribución de β')
+        # axs[0].set_xlabel('Vehículo')
         # axs[1].bar(vehicles, lx2_year, label='L2', color='#c0fcf7', width=0.5)
         # axs[1].bar(vehicles, lx3_year, bottom=lx2_year, label='L3', color='#005ecc', width=0.5)
-        # axs[1].set_xlabel('Vehicle')
-        # axs[1].set_title('$\\alpha^{L_2}$ and $\\alpha^{L_3}$ distribution')
+        # axs[1].set_xlabel('Vehículo')
+        # axs[1].set_title('Distribución de $\\alpha^{L_2}$ y $\\alpha^{L_3}$')
         # axs[1].legend()
         # plt.show()
 
@@ -458,8 +502,9 @@ if __name__ == '__main__':
                         'DAC L1 case3': discountedAC_L1_3, 'DAC L2 case3': discountedAC_L2_3, 'DAC L3 case3': discountedAC_L3_3})
 
         df_chargers = pd.concat([df_chargers, df])
-        df_chargers.to_csv(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/change_percentage_preference/cs_projections_{case}_withPV.csv')
-        plot_ev_metrics(years, df_chargers, f'{case}')
-        subplot_ev_metrics(years, df_chargers, f'{case}')
+        df_chargers.to_csv(f'C:/Nohora/UniValle_project/pasto_case/results_netherlands/figures/cs_projections_{case}_withPV.csv')
+        # plot_ev_metrics(years, df_chargers, f'{case}')
+        # subplot_ev_metrics(years, df_chargers, f'{case}')
+        subplot_ev_metrics2(years, df_chargers, f'{case}')
 
     

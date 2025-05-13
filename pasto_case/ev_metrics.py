@@ -186,7 +186,7 @@ def accumulatedCost(configuration, combustion, electric, gas, hybrid, vehType, E
         print("currency parameter is not defined")
 
     ipc = 0.0457  # Average value of IPC in Colombia
-    discount_rate = 0.12  # Annual discount rate
+    discount_rate = 0.09  # Annual discount rate
     otherInsurance = combustion[6]
     insuranceCostRaise = combustion[8] / 100 
     totalCost = [*range(0, configuration[2], 1)]
@@ -612,14 +612,14 @@ def plot_cost(accumulatedCost_ICEV, accumulatedCost_EV1, accumulatedCost_EV3, ac
         accumulatedCost_PHEV1[i] = accumulatedCost_PHEV1[i] * 1000 / 5000
         accumulatedCost_PHEV3[i] = accumulatedCost_PHEV3[i] * 1000 / 5000
         accumulatedCost_NGV[i] = accumulatedCost_NGV[i] * 1000 / 5000
-    plt.plot(year, accumulatedCost_ICEV, '#620062', label="ICEV")
-    plt.plot(year, accumulatedCost_EV1, '#d54855', label="EV - L1&2")
-    plt.plot(year, accumulatedCost_EV3, '#f4814b', label="EV - L3")
-    plt.plot(year, accumulatedCost_PHEV1, '#00b6d6', label="PHEV - L1&2")
-    plt.plot(year, accumulatedCost_PHEV3, '#006cbe', label="PHEV - L3")
-    plt.plot(year, accumulatedCost_NGV, '#ffbc4f', label="NGV")
-    plt.xlabel("Year")
-    plt.ylabel("Thousand of dollars")
+    plt.plot(year, accumulatedCost_ICEV, '#620062', label="VCI")
+    plt.plot(year, accumulatedCost_EV1, '#d54855', label="VE - L1&2")
+    plt.plot(year, accumulatedCost_EV3, '#f4814b', label="VE - L3")
+    plt.plot(year, accumulatedCost_PHEV1, '#00b6d6', label="VHEE - L1&2")
+    plt.plot(year, accumulatedCost_PHEV3, '#006cbe', label="VHEE - L3")
+    plt.plot(year, accumulatedCost_NGV, '#ffbc4f', label="VGN")
+    plt.xlabel("Año")
+    plt.ylabel("Miles de dólares")
     plt.title(title)
     plt.grid()
     plt.legend()
@@ -791,11 +791,11 @@ if __name__ == '__main__':
     # width = 0.6
     # fig, ax = plt.subplots(figsize=(6, 5))
 
-    # bars_ICEV = ax.bar(x, ICEV_norm, width, label='ICEV', color='#620062')
-    # bars_NGV = ax.bar(x, NGV_norm, width, bottom=ICEV_norm, label='NGV', color='#ffbc4f')
-    # bars_phev = ax.bar(x, phev_norm, width, bottom=np.array(ICEV_norm) + np.array(NGV_norm), label='PHEV', color='#006cbe')
+    # bars_ICEV = ax.bar(x, ICEV_norm, width, label='VCI', color='#620062')
+    # bars_NGV = ax.bar(x, NGV_norm, width, bottom=ICEV_norm, label='VGN', color='#ffbc4f')
+    # bars_phev = ax.bar(x, phev_norm, width, bottom=np.array(ICEV_norm) + np.array(NGV_norm), label='VHEE', color='#006cbe')
 
-    # ax.set_ylabel('Normalized ratio - daily emissions')
+    # ax.set_ylabel('Relación normalizada de emisiones diarias')
     # ax.set_xticks(x)
     # ax.set_xticklabels(categories)
     # ax.legend(loc='upper center')
@@ -846,14 +846,14 @@ if __name__ == '__main__':
 
     emissions = [lifecycleEmissions_ICEV, lifecycleEmissions_EV, lifecycleEmissions_EV, lifecycleEmissions_EV, lifecycleEmissions_NGV, lifecycleEmissions_PHEV, lifecycleEmissions_PHEV, lifecycleEmissions_PHEV]
 
-    social = social_metric(generate_alternative_matrix(availability, autonomy, cost, incentives, emissions))
-    social_metric_topsis(generate_alternative_matrix(availability, autonomy, cost, incentives, emissions))
-    # plot_cost(accumulatedCost_ICEV, accumulatedCost_EV1, accumulatedCost_EV3, accumulatedCost_PHEV1, accumulatedCost_PHEV3, accumulatedCost_NGV, 'Accumulated cost')
-    # plot_cost(acDiscount_ICEV, acDiscount_EV1, acDiscount_EV3, acDiscount_PHEV1, acDiscount_PHEV3, acDiscount_NGV, 'Discounted accumulated cost')
-    consumption = [E100km_ICEV, E100km_EV, E100km_NGV, E100km_PHEV]
-    cpt = [icr_ICEV, icr_EV, icr_NGV, icr_PHEV]
-    eco = [emission_ICEV, emission_EV, emission_NGV, emission_PHEV]
-    emissions = [lifecycleEmissions_ICEV, lifecycleEmissions_EV, lifecycleEmissions_NGV, lifecycleEmissions_PHEV]
-    socialCost = [socialCost_ICEV, socialCost_EV, socialCost_NGV, socialCost_PHEV]
+    # social = social_metric(generate_alternative_matrix(availability, autonomy, cost, incentives, emissions))
+    # social_metric_topsis(generate_alternative_matrix(availability, autonomy, cost, incentives, emissions))
+    plot_cost(accumulatedCost_ICEV, accumulatedCost_EV1, accumulatedCost_EV3, accumulatedCost_PHEV1, accumulatedCost_PHEV3, accumulatedCost_NGV, 'Costo acumulado')
+    plot_cost(acDiscount_ICEV, acDiscount_EV1, acDiscount_EV3, acDiscount_PHEV1, acDiscount_PHEV3, acDiscount_NGV, 'Costo acumulado descontado')
+    # consumption = [E100km_ICEV, E100km_EV, E100km_NGV, E100km_PHEV]
+    # cpt = [icr_ICEV, icr_EV, icr_NGV, icr_PHEV]
+    # eco = [emission_ICEV, emission_EV, emission_NGV, emission_PHEV]
+    # emissions = [lifecycleEmissions_ICEV, lifecycleEmissions_EV, lifecycleEmissions_NGV, lifecycleEmissions_PHEV]
+    # socialCost = [socialCost_ICEV, socialCost_EV, socialCost_NGV, socialCost_PHEV]
 
-    save_metrics_data(consumption, autonomy, cpt, cost, eco, emissions, socialCost, social, availability)
+    # save_metrics_data(consumption, autonomy, cpt, cost, eco, emissions, socialCost, social, availability)

@@ -287,7 +287,7 @@ def calcular_y_graficar_iip(income_files, potencia_dirs, graph_folder, nombres_c
 
     plt.title("Índice de Ingresos por Potencia Autogenerada")
     plt.xlabel("Año")
-    plt.ylabel("IIP [USD/kWh]")
+    plt.ylabel("IIP [USD/kW]")
     plt.grid(True)
     plt.legend()
     plt.tight_layout()
@@ -364,5 +364,5 @@ if __name__ == '__main__':
     ]
     # IIP = (Ahorro en factura + Beneficios fiscales + Ingresos por excedentes) / Potencia autogenerada
     nombres_casos = ['Sistema FV sin crecimiento','Sistema FV con crecimiento 10%','Sistema FV con crecimiento 20%']
-    calcular_y_graficar_iip(income_folders, power_folders, "C:/Nohora/UniValle_project/pasto_case/results_DER_case3/",nombres_casos)
+    calcular_y_graficar_iip(income_folders, power_folders, "C:/Users/noluc/OneDrive/Escritorio/",nombres_casos)
 

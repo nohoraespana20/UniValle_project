@@ -56,20 +56,20 @@ def escenario_3(start_year=2025, end_year=2055):
 def plot_escenario(df, title, ax):
     sns.set_style("whitegrid")
 
-    ax.plot(df["Year"], df["ICEV"], label="ICEV", linestyle="--", color="#a4165f")
-    ax.plot(df["Year"], df["CNG"], label="CNG", linestyle="--", color="#0088d1")
-    ax.plot(df["Year"], df["PHEV"], label="PHEV", linestyle="-", color="#516bc5")
-    ax.plot(df["Year"], df["EV"], label="EV", linestyle=":", color="#00aea7")
+    ax.plot(df["Year"], df["ICEV"], label="VCI", linestyle="--", color="#a4165f")
+    ax.plot(df["Year"], df["CNG"], label="VGN", linestyle="--", color="#0088d1")
+    ax.plot(df["Year"], df["PHEV"], label="VHEE", linestyle="-", color="#516bc5")
+    ax.plot(df["Year"], df["EV"], label="VE", linestyle=":", color="#00aea7")
     ax.plot(df["Year"], df["Total"], label="Total", linestyle=":", color="black")
 
-    ax.set_ylabel("Number of vehicles")
+    ax.set_ylabel("Número de vehículos")
     ax.set_title(title)
     ax.legend()
     ax.grid(True, linestyle='--', alpha=0.7)
     if ax != axes[-1]:
         ax.set_xticklabels([])  
     else:
-        ax.set_xlabel("Year")  
+        ax.set_xlabel("Año")  
     if ax == axes[-1]:
         ax.legend()
 
@@ -97,16 +97,16 @@ def plot_daily_demand(years, fuel_data, save_path):
     plt.figure(figsize=(10, 6))
 
     colors = ['#ff7900', '#00c6ce', '#00bc45']  
-    labels = ['Gasoline [l]', 'CNG [l]', 'Electricity [kWh]']
+    labels = ['Gasolina [l]', 'Gas [l]', 'Electricidad [kWh]']
 
     for fuel, linestyle, label_prefix in fuel_data:
         for i in range(3): 
             plt.plot(years, fuel[i], linestyle=linestyle, color=colors[i],
                      label=f"{labels[i]} - {label_prefix}")
 
-    plt.xlabel('Year')
-    plt.ylabel('Daily demand')
-    plt.title('Power daily demand per scenarios')
+    plt.xlabel('Año')
+    plt.ylabel('Demanda diaria')
+    plt.title('Demanda diaria por escenarios')
     plt.legend()
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.savefig(save_path)
@@ -123,14 +123,14 @@ def plot_daily_demand_scenario3(years, fuel_3, save_path):
     plt.figure(figsize=(10, 6))
 
     colors = ['#ff7900', '#00c6ce', '#00bc45']  
-    labels = ['Gasoline [l]', 'CNG [l]', 'Electricity [kWh]']
+    labels = ['Gasolina [l]', 'Gas [l]', 'Electricidad [kWh]']
 
     for i in range(3): 
         plt.plot(years, fuel_3[i], linestyle='-', color=colors[i],
                  label=f"{labels[i]} ")
 
-    plt.xlabel('Year')
-    plt.ylabel('Daily demand')
+    plt.xlabel('Año')
+    plt.ylabel('Demanda diaria')
     plt.legend()
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.savefig(save_path)
@@ -152,7 +152,7 @@ if __name__ == '__main__':
     plot_escenario(df_2, "Scenario 2", axes[1])
     plot_escenario(df_3, "Scenario 3", axes[2])
     plt.tight_layout()
-    plt.savefig('C:/Nohora/UniValle_project/pasto_case/results_netherlands/ev_projections.jpg')
+    plt.savefig('C:/Users/noluc/OneDrive/Escritorio/ev_projections.jpg')
 
     fuel_1 = calculate_demand(df_1["ICEV"], df_1["CNG"], df_1["EV"], df_1["PHEV"], 0)
     fuel_2 = calculate_demand(df_2["ICEV"], df_2["CNG"], df_2["EV"], df_2["PHEV"], 0.3)
@@ -169,6 +169,6 @@ if __name__ == '__main__':
             "CNG [l]": list(fuel_1[1]) + list(fuel_2[1]) + list(fuel_3[1]),
             "Electricity [kWh]": list(fuel_1[2]) + list(fuel_2[2]) + list(fuel_3[2])})
 
-    plot_daily_demand(df_1["Year"], fuel_data, 'C:/Nohora/UniValle_project/pasto_case/results_netherlands/fuel_demand.jpg')
-    plot_daily_demand_scenario3(df_1["Year"], fuel_3, 'C:/Nohora/UniValle_project/pasto_case/results_netherlands/fuel_demand_3.jpg')
-    df_fuel.to_csv('C:/Nohora/UniValle_project/pasto_case/results_netherlands/fuel_demand.csv') 
+    plot_daily_demand(df_1["Year"], fuel_data, 'C:/Users/noluc/OneDrive/Escritorio/fuel_demand.jpg')
+    plot_daily_demand_scenario3(df_1["Year"], fuel_3, 'C:/Users/noluc/OneDrive/Escritorio/fuel_demand_3.jpg')
+    df_fuel.to_csv('C:/Users/noluc/OneDrive/Escritorio/fuel_demand.csv') 
