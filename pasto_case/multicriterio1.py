@@ -171,7 +171,7 @@ class EVChargingYearlyProblem(ElementwiseProblem):
     def __init__(self, ev, phev, initial_cp, min_area, year):
         super().__init__(
             n_var=3,
-            n_obj=5,
+            n_obj=4,
             n_constr=0,
             xl=np.array([8, 8, min_area]),
             xu=np.array([24, 24, 40000])
@@ -194,18 +194,16 @@ class EVChargingYearlyProblem(ElementwiseProblem):
             BL3ev, BL3phev,
             P, [24, x1, x2], self.initial_cp
         )
-
-        P_pv = power_generated(x3)  
+        P_pv = power_generated(x3)
         S_refor = calculate_reinforcement(100000, 104000, demand, P_pv)
-        jobs = -job_charging_station([cpl1, cpl2, cpl3])
-        out["F"] = [math.ceil(cpl1), math.ceil(cpl2), math.ceil(cpl3), round(S_refor,2), math.ceil(jobs)]
+        out["F"] = [math.ceil(cpl1), math.ceil(cpl2), math.ceil(cpl3), round(S_refor,2)]
 
 # Crear carpeta de salida si no existe
 carpeta_salida = "C:/Nohora/UniValle_project/pasto_case/"
 os.makedirs(carpeta_salida, exist_ok=True)
 # Inicializar archivos CSV para las 5 mejores soluciones
-archivos_csv = [os.path.join(carpeta_salida, f"problem2_solucion_{i+1}.csv") for i in range(5)]
-columnas = ["Año", "EV", "PHEV", "tL2", "tL3", "area", "cpl1", "cpl2", "cpl3", "S_refor", "Empleos"]
+archivos_csv = [os.path.join(carpeta_salida, f"problem1_solucion_{i+1}.csv") for i in range(5)]
+columnas = ["Año", "EV", "PHEV", "tL2", "tL3", "area", "cpl1", "cpl2", "cpl3", "S_refor"]
 for ruta in archivos_csv:
     if not os.path.exists(ruta):
         pd.DataFrame(columns=columnas).to_csv(ruta, index=False)
@@ -254,8 +252,7 @@ for year, (ev, phev) in enumerate(zip(ev_list, phev_list), start=1):
                     "cpl1": f[0],
                     "cpl2": f[1],
                     "cpl3": f[2],
-                    "S_refor": f[3],
-                    "jobs": -f[4]
+                    "S_refor": f[3]
                 }
 
                 df_fila = pd.DataFrame([fila])
