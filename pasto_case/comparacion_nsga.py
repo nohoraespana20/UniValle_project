@@ -46,8 +46,8 @@ def grafica_barras(df, path):
         bar_data = df[variables].iloc[i].values
         plt.bar([p + bar_width * i for p in x], bar_data, bar_width, label=solution, color=colors[i % len(colors)])
 
-    plt.title('Comparación de variables de decisión y funciones objetivo', fontsize=16)
-    plt.ylabel('Valor normalizao')
+    plt.title('Comparison of decision variables and objective functions', fontsize=16)
+    plt.ylabel('Normalized value')
     plt.xticks([p + bar_width * (len(df['problema']) - 1) / 2 for p in x], variables, rotation=0)
     plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
     plt.grid(True, linestyle='--', alpha=0.5)
@@ -69,28 +69,28 @@ row1 = get_last_row_aligned(df_problem1, columns_reference)
 row2 = get_last_row_aligned(df_problem2, columns_reference)
 row3 = get_last_row_aligned(df_problem3, columns_reference)
 
-path = 'C:/Users/noluc/OneDrive/Escritorio/multiobjetivo/radar1.jpg'
+path = 'C:/Users/noluc/OneDrive/Escritorio/radar1.jpg'
 df_resultado = pd.concat([row1, row2, row3], ignore_index=True)
 df_normalized = normalize_dataframe(df_resultado)
-df_resultado["problema"] = ["Problema 1", "Problema 2", "Problema 3"]
-df_normalized["problema"] = ["Problema 1", "Problema 2", "Problema 3"]
+df_resultado["problema"] = ["Problem 1", "Problem 2", "Problem 3"]
+df_normalized["problema"] = ["Problem 1", "Problem 2", "Problem 3"]
 print(df_resultado)
 
-path = 'C:/Users/noluc/OneDrive/Escritorio/multiobjetivo/radar1_barras.jpg'
+path = 'C:/Users/noluc/OneDrive/Escritorio/radar1_barras.jpg'
 grafica_barras(df_normalized, path)
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 8), subplot_kw=dict(polar=True))
-plot_radar(df_normalized, ['x1', 'x2', 'x3'], 'Variables de decisión', ax1, colors=['#b62c6e', '#ffcb56', '#00b1a9'], show_legend=True)
-plot_radar(df_normalized, ['f1', 'f2', 'f3', 'f4','f5'], 'Funciones objetivo optimizadas', ax2, colors=['#b62c6e', '#ffcb56', '#00b1a9'], show_legend=False)
-plt.tight_layout()
-plt.savefig('C:/Users/noluc/OneDrive/Escritorio/multiobjetivo/radar1.jpg')
+# fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 8), subplot_kw=dict(polar=True))
+# plot_radar(df_normalized, ['x1', 'x2', 'x3'], 'Variables de decisión', ax1, colors=['#b62c6e', '#ffcb56', '#00b1a9'], show_legend=True)
+# plot_radar(df_normalized, ['f1', 'f2', 'f3', 'f4','f5'], 'Funciones objetivo optimizadas', ax2, colors=['#b62c6e', '#ffcb56', '#00b1a9'], show_legend=False)
+# plt.tight_layout()
+# plt.savefig('C:/Users/noluc/OneDrive/Escritorio/multiobjetivo/radar1.jpg')
 
-# df_resultado = pd.concat([row2, row3], ignore_index=True)
-# df_normalized = normalize_dataframe(df_resultado)
-# df_resultado["problema"] = ["Problema 2", "Problema 3"]
-# df_normalized["problema"] = ["Problema 2", "Problema 3"]
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 8), subplot_kw=dict(polar=True))
-plot_radar(df_normalized, ['x1', 'x2', 'x3'], 'Variables de decisión', ax1, colors=['#b62c6e', '#ffcb56', '#00b1a9'], show_legend=True)
-plot_radar(df_normalized, ['f1', 'f2', 'f3', 'f4','f5','f6'], 'Funciones objetivo optimizadas', ax2, colors=['#b62c6e', '#ffcb56', '#00b1a9'], show_legend=False)
-plt.tight_layout()
-plt.savefig('C:/Users/noluc/OneDrive/Escritorio/multiobjetivo/radar2.jpg')
+# # df_resultado = pd.concat([row2, row3], ignore_index=True)
+# # df_normalized = normalize_dataframe(df_resultado)
+# # df_resultado["problema"] = ["Problema 2", "Problema 3"]
+# # df_normalized["problema"] = ["Problema 2", "Problema 3"]
+# fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 8), subplot_kw=dict(polar=True))
+# plot_radar(df_normalized, ['x1', 'x2', 'x3'], 'Variables de decisión', ax1, colors=['#b62c6e', '#ffcb56', '#00b1a9'], show_legend=True)
+# plot_radar(df_normalized, ['f1', 'f2', 'f3', 'f4','f5','f6'], 'Funciones objetivo optimizadas', ax2, colors=['#b62c6e', '#ffcb56', '#00b1a9'], show_legend=False)
+# plt.tight_layout()
+# plt.savefig('C:/Users/noluc/OneDrive/Escritorio/multiobjetivo/radar2.jpg')

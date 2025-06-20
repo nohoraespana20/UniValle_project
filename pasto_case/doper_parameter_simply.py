@@ -415,7 +415,7 @@ def ts_inputs(parameter={}, load='Flexlab', scale_load=4, scale_pv=4):
     data['date_time'] = data.index
     # Resample
     if True:
-        data = data.resample('5min').asfreq()
+        data = data.resample('1h').asfreq()  
         for c in data.columns:
             if c in ['load_demand','oat']:
                 data[c] = data[c].interpolate()
@@ -425,8 +425,8 @@ def ts_inputs(parameter={}, load='Flexlab', scale_load=4, scale_pv=4):
     else:
         data = data.loc['2019-01-01 00:00:00':'2019-01-02 00:00:00'] 
     
-    var = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/pv_norm_pasto.csv') * scale_pv
-    var_single_column = var.iloc[5:282, 0]
+    var = pd.read_csv('C:/Nohora/UniValle_project/pasto_case/pv_norm_pasto_hourly.csv') * scale_pv
+    var_single_column = var.iloc[:, 0]
     data['generation_pv'] = var_single_column.values
     # input timeseries indicating grid availability
     data['grid_available'] = 1
