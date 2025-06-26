@@ -60,9 +60,9 @@ def normalize_dataframe(df):
     df_normalized = df / df_max
     return df_normalized
 
-df_problem1 = pd.read_csv(f"C:/Users/noluc/OneDrive/Escritorio/multiobjetivo/problem1_solucion_1.csv")
-df_problem2 = pd.read_csv(f"C:/Users/noluc/OneDrive/Escritorio/multiobjetivo/problem2_solucion_1.csv")
-df_problem3 = pd.read_csv(f"C:/Users/noluc/OneDrive/Escritorio/multiobjetivo/problem3_solucion_1.csv")
+df_problem1 = pd.read_csv(f"C:/Nohora/UniValle_project/pasto_case/opt_mejorado_1/problem1_solucion_1.csv")
+df_problem2 = pd.read_csv(f"C:/Nohora/UniValle_project/pasto_case/opt_mejorado_2/solucion_1.csv")
+df_problem3 = pd.read_csv(f"C:/Nohora/UniValle_project/pasto_case/opt_mejorado_3/solucion_1.csv")
 
 columns_reference = df_problem3.columns
 row1 = get_last_row_aligned(df_problem1, columns_reference)

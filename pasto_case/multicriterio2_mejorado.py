@@ -173,8 +173,8 @@ class EVChargingYearlyProblem(ElementwiseProblem):
             n_var=3,
             n_obj=5,
             n_constr=0,
-            xl=np.array([8, 8, min_area]),
-            xu=np.array([24, 24, 40000])
+            xl=np.array([1, 1, min_area]),
+            xu=np.array([24, 24, 100000])
         )
         self.ev = ev
         self.phev = phev
@@ -219,7 +219,7 @@ for ruta in archivos_csv:
         pd.DataFrame(columns=columnas).to_csv(ruta, index=False)
 
 initial_cp = [0, 0, 0]
-min_area = 11000
+min_area = 100
 
 
 # Ejecutar optimización por año

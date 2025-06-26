@@ -1,0 +1,25 @@
+Estadísticas comparativas:
+   Solución  tL2_promedio  tL2_std  tL3_promedio  tL3_std  area_promedio  area_std  cpl2_final  cpl3_final  S_refor_final
+0         1         20.91     6.24         21.73     2.89       41165.92  39153.34        43.0        15.0           0.39
+1         2         21.50     5.00         21.37     3.38       41368.13  39231.48        43.0        15.0           0.39
+2         3         21.15     5.53         21.71     3.07       40977.11  39337.47        43.0        15.0           0.39
+3         4         22.03     3.33         22.00     2.24       41235.47  39207.90        43.0        15.0           0.39
+4         5         21.96     4.37         21.96     2.72       41232.05  39163.13        43.0        15.0           0.39
+
+Análisis de convergencia:
+Solución 2 vs Solución 1:
+  - Diferencia promedio tL2: 1.84 horas
+  - Diferencia promedio tL3: 0.88 horas
+  - Diferencia promedio área: 715.34 m²
+Solución 3 vs Solución 1:
+  - Diferencia promedio tL2: 0.87 horas
+  - Diferencia promedio tL3: 0.85 horas
+  - Diferencia promedio área: 700.90 m²
+Solución 4 vs Solución 1:
+  - Diferencia promedio tL2: 1.96 horas
+  - Diferencia promedio tL3: 0.96 horas
+  - Diferencia promedio área: 560.89 m²
+Solución 5 vs Solución 1:
+  - Diferencia promedio tL2: 1.60 horas
+  - Diferencia promedio tL3: 0.44 horas
+  - Diferencia promedio área: 682.77 m²
