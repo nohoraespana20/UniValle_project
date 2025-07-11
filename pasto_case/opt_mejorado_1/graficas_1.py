@@ -149,13 +149,13 @@ def create_comparison_plots(solutions):
     ax6 = plt.subplot(2, 3, 6)
             
     if 1 in solutions:
-        ax6.plot(solutions[1]['Año'], solutions[1]['S_refor'], 
+        ax6.plot(solutions[1]['Año'], solutions[1]['S_refor']*100, 
                 color=colors[0], linewidth=2, alpha=0.9)
     
     # Graficar otras soluciones como dispersiones (sin labels)
     for i in range(2, 6):
         if i in solutions:
-            ax6.scatter(solutions[i]['Año'], solutions[i]['S_refor'], 
+            ax6.scatter(solutions[i]['Año'], solutions[i]['S_refor']*100, 
                        color=colors[i-1], alpha=0.6, s=30)
     
     ax6.set_xlabel('Year')
